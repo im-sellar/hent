@@ -1,1 +1,6 @@
 .superpowers/
+graph.bin
+*.osm.pbf
+/hent
+/graphbuild
+/routed
