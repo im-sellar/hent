@@ -46,7 +46,7 @@ Le garde-fou d'architecture a été vérifié comme mordant réellement : import
 Cinq points que le plan laissait ouverts ont été tranchés pour ne pas bloquer. Tous sont réversibles.
 
 1. **Identité git** — les commits portent `amorice@hellowork.com`, l'identité globale de la machine, faute d'adresse personnelle indiquée. À changer avant toute publication : rien n'a été poussé, la branche est locale, une réécriture reste indolore.
-2. **Chemin du module** — `github.com/amorice/hent`, supposé. Il est codé en dur dans `internal/architecture_test.go` : à changer là aussi si le compte GitHub diffère.
+2. **Chemin du module** — `github.com/im-sellar/hent`, supposé. Il est codé en dur dans `internal/architecture_test.go` : à changer là aussi si le compte GitHub diffère.
 3. **Tests HTTP de la Task 9** — le plan faisait partir les boucles de test d'un point situé à 160 m du bord de la grille synthétique. Les waypoints d'une boucle de 4 km en seraient sortis et le test aurait échoué par intermittence. Le point de départ passe à `48.135 / -1.628`, au centre de la grille.
 4. **`TestGenerateVariantDonneAutreChose` (Task 7)** — le plan comparait deux boucles par leur longueur et leur nombre de nœuds. Sur une grille régulière, deux boucles distinctes ont très souvent ces deux valeurs identiques. Le test comparera les ensembles d'arêtes.
 5. **Sérialisation (Task 6)** — l'écriture élément par élément via `binary.Write` est conservée telle que le plan la spécifie. `graphbuild` tourne hors ligne, sa lenteur ne touche jamais le service. Si le build de la Bretagne dépasse deux minutes, passer à un `bufio.Writer` avec encodage en tampon.

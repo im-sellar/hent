@@ -1,3 +1,3 @@
-module github.com/amorice/hent
+module github.com/im-sellar/hent
 
 go 1.25

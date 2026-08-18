@@ -3,8 +3,8 @@ package csr_test
 import (
 	"testing"
 
-	"github.com/amorice/hent/internal/adapter/network/csr"
-	"github.com/amorice/hent/internal/domain"
+	"github.com/im-sellar/hent/internal/adapter/network/csr"
+	"github.com/im-sellar/hent/internal/domain"
 )
 
 // carre construit un graphe jouet : quatre nœuds aux coins d'un carré

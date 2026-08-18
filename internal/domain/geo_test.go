@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/amorice/hent/internal/domain"
+	"github.com/im-sellar/hent/internal/domain"
 )
 
 func TestHaversineM_RennesSaintMalo(t *testing.T) {

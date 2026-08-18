@@ -8,7 +8,7 @@ package csr
 import (
 	"sort"
 
-	"github.com/amorice/hent/internal/domain"
+	"github.com/im-sellar/hent/internal/domain"
 )
 
 // EdgeAttrs porte les attributs objectifs d'une arête. Aucun coût n'y est

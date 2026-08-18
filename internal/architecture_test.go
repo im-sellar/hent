@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const modulePath = "github.com/amorice/hent"
+const modulePath = "github.com/im-sellar/hent"
 
 // Une couche ne doit jamais importer les couches listées en face d'elle.
 var forbiddenImports = map[string][]string{

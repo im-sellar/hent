@@ -12,3 +12,7 @@ pour l'avancement, et [docs/design.md](docs/design.md) pour la conception.
 
 Données © les contributeurs OpenStreetMap, sous licence
 [ODbL](https://opendatacommons.org/licenses/odbl/).
+
+## Licence
+
+Code sous licence [MIT](LICENSE).
