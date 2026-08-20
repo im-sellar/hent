@@ -1,6 +1,7 @@
 package domain_test
 
 import (
+	"math"
 	"testing"
 
 	"github.com/im-sellar/hent/internal/domain"
@@ -31,10 +32,23 @@ func TestWeightsTraficJamaisNul(t *testing.T) {
 func TestWeightsToujoursPositives(t *testing.T) {
 	// Invariant du §6 de la spec : jamais de poids négatif, sous peine de
 	// casser silencieusement A*.
-	for _, v := range []float64{-5, 0, 0.5, 1, 42} {
+	//
+	// L'assertion porte sur « est un nombre fini et positif », et non sur
+	// « n'est pas négatif » : cette dernière passerait avec un NaN en sortie,
+	// puisque toute comparaison avec NaN est fausse. C'est précisément le
+	// piège que ce test doit attraper.
+	for _, v := range []float64{-5, 0, 0.5, 1, 42,
+		math.NaN(), math.Inf(1), math.Inf(-1)} {
+
 		w := domain.Preferences{AvoidPaved: v}.Weights()
-		if w.Paved < 0 || w.Traffic < 0 {
-			t.Errorf("AvoidPaved=%v donne des poids négatifs : %+v", v, w)
+
+		for nom, poids := range map[string]float64{"Paved": w.Paved, "Traffic": w.Traffic} {
+			if math.IsNaN(poids) || math.IsInf(poids, 0) {
+				t.Errorf("AvoidPaved=%v donne un poids %s non fini : %v", v, nom, poids)
+			}
+			if poids < 0 {
+				t.Errorf("AvoidPaved=%v donne un poids %s négatif : %v", v, nom, poids)
+			}
 		}
 	}
 }

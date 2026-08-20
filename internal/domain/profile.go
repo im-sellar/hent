@@ -1,5 +1,7 @@
 package domain
 
+import "math"
+
 type Surface uint8
 
 const (
@@ -52,6 +54,13 @@ func (p Preferences) Weights() Weights {
 
 func clamp01(v float64) float64 {
 	switch {
+	// NaN se traite en premier, et explicitement : en Go toute comparaison
+	// impliquant NaN est fausse, donc un NaN traverserait les deux cas
+	// suivants intact. Il contaminerait alors les poids, puis le coût, puis
+	// l'A* — qui ne relaxerait plus aucune arête, sans erreur ni test rouge,
+	// car « NaN < x » est également faux.
+	case math.IsNaN(v):
+		return 0
 	case v < 0:
 		return 0
 	case v > 1:
