@@ -11,13 +11,6 @@ import (
 	"github.com/im-sellar/hent/internal/domain"
 )
 
-// EdgeAttrs porte les attributs objectifs d'une arête. Aucun coût n'y est
-// stocké : le coût dépend du profil et des préférences de la requête, il est
-// calculé à la volée (voir attrs.go).
-type EdgeAttrs struct {
-	LengthM float64
-}
-
 type Graph struct {
 	coords  []domain.Coord
 	offsets []uint32 // len == len(coords)+1
