@@ -16,7 +16,6 @@ var (
 
 const (
 	defaultMaxNodes = 400_000
-	noEdge          = domain.EdgeRef(math.MaxUint32)
 	// Fréquence de vérification de l'annulation du contexte, en nœuds.
 	ctxCheckInterval = 1024
 )
@@ -55,10 +54,21 @@ func (pq *priorityQueue) Pop() any {
 // FindPath applique A* : on explore en priorité le nœud minimisant
 // f(n) = g(n) + h(n), où h est la distance à vol d'oiseau jusqu'à la cible.
 //
-// h est admissible — elle ne surestime jamais — parce que le coût minimal par
-// mètre vaut exactement 1 (voir l'invariant sur EdgeAttrs.Cost). Toute
-// modification du modèle de coût qui casserait cet invariant rendrait aussi
-// l'A* faux : c'est ce que vérifie TestFindPathEstOptimal.
+// h est admissible — elle ne surestime jamais — sous deux hypothèses, et non
+// une seule :
+//
+//  1. Le coût minimal par mètre vaut exactement 1 (voir l'invariant sur
+//     EdgeAttrs.Cost). C'est ce que vérifie TestFindPathEstOptimal.
+//  2. La longueur d'une arête n'est jamais inférieure à la distance à vol
+//     d'oiseau entre ses extrémités. Rien dans EdgeAttrs ne le contraint :
+//     l'hypothèse tient parce que LengthM est calculée par HaversineM sur la
+//     géométrie du tronçon, donc toujours supérieure ou égale à la corde. Une
+//     source de données future qui importerait des longueurs pré-calculées
+//     devrait la préserver, sous peine de rendre l'A* faux sans autre signal.
+//
+// Sur le retour anticipé from == to, ExploredNodes vaut 0 : aucun nœud n'a
+// été dépilé de la file. C'est correct et volontaire — poser 1 fausserait la
+// métrique pour un cas qui n'a rien exploré.
 func (g *Graph) FindPath(
 	ctx context.Context,
 	from, to domain.NodeRef,
@@ -92,7 +102,6 @@ func (g *Graph) FindPath(
 	settled := make([]bool, len(g.coords))
 	for i := range gScore {
 		gScore[i] = math.MaxFloat64
-		parentEdge[i] = noEdge
 	}
 	gScore[from] = 0
 

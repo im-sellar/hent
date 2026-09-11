@@ -115,6 +115,90 @@ func TestFindPathRespecteLeContexte(t *testing.T) {
 	}
 }
 
+// cancelAfterCalls annule le contexte après un nombre fixe d'appels à Err(),
+// et non après une durée : ça rend le déclenchement du contrôle périodique
+// d'annulation, au milieu de l'exploration, déterministe.
+type cancelAfterCalls struct {
+	context.Context
+	calls     int
+	threshold int
+}
+
+func (c *cancelAfterCalls) Err() error {
+	c.calls++
+	if c.calls > c.threshold {
+		return context.Canceled
+	}
+	return c.Context.Err()
+}
+
+// grapheChaine construit n nœuds alignés et reliés en ligne, dans les deux
+// sens. La géométrie étant rectiligne, l'heuristique est exacte et l'A*
+// n'explore jamais qu'un seul nœud de front à la fois : chaque itération de
+// la boucle principale correspond à exactement un nœud dépilé, sans repli.
+func grapheChaine(t *testing.T, n int) *csr.Graph {
+	t.Helper()
+
+	b := csr.NewBuilder()
+	nodes := make([]domain.NodeRef, n)
+	for i := 0; i < n; i++ {
+		nodes[i] = b.AddNode(domain.Coord{Lat: 48.0, Lon: -1.8 + float64(i)*0.0005})
+	}
+	for i := 0; i < n-1; i++ {
+		length := domain.HaversineM(b.Coord(nodes[i]), b.Coord(nodes[i+1]))
+		b.AddEdge(nodes[i], nodes[i+1], csr.EdgeAttrs{LengthM: length})
+		b.AddEdge(nodes[i+1], nodes[i], csr.EdgeAttrs{LengthM: length})
+	}
+	return b.Build()
+}
+
+// TestFindPathVerifieLeContexteEnCoursDExploration couvre le contrôle
+// d'annulation exécuté tous les ctxCheckInterval nœuds à l'intérieur de la
+// boucle d'exploration — et non le garde d'entrée, qui ne s'exerce qu'avant
+// que la recherche ne commence. Le contexte reste valide au moment de
+// l'appel puis s'annule après un nombre d'interrogations choisi pour tomber
+// exactement sur le contrôle périodique, une fois l'exploration commencée.
+func TestFindPathVerifieLeContexteEnCoursDExploration(t *testing.T) {
+	const n = 3000
+	g := grapheChaine(t, n)
+
+	// threshold : 1 pour le garde d'entrée, 1 pour le contrôle périodique à
+	// explored == 0. Le troisième appel — celui à explored == 1024 — doit
+	// être le premier à voir le contexte annulé.
+	ctx := &cancelAfterCalls{Context: context.Background(), threshold: 2}
+
+	_, err := g.FindPath(ctx, 0, domain.NodeRef(n-1), domain.Weights{}, domain.PathOptions{})
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("erreur = %v, attendu context.Canceled", err)
+	}
+	if ctx.calls < 3 {
+		t.Fatalf("ctx.Err() appelé %d fois, attendu au moins 3 : "+
+			"le contrôle interne à la boucle n'a pas été exercé", ctx.calls)
+	}
+}
+
+func TestFindPathDepasseLeBudget(t *testing.T) {
+	g := carre(t)
+
+	_, err := g.FindPath(context.Background(), 0, 2, domain.Weights{},
+		domain.PathOptions{MaxNodes: 1})
+	if !errors.Is(err, csr.ErrBudgetExceeded) {
+		t.Fatalf("erreur = %v, attendu ErrBudgetExceeded", err)
+	}
+}
+
+func TestFindPathExploredNodesPositif(t *testing.T) {
+	g := carre(t)
+
+	p, err := g.FindPath(context.Background(), 0, 2, domain.Weights{}, domain.PathOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p.ExploredNodes <= 0 {
+		t.Errorf("ExploredNodes = %d, attendu > 0 sur un chemin non trivial", p.ExploredNodes)
+	}
+}
+
 func TestFindPathPenaliseLaReutilisation(t *testing.T) {
 	g := carre(t)
 	w := domain.Weights{}
@@ -242,13 +326,15 @@ func dijkstraNaif(g *csr.Graph, from, to domain.NodeRef, w domain.Weights) (floa
 func TestNearestNode(t *testing.T) {
 	g := carre(t)
 
-	// Un point très proche du nœud 0.
-	n, ok := g.NearestNode(domain.Coord{Lat: 48.1001, Lon: -1.6801})
+	// On vise le nœud 2, et non le nœud 0 : `best` étant initialisé à zéro,
+	// une assertion « le résultat vaut 0 » passerait aussi bien si la
+	// fonction ne trouvait rien et renvoyait sa valeur par défaut.
+	n, ok := g.NearestNode(domain.Coord{Lat: 48.1089, Lon: -1.6671})
 	if !ok {
-		t.Fatal("aucun nœud trouvé près du coin sud-ouest")
+		t.Fatal("aucun nœud trouvé près du coin nord-est")
 	}
-	if n != 0 {
-		t.Errorf("nœud le plus proche = %d, attendu 0", n)
+	if n != 2 {
+		t.Errorf("nœud le plus proche = %d, attendu 2", n)
 	}
 }
 
@@ -266,6 +352,12 @@ func TestNearestNodeHorsZone(t *testing.T) {
 // itération perd la touche du premier anneau et conclut à tort « hors zone ».
 func TestNearestNodeNoeudIsole(t *testing.T) {
 	b := csr.NewBuilder()
+
+	// Un leurre très éloigné, hors de portée de la recherche, occupe
+	// l'indice 0. Sans lui, le nœud attendu vaudrait lui-même 0 et
+	// l'assertion d'identité ne pourrait jamais échouer : elle passerait
+	// même si la fonction renvoyait sa valeur par défaut.
+	b.AddNode(domain.Coord{Lat: 48.6493, Lon: -2.0257})
 	seul := b.AddNode(domain.Coord{Lat: 48.1000, Lon: -1.6800})
 	g := b.Build()
 
