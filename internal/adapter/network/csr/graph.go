@@ -17,6 +17,7 @@ type Graph struct {
 	targets []domain.NodeRef
 	attrs   []EdgeAttrs
 	bbox    domain.BBox
+	spatial *spatialIndex
 }
 
 func (g *Graph) NumNodes() int { return len(g.coords) }
@@ -86,6 +87,7 @@ func (b *Builder) Build() *Graph {
 	}
 
 	g.bbox = computeBBox(b.coords)
+	g.spatial = buildSpatialIndex(g.coords)
 	return g
 }
 
