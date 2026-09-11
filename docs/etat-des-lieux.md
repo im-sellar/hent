@@ -119,6 +119,16 @@ et `zlib` à cause d'une dépendance transitive activée par cgo. Le chemin pur 
 fait le même travail et rend le binaire statique et cross-compilable, comme le
 prévoit la conception.
 
+### Un piège à connaître avant de toucher aux dépendances
+
+`go get` et `go mod tidy` remontent d'eux-mêmes la directive `go` du module à
+1.26, parce que la version récente de `golang.org/x/sync` l'exige. La
+dépendance est donc épinglée à `v0.8.0`, compatible avec Go 1.25.
+
+Si la directive change sous vos pieds après un `go mod tidy`, c'est ça. Soit
+rétablir l'épinglage, soit assumer le passage à Go 1.26 — ce qui contredirait
+la contrainte inscrite dans le plan d'implémentation.
+
 ### La question laissée ouverte
 
 Le benchmark de l'A* donne 646 nœuds explorés par chemin en pondération neutre
