@@ -4,7 +4,16 @@ Où en est `hent`, et comment reprendre.
 
 ## En un coup d'œil
 
-**4 tâches terminées sur 9** pour l'étape 1, toutes revues et approuvées. Le moteur sait calculer un itinéraire optimal entre deux points d'un graphe, selon les préférences de l'utilisateur. Il ne sait pas encore lire OpenStreetMap, ni générer de boucles.
+**6 tâches terminées sur 9** pour l'étape 1, toutes revues et approuvées. Le
+moteur lit OpenStreetMap, construit son graphe, le sérialise en artefact
+versionné, et calcule un itinéraire optimal entre deux points selon les
+préférences de l'utilisateur. Il ne sait pas encore générer de boucles — c'est
+la tâche suivante, et c'est elle qui rend le produit utile.
+
+Sur la Bretagne entière : **5 980 086 nœuds, 12 517 776 arêtes**, artefact de
+245 Mo construit en 56 secondes, soit environ 260 Mo en mémoire. Le §12 de la
+conception ne pariait que sur un département dans un VPS à 4 Go : la marge est
+bien plus large que prévu.
 
 | # | Tâche | Code | Revue |
 |---|---|---|---|
@@ -12,8 +21,8 @@ Où en est `hent`, et comment reprendre.
 | 2 | Graphe CSR et son constructeur | ✅ `03c4b9d` | ✅ approuvée |
 | 3 | Profil, pondérations, fonction de coût | ✅ `f90450e` | ✅ approuvée |
 | 4 | A*, index spatial, benchmark, port réseau | ✅ `9b954bf` | ✅ approuvée |
-| 5 | Lecture OSM et construction du graphe | — | — |
-| 6 | Sérialisation `graph.bin` et binaire `graphbuild` | — | — |
+| 5 | Lecture OSM et construction du graphe | ✅ `bc8032b` | ✅ approuvée |
+| 6 | Sérialisation `graph.bin` et binaire `graphbuild` | ✅ `a089e71` | ✅ approuvée |
 | 7 | Génération de boucles | — | — |
 | 8 | Score lisible | — | — |
 | 9 | API HTTP, export GPX, binaire `routed` | — | — |
