@@ -1,5 +1,11 @@
 .superpowers/
 graph.bin
+# Extraits régionaux volumineux, reconstructibles : voir testdata/README.md
+data/
+*.osm.pbf
+# Les extraits de test sont versionnés : ils font tourner la suite sans réseau.
+!testdata/# Extraits régionaux volumineux, reconstructibles : voir testdata/README.md
+data/
 *.osm.pbf
 /hent
 /graphbuild
