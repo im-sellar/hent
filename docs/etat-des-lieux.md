@@ -1,17 +1,17 @@
-# État des lieux — 20 août 2026
+# État des lieux — 11 septembre 2026
 
 Où en est `hent`, et comment reprendre.
 
 ## En un coup d'œil
 
-**3 tâches terminées sur 9** pour l'étape 1, toutes revues et approuvées. Le graphe se construit, se parcourt, et sait chiffrer le coût d'une arête selon les préférences de l'utilisateur. Il ne sait pas encore lire OpenStreetMap ni calculer d'itinéraire.
+**4 tâches terminées sur 9** pour l'étape 1, toutes revues et approuvées. Le moteur sait calculer un itinéraire optimal entre deux points d'un graphe, selon les préférences de l'utilisateur. Il ne sait pas encore lire OpenStreetMap, ni générer de boucles.
 
 | # | Tâche | Code | Revue |
 |---|---|---|---|
 | 1 | Squelette, géométrie, garde-fou d'architecture | ✅ `435deb7` | ✅ approuvée |
 | 2 | Graphe CSR et son constructeur | ✅ `03c4b9d` | ✅ approuvée |
 | 3 | Profil, pondérations, fonction de coût | ✅ `f90450e` | ✅ approuvée |
-| 4 | A*, index spatial, benchmark, port réseau | — | — |
+| 4 | A*, index spatial, benchmark, port réseau | ✅ `9b954bf` | ✅ approuvée |
 | 5 | Lecture OSM et construction du graphe | — | — |
 | 6 | Sérialisation `graph.bin` et binaire `graphbuild` | — | — |
 | 7 | Génération de boucles | — | — |
@@ -68,12 +68,24 @@ Les points 3 et 4 étaient de vrais défauts du plan, trouvés avant exécution 
 
 ## Reprendre
 
-Reprendre le plan à la **Task 4** : A*, index spatial, benchmark et port réseau.
+Reprendre le plan à la **Task 5** : lecture d'un extrait OpenStreetMap et
+construction du graphe.
 
-C'est la tâche la plus lourde du plan — quatre fichiers, dix étapes — et la
-plus exigeante : son test de propriété compare l'A* à un Dijkstra naïf sur
-cinquante graphes tirés au sort. Si ce test échoue, le diagnostic porte sur
-l'admissibilité de l'heuristique, pas sur une coquille.
+Elle demande trois choses hors code, à valider avant de commencer :
+
+1. **`osmium-tool`** (via Homebrew) pour découper les extraits.
+2. **Le téléchargement de l'extrait Geofabrik de la Bretagne**, plusieurs
+   centaines de mégaoctets. Le répertoire `data/` est ignoré par git.
+3. **Un extrait réduit commité dans `testdata/`**, pour que les tests tournent
+   sans dépendance réseau. C'est de la donnée OpenStreetMap distribuée par ce
+   dépôt : elle reste sous ODbL, la licence MIT du code ne s'y applique pas.
+   Il faudra donc un `testdata/README.md` qui le dise explicitement.
+
+Le benchmark de l'A* donne aujourd'hui 646 nœuds explorés par chemin en
+pondération neutre contre 1809 en anti-bitume, soit un rapport de 2,8×. La
+mesure porte sur un graphe aléatoire, non représentatif d'un réseau routier :
+**c'est à la Task 6, sur le graphe réel de l'Ille-et-Vilaine, qu'il faudra
+décider** s'il faut abaisser les pondérations maximales.
 
 L'invariant à ne jamais perdre de vue, quel que soit l'ordre choisi ensuite : **tout critère se formule comme une pénalité positive, jamais comme une récompense**. Un coût négatif rend l'A* faux silencieusement, sans erreur, avec des itinéraires absurdes. C'est expliqué au §6 de `docs/design.md`.
 
