@@ -34,3 +34,16 @@ func HaversineM(a, b Coord) float64 {
 }
 
 func radians(deg float64) float64 { return deg * math.Pi / 180 }
+
+// mPerDegLat : longueur d'un degré de latitude, en mètres. Constante à la
+// précision qui nous intéresse (le placement de waypoints tolère largement
+// l'aplatissement terrestre).
+const mPerDegLat = 111320.0
+
+// Offset retourne le point situé à distM mètres de c dans la direction
+// bearingRad, comptée en radians depuis le nord et dans le sens horaire.
+func Offset(c Coord, distM, bearingRad float64) Coord {
+	dLat := distM * math.Cos(bearingRad) / mPerDegLat
+	dLon := distM * math.Sin(bearingRad) / (mPerDegLat * math.Cos(radians(c.Lat)))
+	return Coord{Lat: c.Lat + dLat, Lon: c.Lon + dLon}
+}

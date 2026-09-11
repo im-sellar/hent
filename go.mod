@@ -2,7 +2,10 @@ module github.com/im-sellar/hent
 
 go 1.25
 
-require github.com/paulmach/osm v0.9.0
+require (
+	github.com/paulmach/osm v0.9.0
+	golang.org/x/sync v0.8.0
+)
 
 require (
 	github.com/DataDog/czlib v0.0.0-20240814115052-86a9592b3985 // indirect

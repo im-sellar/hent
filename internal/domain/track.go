@@ -37,3 +37,11 @@ type PathOptions struct {
 	// plutôt que de monopoliser le serveur. Zéro = valeur par défaut.
 	MaxNodes int
 }
+
+// Loop est une boucle fermée : le premier et le dernier nœud coïncident.
+type Loop struct {
+	Nodes   []NodeRef
+	Edges   []EdgeRef
+	Coords  []Coord
+	LengthM float64
+}
