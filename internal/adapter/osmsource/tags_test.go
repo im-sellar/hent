@@ -66,6 +66,15 @@ func TestClassifyEcarte(t *testing.T) {
 	}
 }
 
+func TestConfigHashDeterministe(t *testing.T) {
+	premier := osmsource.ConfigHash()
+	for i := 0; i < 10; i++ {
+		if got := osmsource.ConfigHash(); got != premier {
+			t.Fatalf("ConfigHash instable d'un appel à l'autre : %q puis %q", premier, got)
+		}
+	}
+}
+
 func TestClassifyExpositionTrafic(t *testing.T) {
 	_, _, traficRoute, _ := osmsource.Classify(map[string]string{"highway": "secondary"})
 	_, _, traficSentier, _ := osmsource.Classify(map[string]string{"highway": "path"})
