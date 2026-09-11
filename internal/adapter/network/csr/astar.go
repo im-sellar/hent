@@ -121,16 +121,16 @@ func (g *Graph) FindPath(
 			continue
 		}
 		settled[cur.node] = true
-
 		explored++
-		if explored > maxNodes {
-			return domain.Path{}, ErrBudgetExceeded
-		}
 
 		if cur.node == to {
 			p := g.rebuild(from, to, parentNode, parentEdge, gScore[to])
 			p.ExploredNodes = explored
 			return p, nil
+		}
+
+		if explored > maxNodes {
+			return domain.Path{}, ErrBudgetExceeded
 		}
 
 		start, end := g.EdgeRange(cur.node)

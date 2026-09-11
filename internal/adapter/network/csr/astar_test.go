@@ -187,6 +187,31 @@ func TestFindPathDepasseLeBudget(t *testing.T) {
 	}
 }
 
+// TestFindPathBudgetNInterrompPasUnCheminTrouve couvre le cas où le plafond
+// est atteint exactement au nœud qui porte la cible : le chemin est acquis,
+// il ne doit pas être jeté pour une question de comptage. Le plafond est
+// dérivé de ExploredNodes plutôt que codé en dur, pour rester valide quel
+// que soit l'ordre dans lequel la file départage ses candidats à égalité.
+func TestFindPathBudgetNInterrompPasUnCheminTrouve(t *testing.T) {
+	g := carre(t)
+	w := domain.Weights{}
+
+	sansPlafond, err := g.FindPath(context.Background(), 0, 2, w, domain.PathOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	avecPlafondExact, err := g.FindPath(context.Background(), 0, 2, w,
+		domain.PathOptions{MaxNodes: sansPlafond.ExploredNodes - 1})
+	if err != nil {
+		t.Fatalf("FindPath avec MaxNodes juste sous ExploredNodes : %v, attendu succès", err)
+	}
+	if avecPlafondExact.ExploredNodes != sansPlafond.ExploredNodes {
+		t.Errorf("ExploredNodes = %d avec plafond exact, attendu %d (identique au cas sans plafond)",
+			avecPlafondExact.ExploredNodes, sansPlafond.ExploredNodes)
+	}
+}
+
 func TestFindPathExploredNodesPositif(t *testing.T) {
 	g := carre(t)
 
