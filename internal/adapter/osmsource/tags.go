@@ -3,7 +3,14 @@
 // voit jamais de fichier PBF.
 package osmsource
 
-import "github.com/im-sellar/hent/internal/domain"
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"sort"
+
+	"github.com/im-sellar/hent/internal/domain"
+)
 
 // wayClasses associe les valeurs de highway retenues à leur classe et à leur
 // exposition au trafic (0 = aucune, 255 = maximale). Ce qui n'y figure pas
@@ -50,6 +57,51 @@ var surfaceValues = map[string]domain.Surface{
 	"earth": domain.SurfaceGround, "grass": domain.SurfaceGround,
 	"sand": domain.SurfaceGround, "mud": domain.SurfaceGround,
 	"unpaved": domain.SurfaceGround, "woodchips": domain.SurfaceGround,
+}
+
+// ConfigHash résume le contenu réel des tables de classification ci-dessus.
+//
+// Il entre dans la provenance de l'artefact, et c'est ce qui donne corps à
+// l'engagement ODbL de fournir « les moyens de reconstruire » : deux graphes
+// bâtis avec des règles différentes doivent porter des empreintes différentes,
+// sans quoi rien ne distingue deux artefacts qui n'ont pas la même origine.
+//
+// Les clés sont triées avant d'être hachées : l'ordre d'itération d'une map Go
+// est délibérément aléatoire, et hacher sans trier produirait une empreinte
+// différente à chaque exécution — ce qui détruirait la propriété recherchée
+// tout en en donnant l'apparence.
+func ConfigHash() string {
+	h := sha256.New()
+
+	classes := make([]string, 0, len(wayClasses))
+	for k := range wayClasses {
+		classes = append(classes, k)
+	}
+	sort.Strings(classes)
+	for _, k := range classes {
+		spec := wayClasses[k]
+		fmt.Fprintf(h, "way\t%s\t%d\t%d\n", k, spec.class, spec.traffic)
+	}
+
+	surfaces := make([]string, 0, len(surfaceValues))
+	for k := range surfaceValues {
+		surfaces = append(surfaces, k)
+	}
+	sort.Strings(surfaces)
+	for _, k := range surfaces {
+		fmt.Fprintf(h, "surface\t%s\t%d\n", k, surfaceValues[k])
+	}
+
+	defaults := make([]int, 0, len(defaultSurfaces))
+	for k := range defaultSurfaces {
+		defaults = append(defaults, int(k))
+	}
+	sort.Ints(defaults)
+	for _, k := range defaults {
+		fmt.Fprintf(h, "default\t%d\t%d\n", k, defaultSurfaces[domain.WayClass(k)])
+	}
+
+	return hex.EncodeToString(h.Sum(nil)[:8])
 }
 
 // Classify traduit les tags d'un way OSM. Le dernier retour indique si le

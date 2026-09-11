@@ -2,6 +2,7 @@ package csr_test
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"testing"
 
@@ -56,9 +57,18 @@ func TestCodecAllerRetour(t *testing.T) {
 		}
 	}
 
-	// L'index spatial doit être reconstruit à la lecture.
-	if _, ok := got.NearestNode(domain.Coord{Lat: 48.1001, Lon: -1.6801}); !ok {
-		t.Error("index spatial non reconstruit après lecture")
+	// L'index spatial doit être reconstruit à la lecture, avec les bonnes
+	// coordonnées : si NearestNode ne vérifiait que « trouvé », des
+	// coordonnées mal relues (nœuds permutés, latitude/longitude inversées)
+	// pourraient encore répondre par coïncidence. On vise donc un nœud précis
+	// — le coin 2 du carré — et on exige que ce soit exactement lui, pas le
+	// nœud 0 qu'une valeur par défaut renverrait sans rien prouver.
+	n, ok := got.NearestNode(domain.Coord{Lat: 48.1089, Lon: -1.6671})
+	if !ok {
+		t.Fatal("index spatial non reconstruit après lecture")
+	}
+	if n != 2 {
+		t.Errorf("nœud le plus proche = %d, attendu 2", n)
 	}
 }
 
@@ -66,5 +76,44 @@ func TestCodecRefuseUnMauvaisFichier(t *testing.T) {
 	_, _, err := csr.ReadGraph(bytes.NewReader([]byte("ce n'est pas un graphe")))
 	if !errors.Is(err, csr.ErrBadMagic) {
 		t.Fatalf("erreur = %v, attendu ErrBadMagic", err)
+	}
+}
+
+func TestCodecRefuseVersionInconnue(t *testing.T) {
+	g := carre(t)
+	var buf bytes.Buffer
+	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+		t.Fatalf("Write : %v", err)
+	}
+
+	data := buf.Bytes()
+	// La version tient sur les deux octets qui suivent la marque magique
+	// « HENT » (4 octets) ; on l'altère pour simuler un format futur ou
+	// incompatible.
+	data[4]++
+
+	_, _, err := csr.ReadGraph(bytes.NewReader(data))
+	if !errors.Is(err, csr.ErrBadVersion) {
+		t.Fatalf("erreur = %v, attendu ErrBadVersion", err)
+	}
+}
+
+func TestCodecRefuseCompteurDeNoeudsDemesure(t *testing.T) {
+	g := carre(t)
+	var buf bytes.Buffer
+	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+		t.Fatalf("Write : %v", err)
+	}
+	data := buf.Bytes()
+
+	// magic(4) + version(2) + headerLen(4) + provenance JSON, puis numNodes
+	// sur 4 octets : on le remplace par un compteur délibérément aberrant,
+	// comme le produirait un artefact tronqué ou corrompu.
+	headerLen := binary.LittleEndian.Uint32(data[6:10])
+	offset := 10 + int(headerLen)
+	binary.LittleEndian.PutUint32(data[offset:offset+4], 0xFFFFFFFF)
+
+	if _, _, err := csr.ReadGraph(bytes.NewReader(data)); err == nil {
+		t.Fatal("ReadGraph aurait dû refuser un nombre de nœuds démesuré, sans tenter d'allouer")
 	}
 }

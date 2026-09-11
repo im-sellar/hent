@@ -39,6 +39,18 @@ type Provenance struct {
 
 var order = binary.LittleEndian
 
+// Plafonds appliqués aux tailles lues dans l'en-tête avant toute allocation.
+// Un artefact tronqué — graphbuild interrompu, disque plein, transfert coupé —
+// ou simplement corrompu porte des compteurs arbitraires ; les allouer tels
+// quels ferait réclamer plusieurs gigaoctets au démarrage du serveur. Les
+// valeurs retenues laissent une marge considérable : la France entière compte
+// environ dix fois moins de nœuds que le plafond.
+const (
+	maxHeaderLen = 1 << 20
+	maxNodes     = 200_000_000
+	maxEdges     = 800_000_000
+)
+
 // Write sérialise g et sa provenance p dans w au format binaire hent
 // (en-tête magique + version + provenance JSON, puis nœuds et arêtes).
 func Write(w io.Writer, g *Graph, p Provenance) error {
@@ -84,6 +96,13 @@ func Write(w io.Writer, g *Graph, p Provenance) error {
 		return err
 	}
 	for _, a := range g.attrs {
+		// float32 suffit très largement à la précision utile ici (le mètre),
+		// mais arrondit environ 43 % des longueurs vers le bas — écart de
+		// l'ordre de 10⁻⁵ m sur une arête de 1 km, donc 10⁻⁷ en relatif. Cela
+		// affaiblit formellement l'invariant de l'A* (Task 4) selon lequel une
+		// arête n'est jamais plus courte que la corde entre ses extrémités,
+		// mais sans effet observable sur des itinéraires kilométriques à
+		// ±10 % de tolérance.
 		if err := binary.Write(w, order, float32(a.LengthM)); err != nil {
 			return err
 		}
@@ -121,6 +140,10 @@ func ReadGraph(r io.Reader) (*Graph, Provenance, error) {
 	if err := binary.Read(r, order, &headerLen); err != nil {
 		return nil, Provenance{}, err
 	}
+	if headerLen > maxHeaderLen {
+		return nil, Provenance{}, fmt.Errorf("en-tête de %d octets, plafond %d : artefact tronqué ou corrompu",
+			headerLen, maxHeaderLen)
+	}
 	header := make([]byte, headerLen)
 	if _, err := io.ReadFull(r, header); err != nil {
 		return nil, Provenance{}, err
@@ -133,6 +156,10 @@ func ReadGraph(r io.Reader) (*Graph, Provenance, error) {
 	var numNodes uint32
 	if err := binary.Read(r, order, &numNodes); err != nil {
 		return nil, prov, err
+	}
+	if numNodes > maxNodes {
+		return nil, prov, fmt.Errorf("%d nœuds annoncés, plafond %d : artefact tronqué ou corrompu",
+			numNodes, maxNodes)
 	}
 	g := &Graph{
 		coords:  make([]domain.Coord, numNodes),
@@ -153,6 +180,10 @@ func ReadGraph(r io.Reader) (*Graph, Provenance, error) {
 	var numEdges uint32
 	if err := binary.Read(r, order, &numEdges); err != nil {
 		return nil, prov, err
+	}
+	if numEdges > maxEdges {
+		return nil, prov, fmt.Errorf("%d arêtes annoncées, plafond %d : artefact tronqué ou corrompu",
+			numEdges, maxEdges)
 	}
 	g.targets = make([]domain.NodeRef, numEdges)
 	if err := binary.Read(r, order, g.targets); err != nil {

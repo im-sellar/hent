@@ -53,7 +53,7 @@ func run(in, out, sourceName string) error {
 		Sources: []csr.Source{{
 			Name: sourceName, File: in, SHA256: digest, SizeBytes: size,
 		}},
-		ConfigHash: configHash(),
+		ConfigHash: osmsource.ConfigHash(),
 	}
 
 	f, err := os.Create(out)
@@ -89,10 +89,5 @@ func hashFile(path string) (string, int64, error) {
 	return hex.EncodeToString(h.Sum(nil)), size, nil
 }
 
-// configHash identifie la configuration de classification. Toute évolution des
-// tables de tags doit s'y refléter, sinon deux artefacts identiques en
-// apparence proviennent en réalité de règles différentes.
-func configHash() string {
-	h := sha256.Sum256([]byte("classify-v1"))
-	return hex.EncodeToString(h[:8])
-}
+// Le hash de configuration est calculé par osmsource à partir du contenu réel
+// de ses tables de classification : voir osmsource.ConfigHash.
