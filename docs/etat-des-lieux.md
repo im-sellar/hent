@@ -1,14 +1,15 @@
-# État des lieux — 11 septembre 2026
+# État des lieux — 11 septembre 2026 (soir)
 
 Où en est `hent`, et comment reprendre.
 
 ## En un coup d'œil
 
-**6 tâches terminées sur 9** pour l'étape 1, toutes revues et approuvées. Le
-moteur lit OpenStreetMap, construit son graphe, le sérialise en artefact
-versionné, et calcule un itinéraire optimal entre deux points selon les
-préférences de l'utilisateur. Il ne sait pas encore générer de boucles — c'est
-la tâche suivante, et c'est elle qui rend le produit utile.
+**7 tâches sur 9** écrites, dont 6 revues et approuvées. Le moteur lit
+OpenStreetMap, construit son graphe, le sérialise en artefact versionné,
+calcule un itinéraire optimal entre deux points, et **génère des boucles**.
+
+Il manque le score lisible (tâche 8) et l'API HTTP (tâche 9) pour que tout cela
+soit utilisable autrement que par des tests.
 
 Sur la Bretagne entière : **5 980 086 nœuds, 12 517 776 arêtes**, artefact de
 245 Mo construit en 56 secondes, soit environ 260 Mo en mémoire. Le §12 de la
@@ -23,7 +24,7 @@ bien plus large que prévu.
 | 4 | A*, index spatial, benchmark, port réseau | ✅ `9b954bf` | ✅ approuvée |
 | 5 | Lecture OSM et construction du graphe | ✅ `bc8032b` | ✅ approuvée |
 | 6 | Sérialisation `graph.bin` et binaire `graphbuild` | ✅ `a089e71` | ✅ approuvée |
-| 7 | Génération de boucles | — | — |
+| 7 | Génération de boucles | ✅ `9e77459` | ⚠️ **pas encore relue** |
 | 8 | Score lisible | — | — |
 | 9 | API HTTP, export GPX, binaire `routed` | — | — |
 
@@ -75,26 +76,62 @@ Les points 3 et 4 étaient de vrais défauts du plan, trouvés avant exécution 
 - `internal/architecture_test.go:38` — la comparaison de préfixe d'import ne vérifie pas la frontière de segment. Une future couche `internal/app2` serait faussement détectée comme important `internal/app`. Aucun impact sur les quatre couches actuelles.
 - `internal/domain/geo_test.go` — `TestBBoxContains` ne couvre pas les points situés exactement sur `Min` ou `Max`, alors que `Contains` utilise des comparaisons inclusives.
 
-## Reprendre
+## Reprendre — y compris depuis une autre machine
 
-Reprendre le plan à la **Task 5** : lecture d'un extrait OpenStreetMap et
-construction du graphe.
+### Par où commencer
 
-Elle demande trois choses hors code, à valider avant de commencer :
+1. **Faire relire la tâche 7.** Son code est commité et sa suite est verte,
+   mais aucun relecteur ne l'a examinée : la session s'est arrêtée entre
+   l'implémentation et la revue. Diff à relire : `b15cbe8..9e77459`.
+2. Puis la **tâche 8** (score lisible), puis la **tâche 9** (API, export GPX,
+   serveur).
 
-1. **`osmium-tool`** (via Homebrew) pour découper les extraits.
-2. **Le téléchargement de l'extrait Geofabrik de la Bretagne**, plusieurs
-   centaines de mégaoctets. Le répertoire `data/` est ignoré par git.
-3. **Un extrait réduit commité dans `testdata/`**, pour que les tests tournent
-   sans dépendance réseau. C'est de la donnée OpenStreetMap distribuée par ce
-   dépôt : elle reste sous ODbL, la licence MIT du code ne s'y applique pas.
-   Il faudra donc un `testdata/README.md` qui le dise explicitement.
+### Où vivent les documents
 
-Le benchmark de l'A* donne aujourd'hui 646 nœuds explorés par chemin en
-pondération neutre contre 1809 en anti-bitume, soit un rapport de 2,8×. La
-mesure porte sur un graphe aléatoire, non représentatif d'un réseau routier :
-**c'est à la Task 6, sur le graphe réel de l'Ille-et-Vilaine, qu'il faudra
-décider** s'il faut abaisser les pondérations maximales.
+| Quoi | Où | Suit-il la machine ? |
+|---|---|---|
+| Conception | `docs/design.md` | oui, dans le dépôt |
+| Cet état des lieux | `docs/etat-des-lieux.md` | oui, dans le dépôt |
+| Plan d'implémentation | vault Obsidian, `claude/hent/2026-08-18-hent-plan-etape1.md` | oui, OneDrive |
+| Journal d'exécution et décisions | vault Obsidian, `claude/hent/2026-09-11-hent-journal-execution.md` | oui, OneDrive |
+| Briefs, rapports, revues détaillés | `.superpowers/sdd/` | **non**, ignoré par git |
+
+Le journal d'exécution contient toutes les décisions prises en cours de route
+et leur justification. C'est le document à lire avant de reprendre.
+
+### Ce qu'il faut réinstaller sur une nouvelle machine
+
+Rien n'est nécessaire pour faire tourner la suite de tests : l'extrait de
+Rennes est versionné dans `testdata/`.
+
+Pour reconstruire un artefact régional en revanche :
+
+```sh
+brew install osmium-tool
+curl -L -o data/bretagne-latest.osm.pbf \
+  https://download.geofabrik.de/europe/france/bretagne-latest.osm.pbf
+CGO_ENABLED=0 go build -o graphbuild ./cmd/graphbuild
+./graphbuild -in data/bretagne-latest.osm.pbf -out graph.bin
+```
+
+`CGO_ENABLED=0` n'est pas optionnel : sans lui, le build réclame `pkg-config`
+et `zlib` à cause d'une dépendance transitive activée par cgo. Le chemin pur Go
+fait le même travail et rend le binaire statique et cross-compilable, comme le
+prévoit la conception.
+
+### La question laissée ouverte
+
+Le benchmark de l'A* donne 646 nœuds explorés par chemin en pondération neutre
+contre 1809 en anti-bitume, soit un rapport de 2,8× — au-delà du seuil d'alerte
+inscrit dans la conception. Mais cette mesure porte sur un graphe aléatoire, où
+la distance à vol d'oiseau n'est pas corrélée à la topologie : l'heuristique y
+est structurellement handicapée et le chiffre ne prédit pas le comportement sur
+un vrai réseau.
+
+**C'est à la tâche 9 qu'il faudra trancher**, lors de l'essai de bout en bout :
+si le temps de réponse dépasse les 500 ms visés par la conception, il faudra
+abaisser les pondérations maximales — au prix d'itinéraires moins tranchés dans
+leur évitement du bitume.
 
 L'invariant à ne jamais perdre de vue, quel que soit l'ordre choisi ensuite : **tout critère se formule comme une pénalité positive, jamais comme une récompense**. Un coût négatif rend l'A* faux silencieusement, sans erreur, avec des itinéraires absurdes. C'est expliqué au §6 de `docs/design.md`.
 
