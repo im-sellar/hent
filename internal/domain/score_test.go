@@ -50,3 +50,83 @@ func TestNewScoreBoucleVide(t *testing.T) {
 		t.Errorf("boucle vide : %+v, attendu des parts nulles", s)
 	}
 }
+
+func TestNewScoreCibleNulle(t *testing.T) {
+	// Ne doit ni diviser par zéro ni produire un écart non fini.
+	s := domain.NewScore(domain.Loop{LengthM: 5000}, 0)
+
+	if math.IsNaN(s.EcartCible) || math.IsInf(s.EcartCible, 0) {
+		t.Errorf("EcartCible = %v, attendu une valeur finie", s.EcartCible)
+	}
+}
+
+func TestPreferable(t *testing.T) {
+	const tol = 0.10
+
+	score := func(ecart, part float64) domain.Score {
+		return domain.Score{EcartCible: ecart, PartNonBitume: part}
+	}
+
+	cas := []struct {
+		nom     string
+		a, b    domain.Score
+		attendu bool
+	}{
+		{"une boucle dans la tolérance l'emporte sur une boucle hors tolérance, même mieux revêtue",
+			score(0.05, 0.2), score(0.30, 0.9), true},
+		{"et réciproquement, hors tolérance ne l'emporte jamais sur dans la tolérance",
+			score(0.30, 0.9), score(0.05, 0.2), false},
+		{"deux boucles dans la tolérance se départagent sur le terrain, pas sur les mètres",
+			score(0.08, 0.9), score(0.02, 0.5), true},
+		{"deux boucles hors tolérance se départagent sur l'écart à la cible",
+			score(0.20, 0.1), score(0.40, 0.9), true},
+		{"un écart exactement égal à la tolérance compte comme dans la tolérance",
+			score(tol, 0.9), score(0.30, 0.9), true},
+	}
+
+	for _, c := range cas {
+		t.Run(c.nom, func(t *testing.T) {
+			if got := c.a.Preferable(c.b, tol); got != c.attendu {
+				t.Errorf("Preferable = %v, attendu %v", got, c.attendu)
+			}
+		})
+	}
+}
+
+// TestPreferableEstUnOrdreStrictFaible vérifie les trois propriétés dont
+// sort.Slice dépend. Une fonction de comparaison incohérente n'y provoque ni
+// erreur ni panique : elle produit un ordre arbitraire, silencieusement.
+func TestPreferableEstUnOrdreStrictFaible(t *testing.T) {
+	const tol = 0.10
+
+	var scores []domain.Score
+	for _, ecart := range []float64{-0.30, -0.10, -0.02, 0, 0.02, 0.10, 0.30} {
+		for _, part := range []float64{0, 0.5, 1} {
+			scores = append(scores, domain.Score{EcartCible: ecart, PartNonBitume: part})
+		}
+	}
+
+	for _, a := range scores {
+		if a.Preferable(a, tol) {
+			t.Fatalf("irréflexivité violée : %+v se préfère à lui-même", a)
+		}
+	}
+
+	for _, a := range scores {
+		for _, b := range scores {
+			if a.Preferable(b, tol) && b.Preferable(a, tol) {
+				t.Fatalf("asymétrie violée entre %+v et %+v", a, b)
+			}
+		}
+	}
+
+	for _, a := range scores {
+		for _, b := range scores {
+			for _, c := range scores {
+				if a.Preferable(b, tol) && b.Preferable(c, tol) && !a.Preferable(c, tol) {
+					t.Fatalf("transitivité violée : %+v puis %+v puis %+v", a, b, c)
+				}
+			}
+		}
+	}
+}

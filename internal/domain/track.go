@@ -51,9 +51,10 @@ type Loop struct {
 	Coords  []Coord
 	LengthM float64
 
-	// Agrégats calculés par l'adaptateur pendant la reconstruction du chemin.
-	// Ils traversent la frontière sous forme de données : la couche métier
-	// calcule le score sans jamais accéder au graphe.
+	// Agrégats cumulés segment par segment par la couche applicative, à
+	// partir des Path qui composent la boucle. Ils traversent la frontière
+	// sous forme de données : la couche métier calcule le score sans jamais
+	// accéder au graphe.
 	UnpavedM         float64 // longueur cumulée hors revêtement dur
 	TrafficExposureM float64 // longueur pondérée par l'exposition au trafic
 }
