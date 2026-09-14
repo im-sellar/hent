@@ -274,6 +274,40 @@ func TestFindPathPenaliseLaReutilisation(t *testing.T) {
 	}
 }
 
+// TestFindPathPenaliseLaReutilisationEnSensInverse est le pendant du test
+// précédent dans le sens qui compte réellement : un tronçon bidirectionnel
+// porte deux EdgeRef distincts, un par sens, et c'est précisément le sens
+// inverse qu'emprunte un aller-retour (D→W1 puis, plus tard, W1→D). Un test
+// qui ne construit UsedEdges qu'à partir du trajet aller — comme celui du
+// dessus — ne peut pas voir un mécanisme qui échoue uniquement au retour.
+func TestFindPathPenaliseLaReutilisationEnSensInverse(t *testing.T) {
+	g := carre(t)
+	w := domain.Weights{}
+
+	aller, err := g.FindPath(context.Background(), 0, 1, w, domain.PathOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	used := map[domain.EdgeRef]struct{}{}
+	for _, e := range aller.Edges {
+		used[e] = struct{}{}
+	}
+
+	// Le trajet retour emprunte le même tronçon en sens inverse : les EdgeRef
+	// utilisées ici (1 → 0) ne sont jamais celles de `used` (0 → 1). Seule la
+	// table des arêtes inverses peut relier les deux.
+	retour, err := g.FindPath(context.Background(), 1, 0, w,
+		domain.PathOptions{UsedEdges: used, ReuseFactor: 1000})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(retour.Nodes) <= len(aller.Nodes) {
+		t.Errorf("le retour fait %d nœuds, l'aller %d : le demi-tour n'a pas été pénalisé",
+			len(retour.Nodes), len(aller.Nodes))
+	}
+}
+
 // TestFindPathEstOptimal compare A* à un Dijkstra naïf sur des graphes tirés
 // au sort. C'est le test qui garantit que l'heuristique reste admissible :
 // si un jour une pénalité passe sous 1, ce test tombe.
@@ -401,12 +435,21 @@ func TestNearestNodeHorsZone(t *testing.T) {
 func TestNearestNodeNoeudIsole(t *testing.T) {
 	b := csr.NewBuilder()
 
-	// Un leurre très éloigné, hors de portée de la recherche, occupe
-	// l'indice 0. Sans lui, le nœud attendu vaudrait lui-même 0 et
-	// l'assertion d'identité ne pourrait jamais échouer : elle passerait
-	// même si la fonction renvoyait sa valeur par défaut.
+	// Un leurre très éloigné et sans arête — un singleton, la plus petite
+	// composante connexe possible — occupe l'indice 0. Sans lui, le nœud
+	// attendu vaudrait lui-même 0 et l'assertion d'identité ne pourrait
+	// jamais échouer : elle passerait même si la fonction renvoyait sa valeur
+	// par défaut.
 	b.AddNode(domain.Coord{Lat: 48.6493, Lon: -2.0257})
 	seul := b.AddNode(domain.Coord{Lat: 48.1000, Lon: -1.6800})
+	// seul a besoin d'une arête pour appartenir à une composante connexe de
+	// taille supérieure à celle du leurre, donc d'être retenu comme routable
+	// par NearestNode — voir C1. Le compagnon n'a pas à être proche
+	// géométriquement : seule la connexité compte ici.
+	compagnon := b.AddNode(domain.Coord{Lat: 48.6500, Lon: -2.0300})
+	longueur := domain.HaversineM(b.Coord(seul), b.Coord(compagnon))
+	b.AddEdge(seul, compagnon, csr.EdgeAttrs{LengthM: longueur})
+	b.AddEdge(compagnon, seul, csr.EdgeAttrs{LengthM: longueur})
 	g := b.Build()
 
 	// À une centaine de mètres : même cellule ou cellule immédiatement
@@ -417,6 +460,35 @@ func TestNearestNodeNoeudIsole(t *testing.T) {
 	}
 	if n != seul {
 		t.Errorf("nœud trouvé = %d, attendu %d", n, seul)
+	}
+}
+
+// TestNearestNodeIgnoreUneComposanteIsolee couvre C1 : un nœud géométriquement
+// plus proche mais qui n'appartient à aucune arête ne mène nulle part, et ne
+// doit jamais être préféré à un nœud plus loin mais routable.
+func TestNearestNodeIgnoreUneComposanteIsolee(t *testing.T) {
+	b := csr.NewBuilder()
+
+	// isole est à quelques mètres du point visé, mais sans la moindre arête :
+	// c'est le cas d'une impasse ou d'une cour coupée du réseau routier.
+	isole := b.AddNode(domain.Coord{Lat: 48.1000, Lon: -1.6800})
+	// a et c sont plus loin mais reliés entre eux, donc routables.
+	a := b.AddNode(domain.Coord{Lat: 48.1006, Lon: -1.6806})
+	c := b.AddNode(domain.Coord{Lat: 48.1007, Lon: -1.6807})
+	longueur := domain.HaversineM(b.Coord(a), b.Coord(c))
+	b.AddEdge(a, c, csr.EdgeAttrs{LengthM: longueur})
+	b.AddEdge(c, a, csr.EdgeAttrs{LengthM: longueur})
+	g := b.Build()
+
+	n, ok := g.NearestNode(domain.Coord{Lat: 48.1000, Lon: -1.6801})
+	if !ok {
+		t.Fatal("aucun nœud routable trouvé, alors que a et c sont à proximité")
+	}
+	if n == isole {
+		t.Fatalf("NearestNode a accroché le nœud isolé %d, qui ne mène nulle part", isole)
+	}
+	if n != a {
+		t.Errorf("nœud trouvé = %d, attendu %d (le nœud routable le plus proche)", n, a)
 	}
 }
 

@@ -98,6 +98,85 @@ func TestCodecRefuseVersionInconnue(t *testing.T) {
 	}
 }
 
+// offsetsLayout recalcule, à partir des octets réellement écrits par Write,
+// la position de chaque section utile aux tests de corruption ci-dessous —
+// plutôt que de coder en dur des décalages qui se dérégleraient au moindre
+// changement de disposition binaire.
+func offsetsLayout(t *testing.T, data []byte) (numNodesOffset, offsetsOffset int, numNodes uint32) {
+	t.Helper()
+	headerLen := binary.LittleEndian.Uint32(data[6:10])
+	numNodesOffset = 10 + int(headerLen)
+	numNodes = binary.LittleEndian.Uint32(data[numNodesOffset : numNodesOffset+4])
+	coordsOffset := numNodesOffset + 4
+	offsetsOffset = coordsOffset + int(numNodes)*16
+	return numNodesOffset, offsetsOffset, numNodes
+}
+
+// TestCodecRefuseCibleHorsBornes vérifie que ReadGraph refuse un artefact
+// dont une arête cible un nœud qui n'existe pas — le genre de corruption
+// qu'un transfert interrompu produit et que les seuls plafonds de taille ne
+// peuvent pas attraper.
+func TestCodecRefuseCibleHorsBornes(t *testing.T) {
+	g := carre(t)
+	var buf bytes.Buffer
+	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+		t.Fatalf("Write : %v", err)
+	}
+	data := buf.Bytes()
+
+	_, offsetsOffset, numNodes := offsetsLayout(t, data)
+	numEdgesOffset := offsetsOffset + (int(numNodes)+1)*4
+	targetsOffset := numEdgesOffset + 4
+
+	binary.LittleEndian.PutUint32(data[targetsOffset:targetsOffset+4], numNodes+100)
+
+	if _, _, err := csr.ReadGraph(bytes.NewReader(data)); err == nil {
+		t.Fatal("ReadGraph aurait dû refuser une arête ciblant un nœud hors bornes")
+	}
+}
+
+// TestCodecRefuseOffsetsNonCroissants vérifie que ReadGraph refuse un
+// artefact dont les offsets ne sont pas croissants — sans quoi EdgeRange
+// produirait un intervalle absurde et FindPath paniquerait ou explorerait
+// n'importe quoi.
+func TestCodecRefuseOffsetsNonCroissants(t *testing.T) {
+	g := carre(t)
+	var buf bytes.Buffer
+	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+		t.Fatalf("Write : %v", err)
+	}
+	data := buf.Bytes()
+
+	_, offsetsOffset, _ := offsetsLayout(t, data)
+	binary.LittleEndian.PutUint32(data[offsetsOffset:offsetsOffset+4], 1)
+	binary.LittleEndian.PutUint32(data[offsetsOffset+4:offsetsOffset+8], 0)
+
+	if _, _, err := csr.ReadGraph(bytes.NewReader(data)); err == nil {
+		t.Fatal("ReadGraph aurait dû refuser des offsets non croissants")
+	}
+}
+
+// TestCodecRefuseDernierOffsetIncoherent vérifie que ReadGraph refuse un
+// artefact dont le dernier offset ne correspond pas au nombre d'arêtes
+// annoncé — une incohérence que la monotonie seule ne détecte pas.
+func TestCodecRefuseDernierOffsetIncoherent(t *testing.T) {
+	g := carre(t)
+	var buf bytes.Buffer
+	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+		t.Fatalf("Write : %v", err)
+	}
+	data := buf.Bytes()
+
+	_, offsetsOffset, numNodes := offsetsLayout(t, data)
+	lastOffsetPos := offsetsOffset + int(numNodes)*4
+	last := binary.LittleEndian.Uint32(data[lastOffsetPos : lastOffsetPos+4])
+	binary.LittleEndian.PutUint32(data[lastOffsetPos:lastOffsetPos+4], last+1)
+
+	if _, _, err := csr.ReadGraph(bytes.NewReader(data)); err == nil {
+		t.Fatal("ReadGraph aurait dû refuser un dernier offset incohérent avec le nombre d'arêtes")
+	}
+}
+
 func TestCodecRefuseCompteurDeNoeudsDemesure(t *testing.T) {
 	g := carre(t)
 	var buf bytes.Buffer

@@ -31,9 +31,16 @@ func keyOf(c domain.Coord) cellKey {
 	}
 }
 
-// NearestNode retourne le nœud le plus proche de c. La recherche part de la
-// cellule contenant c et élargit l'anneau tant que rien n'est trouvé, jusqu'à
-// une limite au-delà de laquelle on considère le point hors zone couverte.
+// NearestNode retourne le nœud routable le plus proche de c. La recherche
+// part de la cellule contenant c et élargit l'anneau tant que rien n'est
+// trouvé, jusqu'à une limite au-delà de laquelle on considère le point hors
+// zone couverte.
+//
+// Seuls les nœuds de la composante connexe principale sont candidats. Sans
+// ce filtre, un point qui tombe géométriquement près d'une impasse ou d'un
+// tronçon coupé du réseau routier accrocherait un nœud d'où aucune boucle
+// n'est jamais atteignable, et le service répondrait « aucune boucle
+// trouvée » là où il en existe à quelques mètres — voir computeMainComponent.
 func (g *Graph) NearestNode(c domain.Coord) (domain.NodeRef, bool) {
 	const maxRings = 20 // ≈ 11 km
 
@@ -60,6 +67,9 @@ func (g *Graph) NearestNode(c domain.Coord) (domain.NodeRef, bool) {
 					continue
 				}
 				for _, n := range g.spatial.cells[cellKey{x: origin.x + dx, y: origin.y + dy}] {
+					if !g.mainComponent.get(int(n)) {
+						continue
+					}
 					if d := domain.HaversineM(c, g.coords[n]); d < bestDist {
 						best, bestDist = n, d
 						if firstHit < 0 {

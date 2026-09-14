@@ -19,7 +19,12 @@ var (
 // formatVersion doit être incrémentée à chaque changement de disposition
 // binaire. routed refuse de démarrer sur une version inconnue plutôt que de
 // lire des octets de travers.
-const formatVersion uint16 = 1
+//
+// v2 ajoute la table des arêtes inverses (Graph.Reverse, correction I1 de la
+// revue finale) et le bit de composante connexe principale par nœud
+// (NearestNode, correction C1) : un artefact v1 n'a ni l'une ni l'autre, il
+// est donc refusé plutôt que complété silencieusement.
+const formatVersion uint16 = 2
 
 // Source décrit une donnée d'entrée avec de quoi la retrouver à l'identique.
 type Source struct {
@@ -111,6 +116,15 @@ func Write(w io.Writer, g *Graph, p Provenance) error {
 		}); err != nil {
 			return err
 		}
+	}
+
+	if err := binary.Write(w, order, g.reverse); err != nil {
+		return err
+	}
+	// mainComponent est de longueur (numNodes+7)/8, déductible de numNodes
+	// déjà écrit plus haut : pas besoin d'un préfixe de taille séparé.
+	if _, err := w.Write(g.mainComponent); err != nil {
+		return err
 	}
 	return nil
 }
@@ -207,7 +221,56 @@ func ReadGraph(r io.Reader) (*Graph, Provenance, error) {
 		}
 	}
 
+	g.reverse = make([]uint32, numEdges)
+	if err := binary.Read(r, order, g.reverse); err != nil {
+		return nil, prov, err
+	}
+	g.mainComponent = make(bitset, (numNodes+7)/8)
+	if _, err := io.ReadFull(r, g.mainComponent); err != nil {
+		return nil, prov, err
+	}
+
+	if err := validateGraph(g); err != nil {
+		return nil, prov, err
+	}
+
 	g.bbox = computeBBox(g.coords)
 	g.spatial = buildSpatialIndex(g.coords)
 	return g, prov, nil
+}
+
+// validateGraph vérifie la cohérence interne d'un graphe tout juste relu —
+// pas la disposition qu'aurait dû produire Write, mais celle que produisent
+// réellement les octets lus. Les plafonds appliqués plus haut empêchent une
+// allocation démesurée ; ils ne disent rien de la cohérence des données une
+// fois allouées. Un artefact complet mais corrompu (transfert interrompu puis
+// repris de travers, bit retourné sur un disque sans ECC) les passerait sans
+// cette étape, et ferait paniquer le service — hors d'une requête HTTP, dans
+// une goroutine d'errgroup — à la première recherche de chemin.
+func validateGraph(g *Graph) error {
+	numNodes := uint32(len(g.coords))
+	numEdges := uint32(len(g.targets))
+
+	for i := 1; i < len(g.offsets); i++ {
+		if g.offsets[i] < g.offsets[i-1] {
+			return fmt.Errorf("offsets non croissants au nœud %d : artefact corrompu", i)
+		}
+	}
+	if last := g.offsets[len(g.offsets)-1]; last != numEdges {
+		return fmt.Errorf("dernier offset %d, attendu %d (nombre d'arêtes) : artefact corrompu",
+			last, numEdges)
+	}
+	for e, t := range g.targets {
+		if uint32(t) >= numNodes {
+			return fmt.Errorf("arête %d cible le nœud %d, hors bornes (%d nœuds) : artefact corrompu",
+				e, t, numNodes)
+		}
+	}
+	for e, rev := range g.reverse {
+		if rev >= numEdges {
+			return fmt.Errorf("arête %d référence une inverse %d hors bornes (%d arêtes) : artefact corrompu",
+				e, rev, numEdges)
+		}
+	}
+	return nil
 }

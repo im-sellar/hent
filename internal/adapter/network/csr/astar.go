@@ -148,7 +148,14 @@ func (g *Graph) FindPath(
 			}
 
 			cost := g.attrs[e].Cost(w)
-			if _, used := opt.UsedEdges[e]; used {
+			// Un tronçon bidirectionnel porte deux EdgeRef, un par sens. La
+			// pénalité de réutilisation doit s'appliquer aux deux, sans quoi
+			// repasser par le même tronçon en sens inverse — exactement le
+			// demi-tour que ReuseFactor est censé décourager — y échappe
+			// entièrement. Voir Graph.Reverse.
+			_, usedDirect := opt.UsedEdges[e]
+			_, usedReverse := opt.UsedEdges[g.Reverse(e)]
+			if usedDirect || usedReverse {
 				cost *= reuse
 			}
 

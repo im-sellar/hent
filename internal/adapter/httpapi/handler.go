@@ -26,7 +26,13 @@ const attribution = "Données © les contributeurs OpenStreetMap, sous licence O
 
 const (
 	minDistanceM = 500
-	maxDistanceM = 200_000
+	// Plafonné à 50 km, largement au-dessus d'une boucle de trail réelle,
+	// plutôt qu'aux 200 km d'origine : le §12 dimensionne le rate limiting
+	// sur le nombre de requêtes, pas sur le CPU qu'elles consomment, et une
+	// boucle acceptée jusqu'à 200 km sature la machine bien avant d'atteindre
+	// la limite en nombre (I5 de la revue finale). Réduire la distance
+	// maximale ferme la porte sans toucher au limiteur ni à la génération.
+	maxDistanceM = 50_000
 	maxResults   = 10
 	requestTTL   = 5 * time.Second
 )
@@ -113,6 +119,32 @@ type loopDTO struct {
 type loopsResponse struct {
 	Loops       []loopDTO `json:"loops"`
 	Attribution string    `json:"attribution"`
+}
+
+// sourceDTO et provenanceDTO découplent le contrat JSON de /v1/regions des
+// tags de csr.Source et csr.Provenance. Ce sont ceux-ci qui fixent la
+// disposition binaire de graph.bin : les laisser fuir jusqu'ici ferait
+// dépendre l'API publique d'un choix de sérialisation interne, exactement ce
+// que l'en-tête du paquet promet d'éviter pour tout le reste des réponses.
+type sourceDTO struct {
+	Name      string `json:"name"`
+	File      string `json:"file"`
+	SHA256    string `json:"sha256"`
+	SizeBytes int64  `json:"size_bytes"`
+}
+
+type provenanceDTO struct {
+	BuiltAt    string      `json:"built_at"`
+	Sources    []sourceDTO `json:"sources"`
+	ConfigHash string      `json:"config_hash"`
+}
+
+func provenanceDTOOf(p csr.Provenance) provenanceDTO {
+	sources := make([]sourceDTO, len(p.Sources))
+	for i, s := range p.Sources {
+		sources[i] = sourceDTO{Name: s.Name, File: s.File, SHA256: s.SHA256, SizeBytes: s.SizeBytes}
+	}
+	return provenanceDTO{BuiltAt: p.BuiltAt, Sources: sources, ConfigHash: p.ConfigHash}
 }
 
 type api struct {
@@ -228,7 +260,7 @@ func (a *api) getRegions(w http.ResponseWriter, _ *http.Request) {
 			"min_lat": a.bbox.Min.Lat, "min_lon": a.bbox.Min.Lon,
 			"max_lat": a.bbox.Max.Lat, "max_lon": a.bbox.Max.Lon,
 		},
-		"data":        a.prov,
+		"data":        provenanceDTOOf(a.prov),
 		"attribution": attribution,
 	})
 }

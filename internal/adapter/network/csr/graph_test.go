@@ -90,7 +90,7 @@ func TestGraphBBox(t *testing.T) {
 func TestGraphNoeudDegreSortantNul(t *testing.T) {
 	// Graphe avec trois nœuds : 0 et 1 sont reliés, mais 2 (le dernier nœud)
 	// n'a aucune arête sortante. C'est le cas où un débordement d'indice
-	// s'userait faire croire à une arête.
+	// pourrait faire croire à une arête.
 	b := csr.NewBuilder()
 	n0 := b.AddNode(domain.Coord{Lat: 48.100, Lon: -1.680})
 	n1 := b.AddNode(domain.Coord{Lat: 48.100, Lon: -1.667})
