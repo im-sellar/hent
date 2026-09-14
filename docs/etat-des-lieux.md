@@ -224,7 +224,7 @@ Et cinq témoins, qui figent ce qui ne doit pas bouger :
 | `TestContratJSONInchange` | les réponses HTTP publiques, octet pour octet |
 | `TestFormatArtefactStable` | l'en-tête binaire de `graph.bin`, relu depuis un artefact versionné |
 | `TestScoreDTOApparieLesChamps` | l'appariement des cinq champs du score entre domaine et DTO |
-| `TestCodecAllerRetourProvenanceChampParChamp` | que la conversion `domain.Provenance` → `provenanceHeader` perde ou intervertisse un champ au moment d'écrire |
+| `TestCodecAllerRetourProvenanceChampParChamp` | que l'aller-retour `Write`/`ReadGraph` perde un champ de `domain.Provenance`, ou l'intervertisse de façon asymétrique entre écriture et lecture |
 | `TestVersEnTeteDistingueSourcesNilEtVide` | qu'un `Sources` nil et un `Sources` vide non-nil convergent vers la même valeur JSON dans l'en-tête écrit |
 
 `TestFormatArtefactStable` ne couvre que la relecture d'un artefact déjà
@@ -233,8 +233,15 @@ trouvé en revue de la tâche 4 — retirer un champ de la conversion aurait
 laissé toute la suite verte, et un futur artefact se serait écrit avec ce
 champ vide, en silence. `TestCodecAllerRetourProvenanceChampParChamp` ferme ce
 trou en vérifiant que chaque champ de `Provenance` survit à l'aller-retour
-`Write`/`ReadGraph`, avec des valeurs toutes distinctes pour qu'une
-interversion entre deux champs ne passe pas inaperçue.
+`Write`/`ReadGraph`, avec des valeurs toutes distinctes pour qu'une perte ou
+une interversion se voie.
+
+Cet aller-retour a sa propre limite : une interversion symétrique entre deux
+champs, appliquée à la fois dans `versEnTete` et dans `depuisEnTete`, écrit un
+en-tête faux tout en relisant la valeur d'origine — le test reste vert. C'est
+`TestFormatArtefactStable` qui l'attrape, en comparant l'en-tête produit à un
+artefact figé plutôt qu'à ce que le même code y a mis.
+
 `TestVersEnTeteDistingueSourcesNilEtVide` couvre un cas que la reconstruction
 du type ne peut pas voir : `depuisEnTete` renvoie `nil` aussi bien pour un
 `Sources` nil que pour un `Sources` vide non-nil, si bien que la distinction
