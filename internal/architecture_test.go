@@ -73,9 +73,12 @@ func dependanceInterdite(pkg, couche string) bool {
 // l'adaptateur ait à connaître le moteur concret. C'est le même raisonnement
 // qui a sorti csr.Provenance de la signature de httpapi.New.
 //
-// Les fichiers de test sont exclus : ils assemblent le moteur concret et le
-// handler HTTP pour des tests bout en bout, exactement comme le fait
-// cmd/routed — ce n'est pas le couplage que la règle vise.
+// Les fichiers de test sont exclus, et ce n'est pas un oubli : handler_test.go
+// importe generateloop pour construire un handler complet et le frapper en
+// HTTP, exactement le rôle que joue cmd/routed en production. Le lui
+// interdire imposerait un point d'assemblage de test séparé, pour un
+// bénéfice nul face au couplage que la règle vise réellement — un adaptateur
+// qui dépend du moteur concret ailleurs que dans son assemblage de test.
 func TestAdaptateurNImportePasLeMoteurConcret(t *testing.T) {
 	root := projectRoot(t)
 	dir := filepath.Join(root, "internal/adapter")
