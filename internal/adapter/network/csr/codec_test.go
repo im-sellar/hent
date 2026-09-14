@@ -72,6 +72,52 @@ func TestCodecAllerRetour(t *testing.T) {
 	}
 }
 
+// TestCodecAllerRetourProvenanceChampParChamp vérifie que chaque champ de
+// domain.Provenance survit à l'aller-retour Write/ReadGraph, y compris ceux
+// que TestCodecAllerRetour ne compare pas (File, ConfigHash, ordre des
+// sources). Toutes les valeurs sont distinctes les unes des autres : deux
+// champs partageant la même valeur laisseraient passer une interversion
+// (ex. Name et File échangés), et une valeur vide laisserait passer une
+// perte pure. La conversion domain.Provenance <-> provenanceHeader fait
+// exactement ce travail champ par champ ; rien d'autre ne le garantit.
+func TestCodecAllerRetourProvenanceChampParChamp(t *testing.T) {
+	g := carre(t)
+	prov := domain.Provenance{
+		BuiltAt:    "builtat-valeur",
+		ConfigHash: "confighash-valeur",
+		Sources: []domain.Source{
+			{Name: "name-0", File: "file-0", SHA256: "sha256-0", SizeBytes: 100},
+			{Name: "name-1", File: "file-1", SHA256: "sha256-1", SizeBytes: 200},
+		},
+	}
+
+	var buf bytes.Buffer
+	if err := csr.Write(&buf, g, prov); err != nil {
+		t.Fatalf("Write : %v", err)
+	}
+
+	_, got, err := csr.ReadGraph(&buf)
+	if err != nil {
+		t.Fatalf("ReadGraph : %v", err)
+	}
+
+	if got.BuiltAt != prov.BuiltAt {
+		t.Errorf("BuiltAt = %q, attendu %q", got.BuiltAt, prov.BuiltAt)
+	}
+	if got.ConfigHash != prov.ConfigHash {
+		t.Errorf("ConfigHash = %q, attendu %q", got.ConfigHash, prov.ConfigHash)
+	}
+	if len(got.Sources) != len(prov.Sources) {
+		t.Fatalf("%d source(s), attendu %d : les comparaisons suivantes ne vérifieraient rien",
+			len(got.Sources), len(prov.Sources))
+	}
+	for i, want := range prov.Sources {
+		if got.Sources[i] != want {
+			t.Errorf("Sources[%d] = %+v, attendu %+v", i, got.Sources[i], want)
+		}
+	}
+}
+
 func TestCodecRefuseUnMauvaisFichier(t *testing.T) {
 	_, _, err := csr.ReadGraph(bytes.NewReader([]byte("ce n'est pas un graphe")))
 	if !errors.Is(err, csr.ErrBadMagic) {
