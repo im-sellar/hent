@@ -152,10 +152,11 @@ performance du §1 comme atteint sur la cible de déploiement réelle.
 ## Les documents
 
 - **`docs/design.md`** — la spec. Autorité sur toutes les décisions techniques : modèle de coût, invariant des pénalités, contrainte ODbL, feuille de route en 5 étapes.
-- **Le plan d'implémentation** vit hors du dépôt, dans le vault Obsidian :
-  `~/Library/CloudStorage/OneDrive-Hellowork/obsidian-vault/claude/hent/2026-08-18-hent-plan-etape1.md`
-  9 tâches, tout le code Go à écrire, en TDD. C'est lui qui a été déroulé.
-- **Le journal d'exécution** est dans `.superpowers/sdd/2026-08-18-hent-plan-etape1/progress.md` (ignoré par git, local à la machine) : briefs, rapports, revues, et les décisions prises en cours de route.
+- **[`docs/plan-etape-1.md`](plan-etape-1.md)** — le plan d'implémentation : neuf tâches, tout le code à écrire, en TDD. C'est lui qui a été déroulé, et il porte les corrections apportées en cours de route.
+- **[`docs/journal-execution.md`](journal-execution.md)** — le journal de bord : chaque décision prise pendant l'exécution, avec sa justification et son coût si elle s'avérait fausse.
+- **[`docs/revue-finale.md`](revue-finale.md)** — la revue de l'ensemble de la branche, celle qui a trouvé les deux défauts que les revues tâche par tâche ne pouvaient pas voir.
+
+Les briefs, rapports et revues détaillés de chaque tâche restent dans `.superpowers/sdd/`, ignoré par git et local à la machine. Le journal en contient la substance.
 
 ## Décisions prises pendant la mise en route
 
@@ -198,8 +199,9 @@ visés, 738 ms mesurés sur `GOMAXPROCS=2`) en fait partie.
 |---|---|---|
 | Conception | `docs/design.md` | oui, dans le dépôt |
 | Cet état des lieux | `docs/etat-des-lieux.md` | oui, dans le dépôt |
-| Plan d'implémentation | vault Obsidian, `claude/hent/2026-08-18-hent-plan-etape1.md` | oui, OneDrive |
-| Journal d'exécution et décisions | vault Obsidian, `claude/hent/2026-09-11-hent-journal-execution.md` | oui, OneDrive |
+| Plan d'implémentation | `docs/plan-etape-1.md` | oui, dans le dépôt |
+| Journal d'exécution et décisions | `docs/journal-execution.md` | oui, dans le dépôt |
+| Revue finale de branche | `docs/revue-finale.md` | oui, dans le dépôt |
 | Briefs, rapports, revues détaillés | `.superpowers/sdd/` | **non**, ignoré par git |
 
 Le journal d'exécution contient toutes les décisions prises en cours de route
