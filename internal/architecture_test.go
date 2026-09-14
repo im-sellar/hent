@@ -71,7 +71,7 @@ func dependanceInterdite(pkg, couche string) bool {
 // contrat qu'il implémente, pas un détail de sa stratégie : une seconde
 // implémentation de port.LoopGenerator doit pouvoir les produire sans que
 // l'adaptateur ait à connaître le moteur concret. C'est le même raisonnement
-// qui a sorti csr.Provenance de la signature de httpapi.New.
+// qui tient csr.Provenance hors de la signature de httpapi.New.
 //
 // Les fichiers de test sont exclus, et ce n'est pas un oubli : handler_test.go
 // importe generateloop pour construire un handler complet et le frapper en
