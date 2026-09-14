@@ -135,7 +135,6 @@ func TestAdaptateursCloisonnes(t *testing.T) {
 	vus := map[string]struct{}{}
 
 	for _, famille := range familles {
-		famille := famille
 		dir := filepath.Join(racineAdaptateurs, famille)
 
 		err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
