@@ -3,6 +3,7 @@ package csr_test
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -118,6 +119,51 @@ func TestCodecAllerRetourProvenanceChampParChamp(t *testing.T) {
 		if got.Sources[i] != want {
 			t.Errorf("Sources[%d] = %+v, attendu %+v", i, got.Sources[i], want)
 		}
+	}
+}
+
+// champSourcesBrut écrit p et renvoie la valeur JSON brute du champ "sources"
+// dans l'en-tête produit. ReadGraph ne convient pas ici : depuisEnTete boucle
+// sur h.Sources et n'exécute aucune itération que l'en-tête porte "null" ou
+// "[]", si bien que domain.Provenance.Sources revient nil dans les deux cas
+// — la distinction ne survit que dans les octets de l'en-tête, pas dans le
+// type reconstruit.
+func champSourcesBrut(t *testing.T, p domain.Provenance) string {
+	t.Helper()
+
+	g := carre(t)
+	var buf bytes.Buffer
+	if err := csr.Write(&buf, g, p); err != nil {
+		t.Fatalf("Write : %v", err)
+	}
+	data := buf.Bytes()
+
+	headerLen := binary.LittleEndian.Uint32(data[6:10])
+	header := data[10 : 10+int(headerLen)]
+
+	var champs map[string]json.RawMessage
+	if err := json.Unmarshal(header, &champs); err != nil {
+		t.Fatalf("en-tête illisible : %v", err)
+	}
+	return string(champs["sources"])
+}
+
+// TestVersEnTeteDistingueSourcesNilEtVide verrouille les deux cas dégénérés
+// de la conversion domain.Provenance -> provenanceHeader : un Sources nil
+// doit rester "null" dans l'en-tête, comme avant le déplacement de
+// Provenance, et ne pas se confondre avec un Sources vide non-nil, qui doit
+// rester "[]". Les artefacts déjà produits avec un Sources nil (le cas de
+// csr.Provenance{} dans les tests de ce fichier) verraient leur en-tête
+// changer si les deux convergeaient vers la même représentation.
+func TestVersEnTeteDistingueSourcesNilEtVide(t *testing.T) {
+	sourcesNil := domain.Provenance{BuiltAt: "sans-sources"}
+	sourcesVide := domain.Provenance{BuiltAt: "sources-vides", Sources: []domain.Source{}}
+
+	if got := champSourcesBrut(t, sourcesNil); got != "null" {
+		t.Errorf(`Sources nil : champ "sources" de l'en-tête = %s, attendu "null"`, got)
+	}
+	if got := champSourcesBrut(t, sourcesVide); got != "[]" {
+		t.Errorf(`Sources vide non-nil : champ "sources" de l'en-tête = %s, attendu "[]"`, got)
 	}
 }
 
