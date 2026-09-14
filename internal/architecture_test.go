@@ -1,6 +1,7 @@
 package internal_test
 
 import (
+	"go/ast"
 	"go/parser"
 	"go/token"
 	"io/fs"
@@ -182,6 +183,75 @@ func TestAdaptateursCloisonnes(t *testing.T) {
 			t.Errorf("le couplage toléré %q n'existe plus dans le code : retirer l'exception", couplage)
 		}
 	}
+}
+
+// TestDomaineIgnoreLaSerialisation interdit tout tag de sérialisation dans le
+// domaine.
+//
+// Un tag json sur un type du domaine soude le vocabulaire métier au contrat
+// public : renommer un champ casse alors l'API sans qu'aucun test ne prévienne,
+// et le domaine finit par ne plus être renommé du tout. La règle est déjà
+// écrite dans l'en-tête du paquet httpapi ; ce test est ce qui la tient.
+//
+// La lecture passe par l'AST : une recherche textuelle confondrait un tag avec
+// une chaîne littérale ou un commentaire.
+func TestDomaineIgnoreLaSerialisation(t *testing.T) {
+	root := projectRoot(t)
+	dir := filepath.Join(root, "internal/domain")
+
+	interdits := []string{"json:", "xml:", "db:", "yaml:", "toml:"}
+	structuresVues := 0
+
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".go") {
+			return err
+		}
+
+		file, err := parser.ParseFile(token.NewFileSet(), path, nil, 0)
+		if err != nil {
+			return err
+		}
+		rel, _ := filepath.Rel(root, path)
+
+		ast.Inspect(file, func(n ast.Node) bool {
+			st, ok := n.(*ast.StructType)
+			if !ok || st.Fields == nil {
+				return true
+			}
+			structuresVues++
+			for _, champ := range st.Fields.List {
+				if champ.Tag == nil {
+					continue
+				}
+				for _, mot := range interdits {
+					if strings.Contains(champ.Tag.Value, mot) {
+						t.Errorf("%s : un champ porte un tag %s%s — la sérialisation appartient à l'adaptateur qui la produit",
+							rel, mot, nomsDesChamps(champ))
+					}
+				}
+			}
+			return true
+		})
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if structuresVues == 0 {
+		t.Fatal("aucune structure inspectée dans internal/domain : le test ne vérifierait rien")
+	}
+}
+
+func nomsDesChamps(champ *ast.Field) string {
+	var noms []string
+	for _, n := range champ.Names {
+		noms = append(noms, n.Name)
+	}
+	if len(noms) == 0 {
+		return ""
+	}
+	return " (" + strings.Join(noms, ", ") + ")"
 }
 
 func projectRoot(t *testing.T) string {

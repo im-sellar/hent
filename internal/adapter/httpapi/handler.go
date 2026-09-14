@@ -109,9 +109,30 @@ func (r loopsRequest) toDomain() generateloop.Request {
 	}
 }
 
+// scoreDTO fixe le contrat public du score. Les noms exposés ici sont
+// indépendants de ceux du domaine : c'est ce qui permet de renommer un champ
+// métier sans casser un client, et inversement.
+type scoreDTO struct {
+	DistanceM     float64 `json:"distance_m"`
+	PartNonBitume float64 `json:"part_non_bitume"`
+	PartTrafic    float64 `json:"part_trafic"`
+	PartRetracee  float64 `json:"part_retracee"`
+	EcartCible    float64 `json:"ecart_cible"`
+}
+
+func scoreDTOOf(s domain.Score) scoreDTO {
+	return scoreDTO{
+		DistanceM:     s.DistanceM,
+		PartNonBitume: s.PartNonBitume,
+		PartTrafic:    s.PartTrafic,
+		PartRetracee:  s.PartRetracee,
+		EcartCible:    s.EcartCible,
+	}
+}
+
 type loopDTO struct {
 	ID       string       `json:"id"`
-	Score    domain.Score `json:"score"`
+	Score    scoreDTO     `json:"score"`
 	Geometry [][2]float64 `json:"geometry"` // [lon, lat], ordre GeoJSON
 }
 
@@ -213,7 +234,7 @@ func (a *api) postLoops(w http.ResponseWriter, r *http.Request) {
 	for i, l := range loops {
 		resp.Loops = append(resp.Loops, loopDTO{
 			ID:       encodeID(req, i),
-			Score:    domain.NewScore(l, req.DistanceM),
+			Score:    scoreDTOOf(domain.NewScore(l, req.DistanceM)),
 			Geometry: geometryOf(l),
 		})
 	}
