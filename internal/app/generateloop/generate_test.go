@@ -7,12 +7,13 @@ import (
 
 	"github.com/im-sellar/hent/internal/app/generateloop"
 	"github.com/im-sellar/hent/internal/domain"
+	"github.com/im-sellar/hent/internal/testsupport"
 )
 
-func reseauEtRequete() (*grille, generateloop.Request) {
+func reseauEtRequete() (*testsupport.Grille, generateloop.Request) {
 	// 40×40 nœuds espacés de 200 m : environ 8 km de côté, assez pour une
 	// boucle de 4 km.
-	g := nouvelleGrille(40, 200)
+	g := testsupport.NouvelleGrille(40, 200)
 	depart := g.Coord(domain.NodeRef(40*20 + 20)) // au centre
 
 	return g, generateloop.Request{
@@ -83,7 +84,7 @@ func TestGenerateProduitDesBouclesConnexes(t *testing.T) {
 			t.Errorf("boucle %d : %d coordonnées pour %d nœuds", i, len(l.Coords), len(l.Nodes))
 		}
 		for j := 0; j+1 < len(l.Nodes); j++ {
-			if !g.relies(l.Nodes[j], l.Nodes[j+1]) {
+			if !g.Relies(l.Nodes[j], l.Nodes[j+1]) {
 				t.Fatalf("boucle %d : les nœuds %d et %d ne sont pas voisins",
 					i, l.Nodes[j], l.Nodes[j+1])
 			}
@@ -182,6 +183,23 @@ func TestGenerateNeRenvoiePasDeDoublons(t *testing.T) {
 					i, j, recouvrement(loops[i], loops[j])*100)
 			}
 		}
+	}
+}
+
+// TestStatsRemonteLesNoeudsExplores vérifie que Stats() n'est pas câblé sur
+// une source qui resterait bloquée à zéro : le compteur vient du réseau
+// (testsupport.Grille ici), pas d'un total accumulé dans le Generator.
+func TestStatsRemonteLesNoeudsExplores(t *testing.T) {
+	g, req := reseauEtRequete()
+	gen := generateloop.New(g)
+
+	if _, err := gen.Generate(context.Background(), req); err != nil {
+		t.Fatal(err)
+	}
+
+	explored, _ := gen.Stats()
+	if explored <= 0 {
+		t.Fatalf("nœuds explorés = %d, attendu > 0 après une génération", explored)
 	}
 }
 

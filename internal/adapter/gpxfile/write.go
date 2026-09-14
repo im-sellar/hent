@@ -36,7 +36,11 @@ func Write(w io.Writer, l domain.Loop, name string) error {
 	}
 
 	for _, c := range l.Coords {
-		if _, err := fmt.Fprintf(w, "      <trkpt lat=\"%.7g\" lon=\"%.7g\"></trkpt>\n", c.Lat, c.Lon); err != nil {
+		// %.7f et non %.7g : le second compte des chiffres SIGNIFICATIFS, pas
+		// des décimales. Sur une latitude à deux chiffres entiers il n'en
+		// resterait que cinq, soit environ un mètre d'erreur — alors que sept
+		// décimales donnent la précision utile au GPS pour un coût nul.
+		if _, err := fmt.Fprintf(w, "      <trkpt lat=\"%.7f\" lon=\"%.7f\"></trkpt>\n", c.Lat, c.Lon); err != nil {
 			return err
 		}
 	}

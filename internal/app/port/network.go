@@ -19,4 +19,12 @@ type RouteNetwork interface {
 		w domain.Weights, opt domain.PathOptions) (domain.Path, error)
 	Coord(n domain.NodeRef) domain.Coord
 	BBox() domain.BBox
+
+	// ExploredNodesTotal retourne le cumul des nœuds dépilés par FindPath
+	// depuis la création de l'implémentation, toutes recherches confondues
+	// — succès et échecs. Le comptage vit chez l'implémenteur et non chez
+	// l'appelant : une recherche qui échoue ne renvoie pas de domain.Path
+	// porteur de son ExploredNodes, seul le point d'exploration lui-même
+	// peut donc le cumuler sans le perdre.
+	ExploredNodesTotal() int64
 }

@@ -125,7 +125,11 @@ type api struct {
 	totalMs  atomic.Int64
 }
 
-func New(gen *generateloop.Generator, prov csr.Provenance, bbox domain.BBox) http.Handler {
+// New construit le handler HTTP. trustedProxies liste les adresses de
+// connexion (sans port) autorisées à fournir X-Forwarded-For pour la
+// limitation de débit — vide, l'en-tête est ignoré et seule l'adresse de
+// connexion compte, ce qui est le comportement sûr par défaut.
+func New(gen *generateloop.Generator, prov csr.Provenance, bbox domain.BBox, trustedProxies map[string]struct{}) http.Handler {
 	a := &api{gen: gen, prov: prov, bbox: bbox}
 
 	mux := http.NewServeMux()
@@ -137,7 +141,7 @@ func New(gen *generateloop.Generator, prov csr.Provenance, bbox domain.BBox) htt
 	})
 	mux.HandleFunc("GET /metrics", a.getMetrics)
 
-	return withRateLimit(mux)
+	return withRateLimit(mux, trustedProxies)
 }
 
 func (a *api) postLoops(w http.ResponseWriter, r *http.Request) {

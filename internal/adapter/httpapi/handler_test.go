@@ -3,14 +3,19 @@ package httpapi_test
 import (
 	"bytes"
 	"encoding/json"
+	"io"
+	"math"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/im-sellar/hent/internal/adapter/httpapi"
 	"github.com/im-sellar/hent/internal/adapter/network/csr"
 	"github.com/im-sellar/hent/internal/app/generateloop"
+	"github.com/im-sellar/hent/internal/testsupport"
 )
 
 func TestPostLoops(t *testing.T) {
@@ -82,6 +87,8 @@ func TestPostLoopsValidation(t *testing.T) {
 	}
 }
 
+var trkptRegexp = regexp.MustCompile(`<trkpt lat="(-?[\d.]+)" lon="(-?[\d.]+)">`)
+
 func TestGetGPX(t *testing.T) {
 	srv := httptest.NewServer(testHandler(t))
 	defer srv.Close()
@@ -93,7 +100,8 @@ func TestGetGPX(t *testing.T) {
 	}
 	var out struct {
 		Loops []struct {
-			ID string `json:"id"`
+			ID       string       `json:"id"`
+			Geometry [][2]float64 `json:"geometry"` // [lon, lat]
 		} `json:"loops"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
@@ -105,6 +113,10 @@ func TestGetGPX(t *testing.T) {
 	// range » dont le message ne dirait rien de la cause réelle.
 	if len(out.Loops) == 0 {
 		t.Fatal("aucune boucle renvoyée : rien à exporter en GPX")
+	}
+	geom := out.Loops[0].Geometry
+	if len(geom) == 0 {
+		t.Fatal("la géométrie renvoyée par le POST est vide")
 	}
 
 	// L'identifiant encode la requête : le GPX se régénère sans état côté
@@ -121,8 +133,38 @@ func TestGetGPX(t *testing.T) {
 	}
 	var buf bytes.Buffer
 	buf.ReadFrom(gpx.Body)
-	if !strings.Contains(buf.String(), "<trkseg>") {
+	corps := buf.String()
+	if !strings.Contains(corps, "<trkseg>") {
 		t.Error("la réponse ne ressemble pas à du GPX")
+	}
+
+	// La propriété la plus importante du service : la boucle que le GPX
+	// contient doit être exactement celle que le POST a renvoyée, pas une
+	// boucle régénérée qui aurait divergé.
+	pts := trkptRegexp.FindAllStringSubmatch(corps, -1)
+	if len(pts) != len(geom) {
+		t.Fatalf("%d points de trace dans le GPX, attendu %d (comme la géométrie du POST)",
+			len(pts), len(geom))
+	}
+
+	// Le premier et le dernier point de toute boucle sont le départ demandé,
+	// quelle que soit la boucle choisie : les comparer seuls ne détecterait
+	// pas une régénération qui aurait dérivé vers une autre boucle candidate.
+	// On compare donc l'intégralité du tracé.
+	const epsilon = 1e-6 // les coordonnées GPX sont tronquées à 7 décimales
+	for i := range pts {
+		lat, err := strconv.ParseFloat(pts[i][1], 64)
+		if err != nil {
+			t.Fatalf("point %d : latitude illisible : %v", i, err)
+		}
+		lon, err := strconv.ParseFloat(pts[i][2], 64)
+		if err != nil {
+			t.Fatalf("point %d : longitude illisible : %v", i, err)
+		}
+		if math.Abs(lat-geom[i][1]) > epsilon || math.Abs(lon-geom[i][0]) > epsilon {
+			t.Fatalf("point %d : GPX (%.7f, %.7f), POST (%.7f, %.7f)",
+				i, lat, lon, geom[i][1], geom[i][0])
+		}
 	}
 }
 
@@ -130,25 +172,76 @@ func TestHealthzEtRegions(t *testing.T) {
 	srv := httptest.NewServer(testHandler(t))
 	defer srv.Close()
 
-	for _, path := range []string{"/healthz", "/v1/regions", "/metrics"} {
-		resp, err := http.Get(srv.URL + path)
-		if err != nil {
-			t.Fatal(err)
-		}
-		resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("%s : statut %d, attendu 200", path, resp.StatusCode)
+	respHealthz, err := http.Get(srv.URL + "/healthz")
+	if err != nil {
+		t.Fatal(err)
+	}
+	bodyHealthz, _ := io.ReadAll(respHealthz.Body)
+	respHealthz.Body.Close()
+	if respHealthz.StatusCode != http.StatusOK {
+		t.Errorf("/healthz : statut %d, attendu 200", respHealthz.StatusCode)
+	}
+	if string(bodyHealthz) != "ok" {
+		t.Errorf("/healthz : corps %q, attendu %q", bodyHealthz, "ok")
+	}
+
+	respRegions, err := http.Get(srv.URL + "/v1/regions")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer respRegions.Body.Close()
+	if respRegions.StatusCode != http.StatusOK {
+		t.Errorf("/v1/regions : statut %d, attendu 200", respRegions.StatusCode)
+	}
+	var regions struct {
+		BBox        map[string]float64 `json:"bbox"`
+		Attribution string             `json:"attribution"`
+	}
+	if err := json.NewDecoder(respRegions.Body).Decode(&regions); err != nil {
+		t.Fatalf("/v1/regions : réponse illisible : %v", err)
+	}
+	if !strings.Contains(regions.Attribution, "OpenStreetMap") {
+		t.Errorf("/v1/regions : attribution manquante, obtenu %q", regions.Attribution)
+	}
+	if regions.BBox["min_lat"] >= regions.BBox["max_lat"] || regions.BBox["min_lon"] >= regions.BBox["max_lon"] {
+		t.Errorf("/v1/regions : bbox incohérente : %+v", regions.BBox)
+	}
+
+	respMetrics, err := http.Get(srv.URL + "/metrics")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer respMetrics.Body.Close()
+	if respMetrics.StatusCode != http.StatusOK {
+		t.Errorf("/metrics : statut %d, attendu 200", respMetrics.StatusCode)
+	}
+	bodyMetrics, _ := io.ReadAll(respMetrics.Body)
+	for _, nom := range []string{
+		"hent_requests_total",
+		"hent_errors_total",
+		"hent_request_duration_ms_total",
+		"hent_astar_explored_nodes_total",
+		"hent_candidates_dropped_total",
+	} {
+		if !strings.Contains(string(bodyMetrics), nom) {
+			t.Errorf("/metrics : métrique %q absente du corps", nom)
 		}
 	}
 }
 
 func testHandler(t *testing.T) http.Handler {
 	t.Helper()
+	return testHandlerAvecProxiesDeConfiance(t, nil)
+}
 
-	g := nouvelleGrille(40, 200) // ~8 km de côté autour de 48.10 / -1.68
+func testHandlerAvecProxiesDeConfiance(t *testing.T, trustedProxies map[string]struct{}) http.Handler {
+	t.Helper()
+
+	g := testsupport.NouvelleGrille(40, 200) // ~8 km de côté autour de 48.10 / -1.68
 	return httpapi.New(
 		generateloop.New(g),
 		csr.Provenance{BuiltAt: "2026-08-18T10:00:00Z"},
 		g.BBox(),
+		trustedProxies,
 	)
 }

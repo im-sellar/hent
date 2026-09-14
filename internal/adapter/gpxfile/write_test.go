@@ -28,7 +28,7 @@ func TestWriteGPX(t *testing.T) {
 	for _, attendu := range []string{
 		`<?xml version="1.0" encoding="UTF-8"?>`,
 		`<gpx`, `creator="hent"`, `<trkseg>`,
-		`lat="48.1173"`, `lon="-1.6778"`,
+		`lat="48.1173000"`, `lon="-1.6778000"`,
 		`<name>Boucle test</name>`,
 		`OpenStreetMap`, // l'attribution voyage avec le fichier
 	} {

@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -28,14 +29,30 @@ var _ port.RouteNetwork = (*csr.Graph)(nil)
 func main() {
 	graphPath := flag.String("graph", "graph.bin", "artefact produit par graphbuild")
 	addr := flag.String("addr", ":8080", "adresse d'écoute")
+	// Vide par défaut : sans configuration explicite, X-Forwarded-For est
+	// ignoré et seule l'adresse de connexion compte pour la limitation de
+	// débit. Ne renseigner que les adresses des reverse proxies effectivement
+	// placés devant ce service.
+	trustedProxies := flag.String("trusted-proxies", "",
+		"adresses de connexion (sans port) autorisées à fournir X-Forwarded-For, séparées par des virgules")
 	flag.Parse()
 
-	if err := run(*graphPath, *addr); err != nil {
+	if err := run(*graphPath, *addr, *trustedProxies); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(graphPath, addr string) error {
+func parseTrustedProxies(s string) map[string]struct{} {
+	proxies := make(map[string]struct{})
+	for _, p := range strings.Split(s, ",") {
+		if p = strings.TrimSpace(p); p != "" {
+			proxies[p] = struct{}{}
+		}
+	}
+	return proxies
+}
+
+func run(graphPath, addr, trustedProxies string) error {
 	start := time.Now()
 
 	f, err := os.Open(graphPath)
@@ -54,7 +71,7 @@ func run(graphPath, addr string) error {
 
 	srv := &http.Server{
 		Addr:              addr,
-		Handler:           httpapi.New(generateloop.New(g), prov, g.BBox()),
+		Handler:           httpapi.New(generateloop.New(g), prov, g.BBox(), parseTrustedProxies(trustedProxies)),
 		ReadHeaderTimeout: 5 * time.Second,
 		WriteTimeout:      30 * time.Second,
 	}

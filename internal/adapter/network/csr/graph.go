@@ -7,6 +7,7 @@ package csr
 
 import (
 	"sort"
+	"sync/atomic"
 
 	"github.com/im-sellar/hent/internal/domain"
 )
@@ -18,12 +19,20 @@ type Graph struct {
 	attrs   []EdgeAttrs
 	bbox    domain.BBox
 	spatial *spatialIndex
+
+	// exploredTotal cumule les nœuds dépilés par TOUTES les recherches, y
+	// compris celles qui échouent — ce sont elles qui explorent le plus.
+	exploredTotal atomic.Int64
 }
 
 func (g *Graph) NumNodes() int { return len(g.coords) }
 func (g *Graph) NumEdges() int { return len(g.targets) }
 
 func (g *Graph) Coord(n domain.NodeRef) domain.Coord { return g.coords[n] }
+
+// ExploredNodesTotal retourne le cumul des nœuds dépilés depuis le
+// chargement du graphe, toutes recherches confondues (succès et échecs).
+func (g *Graph) ExploredNodesTotal() int64 { return g.exploredTotal.Load() }
 
 // EdgeRange retourne l'intervalle demi-ouvert [start, end) des arêtes
 // sortantes du nœud n.

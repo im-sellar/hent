@@ -1,24 +1,30 @@
-package httpapi_test
+// Package testsupport fournit des doubles de test partagés entre plusieurs
+// paquets de l'arbre internal, pour éviter qu'une même implémentation soit
+// copiée d'un paquet de test à l'autre.
+package testsupport
 
 import (
 	"context"
 	"errors"
 	"math"
 	"math/rand"
+	"sync/atomic"
 
 	"github.com/im-sellar/hent/internal/domain"
 )
 
-// grille est un réseau synthétique de n×n nœuds espacés de `pas` mètres,
-// relié en quatre-connexité. Il implémente port.RouteNetwork sans rien
-// emprunter à l'adaptateur réel : la couche applicative se teste seule.
-type grille struct {
+// Grille est un réseau synthétique de n×n nœuds espacés de `pas` mètres,
+// relié en quatre-connexité. Elle implémente port.RouteNetwork sans rien
+// emprunter à l'adaptateur réel, ce qui permet aux couches applicative et
+// HTTP de se tester chacune sans dépendre de l'autre.
+type Grille struct {
 	n      int
 	pas    float64
 	origin domain.Coord
 	coords []domain.Coord
 	// voisins[n] = arêtes sortantes, chacune (cible, longueur)
-	voisins [][]arete
+	voisins  [][]arete
+	explored atomic.Int64
 }
 
 type arete struct {
@@ -29,8 +35,8 @@ type arete struct {
 
 var errPasDeChemin = errors.New("aucun chemin")
 
-func nouvelleGrille(n int, pas float64) *grille {
-	g := &grille{
+func NouvelleGrille(n int, pas float64) *Grille {
+	g := &Grille{
 		n: n, pas: pas,
 		origin:  domain.Coord{Lat: 48.10, Lon: -1.68},
 		coords:  make([]domain.Coord, n*n),
@@ -74,9 +80,9 @@ func nouvelleGrille(n int, pas float64) *grille {
 	return g
 }
 
-func (g *grille) Coord(n domain.NodeRef) domain.Coord { return g.coords[n] }
+func (g *Grille) Coord(n domain.NodeRef) domain.Coord { return g.coords[n] }
 
-func (g *grille) BBox() domain.BBox {
+func (g *Grille) BBox() domain.BBox {
 	b := domain.BBox{Min: g.coords[0], Max: g.coords[0]}
 	for _, c := range g.coords {
 		b.Min.Lat, b.Min.Lon = math.Min(b.Min.Lat, c.Lat), math.Min(b.Min.Lon, c.Lon)
@@ -85,7 +91,7 @@ func (g *grille) BBox() domain.BBox {
 	return b
 }
 
-func (g *grille) NearestNode(c domain.Coord) (domain.NodeRef, bool) {
+func (g *Grille) NearestNode(c domain.Coord) (domain.NodeRef, bool) {
 	if !g.BBox().Contains(c) {
 		return 0, false
 	}
@@ -99,8 +105,14 @@ func (g *grille) NearestNode(c domain.Coord) (domain.NodeRef, bool) {
 }
 
 // FindPath : Dijkstra simple, suffisant à l'échelle de la grille de test.
-func (g *grille) FindPath(ctx context.Context, from, to domain.NodeRef,
+func (g *Grille) FindPath(ctx context.Context, from, to domain.NodeRef,
 	w domain.Weights, opt domain.PathOptions) (domain.Path, error) {
+
+	// explored alimente le compteur cumulatif quel que soit le chemin de
+	// sortie, au même titre que csr.Graph : c'est ce que teste le double sur
+	// ExploredNodesTotal.
+	explored := 0
+	defer func() { g.explored.Add(int64(explored)) }()
 
 	if err := ctx.Err(); err != nil {
 		return domain.Path{}, err
@@ -135,6 +147,7 @@ func (g *grille) FindPath(ctx context.Context, from, to domain.NodeRef,
 			break
 		}
 		done[best] = true
+		explored++
 
 		for _, a := range g.voisins[best] {
 			cost := a.long
@@ -185,10 +198,17 @@ func (g *grille) FindPath(ctx context.Context, from, to domain.NodeRef,
 			}
 		}
 	}
+	p.ExploredNodes = explored
 	return p, nil
 }
 
-func (g *grille) relies(a, b domain.NodeRef) bool {
+// ExploredNodesTotal retourne le cumul des nœuds dépilés depuis la création
+// de la grille, toutes recherches confondues (succès et échecs) — le même
+// contrat que csr.Graph.ExploredNodesTotal.
+func (g *Grille) ExploredNodesTotal() int64 { return g.explored.Load() }
+
+// Relies indique si deux nœuds sont reliés par une arête directe.
+func (g *Grille) Relies(a, b domain.NodeRef) bool {
 	for _, v := range g.voisins[a] {
 		if v.cible == b {
 			return true

@@ -187,6 +187,29 @@ func TestFindPathDepasseLeBudget(t *testing.T) {
 	}
 }
 
+// TestExploredNodesTotalCompteLesEchecs verrouille la correction : une
+// recherche qui échoue explore quand même, et doit alimenter le cumul au même
+// titre qu'une recherche réussie. Compter uniquement les segments retenus (ce
+// qu'un appelant en amont ferait via le seul domain.Path renvoyé en succès)
+// omettrait précisément les recherches les plus coûteuses, puisqu'un échec ne
+// porte pas son ExploredNodes.
+func TestExploredNodesTotalCompteLesEchecs(t *testing.T) {
+	g := carre(t)
+	avant := g.ExploredNodesTotal()
+
+	_, err := g.FindPath(context.Background(), 0, 2, domain.Weights{},
+		domain.PathOptions{MaxNodes: 1})
+	if !errors.Is(err, csr.ErrBudgetExceeded) {
+		t.Fatalf("erreur = %v, attendu ErrBudgetExceeded", err)
+	}
+
+	apres := g.ExploredNodesTotal()
+	if apres <= avant {
+		t.Errorf("ExploredNodesTotal après un échec = %d, attendu strictement supérieur à %d avant",
+			apres, avant)
+	}
+}
+
 // TestFindPathBudgetNInterrompPasUnCheminTrouve couvre le cas où le plafond
 // est atteint exactement au nœud qui porte la cible : le chemin est acquis,
 // il ne doit pas être jeté pour une question de comptage. Le plafond est

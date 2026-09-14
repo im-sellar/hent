@@ -57,15 +57,17 @@ type Request struct {
 type Generator struct {
 	net port.RouteNetwork
 
-	exploredNodes atomic.Int64
-	dropped       atomic.Int64
+	dropped atomic.Int64
 }
 
 func New(net port.RouteNetwork) *Generator { return &Generator{net: net} }
 
-// Stats retourne les compteurs cumulés depuis le démarrage.
+// Stats retourne les compteurs cumulés depuis le démarrage. Les nœuds
+// explorés viennent du réseau et non du Generator : appendSegment ne voit
+// que les segments retenus, alors qu'une recherche qui échoue est
+// précisément celle qui a exploré le plus.
 func (g *Generator) Stats() (exploredNodes, droppedCandidates int64) {
-	return g.exploredNodes.Load(), g.dropped.Load()
+	return g.net.ExploredNodesTotal(), g.dropped.Load()
 }
 
 func (g *Generator) Generate(ctx context.Context, req Request) ([]domain.Loop, error) {
@@ -220,7 +222,7 @@ func (g *Generator) tryLoop(ctx context.Context, start domain.NodeRef,
 		if err != nil {
 			return domain.Loop{}, err
 		}
-		g.appendSegment(&loop, seg, used)
+		appendSegment(&loop, seg, used)
 		current = wp
 	}
 
@@ -230,7 +232,7 @@ func (g *Generator) tryLoop(ctx context.Context, start domain.NodeRef,
 	if err != nil {
 		return domain.Loop{}, err
 	}
-	g.appendSegment(&loop, seg, used)
+	appendSegment(&loop, seg, used)
 
 	if loop.Nodes[len(loop.Nodes)-1] != start {
 		return domain.Loop{}, ErrNoLoopFound
@@ -240,9 +242,7 @@ func (g *Generator) tryLoop(ctx context.Context, start domain.NodeRef,
 
 // appendSegment recolle un segment à la boucle en évitant de dupliquer le
 // nœud de jonction, et note ses arêtes comme consommées.
-func (g *Generator) appendSegment(loop *domain.Loop, seg domain.Path, used map[domain.EdgeRef]struct{}) {
-	g.exploredNodes.Add(int64(seg.ExploredNodes))
-
+func appendSegment(loop *domain.Loop, seg domain.Path, used map[domain.EdgeRef]struct{}) {
 	if len(seg.Nodes) > 1 {
 		loop.Nodes = append(loop.Nodes, seg.Nodes[1:]...)
 		loop.Coords = append(loop.Coords, seg.Coords[1:]...)

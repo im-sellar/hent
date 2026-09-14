@@ -75,6 +75,14 @@ func (g *Graph) FindPath(
 	w domain.Weights,
 	opt domain.PathOptions,
 ) (domain.Path, error) {
+	// explored alimente exploredTotal quel que soit le chemin de sortie —
+	// succès, échec ou annulation — via le defer ci-dessous : c'est la seule
+	// façon de compter aussi les recherches qui échouent après avoir
+	// beaucoup exploré, alors qu'elles ne renvoient pas de Path porteur du
+	// compte.
+	explored := 0
+	defer func() { g.exploredTotal.Add(int64(explored)) }()
+
 	if int(from) >= len(g.coords) || int(to) >= len(g.coords) {
 		return domain.Path{}, ErrNoPath
 	}
@@ -108,7 +116,6 @@ func (g *Graph) FindPath(
 	pq := &priorityQueue{}
 	heap.Push(pq, &queueItem{node: from, f: domain.HaversineM(g.coords[from], target)})
 
-	explored := 0
 	for pq.Len() > 0 {
 		if explored%ctxCheckInterval == 0 {
 			if err := ctx.Err(); err != nil {
