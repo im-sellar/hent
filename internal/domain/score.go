@@ -7,11 +7,11 @@ import "math"
 // il permet à l'utilisateur de voir pourquoi une boucle lui est proposée et
 // sur quel critère elle est moins bonne que la suivante.
 type Score struct {
-	DistanceM     float64 `json:"distance_m"`
-	PartNonBitume float64 `json:"part_non_bitume"`
-	PartTrafic    float64 `json:"part_trafic"`
-	PartRetracee  float64 `json:"part_retracee"`
-	EcartCible    float64 `json:"ecart_cible"`
+	DistanceM     float64
+	PartNonBitume float64
+	PartTrafic    float64
+	PartRetracee  float64
+	EcartCible    float64
 }
 
 func NewScore(l Loop, targetM float64) Score {

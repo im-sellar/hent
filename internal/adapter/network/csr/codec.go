@@ -26,20 +26,49 @@ var (
 // est donc refusé plutôt que complété silencieusement.
 const formatVersion uint16 = 2
 
-// Source décrit une donnée d'entrée avec de quoi la retrouver à l'identique.
-type Source struct {
+// sourceHeader et provenanceHeader fixent la disposition de l'en-tête JSON de
+// graph.bin. Les tags sont la définition du format de l'artefact : les
+// modifier rend illisible tout fichier déjà produit. C'est la raison pour
+// laquelle ils vivent ici et non sur domain.Provenance, que le domaine expose
+// sans rien savoir de sa sérialisation.
+type sourceHeader struct {
 	Name      string `json:"name"`
 	File      string `json:"file"`
 	SHA256    string `json:"sha256"`
 	SizeBytes int64  `json:"size_bytes"`
 }
 
-// Provenance rend le build reproductible — exigence de l'ODbL, qui impose de
-// pouvoir fournir soit la base dérivée, soit les moyens de la reconstruire.
-type Provenance struct {
-	BuiltAt    string   `json:"built_at"`
-	Sources    []Source `json:"sources"`
-	ConfigHash string   `json:"config_hash"`
+type provenanceHeader struct {
+	BuiltAt    string         `json:"built_at"`
+	Sources    []sourceHeader `json:"sources"`
+	ConfigHash string         `json:"config_hash"`
+}
+
+func versEnTete(p domain.Provenance) provenanceHeader {
+	h := provenanceHeader{BuiltAt: p.BuiltAt, ConfigHash: p.ConfigHash}
+	// Un Sources nil doit rester nil (l'en-tête sérialise alors "sources":null) :
+	// sans cette distinction, un Sources nil et un Sources vide non-nil
+	// convergeraient vers la même sortie et l'en-tête d'artefacts déjà produits
+	// avec un Sources nil changerait.
+	if p.Sources != nil {
+		h.Sources = make([]sourceHeader, 0, len(p.Sources))
+	}
+	for _, s := range p.Sources {
+		h.Sources = append(h.Sources, sourceHeader{
+			Name: s.Name, File: s.File, SHA256: s.SHA256, SizeBytes: s.SizeBytes,
+		})
+	}
+	return h
+}
+
+func depuisEnTete(h provenanceHeader) domain.Provenance {
+	p := domain.Provenance{BuiltAt: h.BuiltAt, ConfigHash: h.ConfigHash}
+	for _, s := range h.Sources {
+		p.Sources = append(p.Sources, domain.Source{
+			Name: s.Name, File: s.File, SHA256: s.SHA256, SizeBytes: s.SizeBytes,
+		})
+	}
+	return p
 }
 
 var order = binary.LittleEndian
@@ -58,8 +87,8 @@ const (
 
 // Write sérialise g et sa provenance p dans w au format binaire hent
 // (en-tête magique + version + provenance JSON, puis nœuds et arêtes).
-func Write(w io.Writer, g *Graph, p Provenance) error {
-	header, err := json.Marshal(p)
+func Write(w io.Writer, g *Graph, p domain.Provenance) error {
+	header, err := json.Marshal(versEnTete(p))
 	if err != nil {
 		return fmt.Errorf("sérialisation de la provenance : %w", err)
 	}
@@ -132,40 +161,41 @@ func Write(w io.Writer, g *Graph, p Provenance) error {
 // ReadGraph relit un graphe et sa provenance depuis r. L'index spatial n'est
 // pas sérialisé : il est reconstruit ici, pas dans Write, car il ne dépend
 // que des coordonnées déjà présentes dans le flux.
-func ReadGraph(r io.Reader) (*Graph, Provenance, error) {
+func ReadGraph(r io.Reader) (*Graph, domain.Provenance, error) {
 	var gotMagic [4]byte
 	if _, err := io.ReadFull(r, gotMagic[:]); err != nil {
-		return nil, Provenance{}, ErrBadMagic
+		return nil, domain.Provenance{}, ErrBadMagic
 	}
 	if gotMagic != magic {
-		return nil, Provenance{}, ErrBadMagic
+		return nil, domain.Provenance{}, ErrBadMagic
 	}
 
 	var version uint16
 	if err := binary.Read(r, order, &version); err != nil {
-		return nil, Provenance{}, err
+		return nil, domain.Provenance{}, err
 	}
 	if version != formatVersion {
-		return nil, Provenance{}, fmt.Errorf("%w : fichier en version %d, binaire en version %d",
+		return nil, domain.Provenance{}, fmt.Errorf("%w : fichier en version %d, binaire en version %d",
 			ErrBadVersion, version, formatVersion)
 	}
 
 	var headerLen uint32
 	if err := binary.Read(r, order, &headerLen); err != nil {
-		return nil, Provenance{}, err
+		return nil, domain.Provenance{}, err
 	}
 	if headerLen > maxHeaderLen {
-		return nil, Provenance{}, fmt.Errorf("en-tête de %d octets, plafond %d : artefact tronqué ou corrompu",
+		return nil, domain.Provenance{}, fmt.Errorf("en-tête de %d octets, plafond %d : artefact tronqué ou corrompu",
 			headerLen, maxHeaderLen)
 	}
 	header := make([]byte, headerLen)
 	if _, err := io.ReadFull(r, header); err != nil {
-		return nil, Provenance{}, err
+		return nil, domain.Provenance{}, err
 	}
-	var prov Provenance
-	if err := json.Unmarshal(header, &prov); err != nil {
-		return nil, Provenance{}, fmt.Errorf("provenance illisible : %w", err)
+	var h provenanceHeader
+	if err := json.Unmarshal(header, &h); err != nil {
+		return nil, domain.Provenance{}, fmt.Errorf("provenance illisible : %w", err)
 	}
+	prov := depuisEnTete(h)
 
 	var numNodes uint32
 	if err := binary.Read(r, order, &numNodes); err != nil {

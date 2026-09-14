@@ -16,6 +16,7 @@ import (
 
 	"github.com/im-sellar/hent/internal/adapter/network/csr"
 	"github.com/im-sellar/hent/internal/adapter/osmsource"
+	"github.com/im-sellar/hent/internal/domain"
 )
 
 func main() {
@@ -48,9 +49,9 @@ func run(in, out, sourceName string) error {
 		return err
 	}
 
-	prov := csr.Provenance{
+	prov := domain.Provenance{
 		BuiltAt: time.Now().UTC().Format(time.RFC3339),
-		Sources: []csr.Source{{
+		Sources: []domain.Source{{
 			Name: sourceName, File: in, SHA256: digest, SizeBytes: size,
 		}},
 		ConfigHash: osmsource.ConfigHash(),

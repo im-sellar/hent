@@ -1,0 +1,15 @@
+{
+  "attribution": "Données © les contributeurs OpenStreetMap, sous licence ODbL",
+  "bbox": {
+    "max_lat": 48.17074165566979,
+    "max_lon": -1.574022165406,
+    "min_lat": 48.09934168581202,
+    "min_lon": -1.6810316108616792
+  },
+  "data": {
+    "built_at": "2026-08-18T10:00:00Z",
+    "sources": [],
+    "config_hash": ""
+  }
+}
+

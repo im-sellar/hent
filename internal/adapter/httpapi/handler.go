@@ -17,8 +17,7 @@ import (
 	"time"
 
 	"github.com/im-sellar/hent/internal/adapter/gpxfile"
-	"github.com/im-sellar/hent/internal/adapter/network/csr"
-	"github.com/im-sellar/hent/internal/app/generateloop"
+	"github.com/im-sellar/hent/internal/app/port"
 	"github.com/im-sellar/hent/internal/domain"
 )
 
@@ -99,8 +98,8 @@ func (r loopsRequest) validate() error {
 	return nil
 }
 
-func (r loopsRequest) toDomain() generateloop.Request {
-	return generateloop.Request{
+func (r loopsRequest) toDomain() domain.LoopRequest {
+	return domain.LoopRequest{
 		Start:      domain.Coord{Lat: r.Start.Lat, Lon: r.Start.Lon},
 		DistanceM:  r.DistanceM,
 		Tolerance:  r.Tolerance,
@@ -110,9 +109,30 @@ func (r loopsRequest) toDomain() generateloop.Request {
 	}
 }
 
+// scoreDTO fixe le contrat public du score. Les noms exposés ici sont
+// indépendants de ceux du domaine : c'est ce qui permet de renommer un champ
+// métier sans casser un client, et inversement.
+type scoreDTO struct {
+	DistanceM     float64 `json:"distance_m"`
+	PartNonBitume float64 `json:"part_non_bitume"`
+	PartTrafic    float64 `json:"part_trafic"`
+	PartRetracee  float64 `json:"part_retracee"`
+	EcartCible    float64 `json:"ecart_cible"`
+}
+
+func scoreDTOOf(s domain.Score) scoreDTO {
+	return scoreDTO{
+		DistanceM:     s.DistanceM,
+		PartNonBitume: s.PartNonBitume,
+		PartTrafic:    s.PartTrafic,
+		PartRetracee:  s.PartRetracee,
+		EcartCible:    s.EcartCible,
+	}
+}
+
 type loopDTO struct {
 	ID       string       `json:"id"`
-	Score    domain.Score `json:"score"`
+	Score    scoreDTO     `json:"score"`
 	Geometry [][2]float64 `json:"geometry"` // [lon, lat], ordre GeoJSON
 }
 
@@ -122,10 +142,10 @@ type loopsResponse struct {
 }
 
 // sourceDTO et provenanceDTO découplent le contrat JSON de /v1/regions des
-// tags de csr.Source et csr.Provenance. Ce sont ceux-ci qui fixent la
-// disposition binaire de graph.bin : les laisser fuir jusqu'ici ferait
-// dépendre l'API publique d'un choix de sérialisation interne, exactement ce
-// que l'en-tête du paquet promet d'éviter pour tout le reste des réponses.
+// tags de sérialisation propres au format binaire de graph.bin, portés par
+// l'adaptateur csr. Les laisser fuir jusqu'ici ferait dépendre l'API publique
+// d'un choix de sérialisation interne, exactement ce que l'en-tête du paquet
+// promet d'éviter pour tout le reste des réponses.
 type sourceDTO struct {
 	Name      string `json:"name"`
 	File      string `json:"file"`
@@ -139,7 +159,7 @@ type provenanceDTO struct {
 	ConfigHash string      `json:"config_hash"`
 }
 
-func provenanceDTOOf(p csr.Provenance) provenanceDTO {
+func provenanceDTOOf(p domain.Provenance) provenanceDTO {
 	sources := make([]sourceDTO, len(p.Sources))
 	for i, s := range p.Sources {
 		sources[i] = sourceDTO{Name: s.Name, File: s.File, SHA256: s.SHA256, SizeBytes: s.SizeBytes}
@@ -148,8 +168,8 @@ func provenanceDTOOf(p csr.Provenance) provenanceDTO {
 }
 
 type api struct {
-	gen  *generateloop.Generator
-	prov csr.Provenance
+	gen  port.LoopGenerator
+	prov domain.Provenance
 	bbox domain.BBox
 
 	requests atomic.Int64
@@ -161,7 +181,7 @@ type api struct {
 // connexion (sans port) autorisées à fournir X-Forwarded-For pour la
 // limitation de débit — vide, l'en-tête est ignoré et seule l'adresse de
 // connexion compte, ce qui est le comportement sûr par défaut.
-func New(gen *generateloop.Generator, prov csr.Provenance, bbox domain.BBox, trustedProxies map[string]struct{}) http.Handler {
+func New(gen port.LoopGenerator, prov domain.Provenance, bbox domain.BBox, trustedProxies map[string]struct{}) http.Handler {
 	a := &api{gen: gen, prov: prov, bbox: bbox}
 
 	mux := http.NewServeMux()
@@ -197,9 +217,9 @@ func (a *api) postLoops(w http.ResponseWriter, r *http.Request) {
 	loops, err := a.gen.Generate(ctx, req.toDomain())
 	if err != nil {
 		switch {
-		case errors.Is(err, generateloop.ErrStartOutOfRange):
+		case errors.Is(err, port.ErrStartOutOfRange):
 			a.fail(w, http.StatusBadRequest, "le point de départ est hors de la zone couverte")
-		case errors.Is(err, generateloop.ErrNoLoopFound):
+		case errors.Is(err, port.ErrNoLoopFound):
 			a.fail(w, http.StatusNotFound, "aucune boucle trouvée pour ces critères")
 		case errors.Is(err, context.DeadlineExceeded):
 			a.fail(w, http.StatusGatewayTimeout, "délai dépassé")
@@ -214,7 +234,7 @@ func (a *api) postLoops(w http.ResponseWriter, r *http.Request) {
 	for i, l := range loops {
 		resp.Loops = append(resp.Loops, loopDTO{
 			ID:       encodeID(req, i),
-			Score:    domain.NewScore(l, req.DistanceM),
+			Score:    scoreDTOOf(domain.NewScore(l, req.DistanceM)),
 			Geometry: geometryOf(l),
 		})
 	}

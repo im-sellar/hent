@@ -3,6 +3,7 @@ package csr_test
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -12,10 +13,10 @@ import (
 
 func TestCodecAllerRetour(t *testing.T) {
 	g := carre(t)
-	prov := csr.Provenance{
+	prov := domain.Provenance{
 		BuiltAt:    "2026-08-18T10:00:00Z",
 		ConfigHash: "abc123",
-		Sources: []csr.Source{{
+		Sources: []domain.Source{{
 			Name: "geofabrik/bretagne", File: "bretagne-latest.osm.pbf",
 			SHA256: "deadbeef", SizeBytes: 12345,
 		}},
@@ -34,6 +35,9 @@ func TestCodecAllerRetour(t *testing.T) {
 	if got.NumNodes() != g.NumNodes() || got.NumEdges() != g.NumEdges() {
 		t.Fatalf("relu %d nœuds / %d arêtes, écrit %d / %d",
 			got.NumNodes(), got.NumEdges(), g.NumNodes(), g.NumEdges())
+	}
+	if len(gotProv.Sources) != 1 {
+		t.Fatalf("%d source(s), attendu 1 : la comparaison suivante ne vérifierait rien", len(gotProv.Sources))
 	}
 	if gotProv.Sources[0].SHA256 != "deadbeef" {
 		t.Errorf("provenance perdue : %+v", gotProv)
@@ -72,6 +76,97 @@ func TestCodecAllerRetour(t *testing.T) {
 	}
 }
 
+// TestCodecAllerRetourProvenanceChampParChamp vérifie que chaque champ de
+// domain.Provenance survit à l'aller-retour Write/ReadGraph, y compris ceux
+// que TestCodecAllerRetour ne compare pas (File, ConfigHash, ordre des
+// sources). Toutes les valeurs sont distinctes les unes des autres : deux
+// champs partageant la même valeur laisseraient passer une interversion
+// (ex. Name et File échangés), et une valeur vide laisserait passer une
+// perte pure. La conversion domain.Provenance <-> provenanceHeader fait
+// exactement ce travail champ par champ ; rien d'autre ne le garantit.
+func TestCodecAllerRetourProvenanceChampParChamp(t *testing.T) {
+	g := carre(t)
+	prov := domain.Provenance{
+		BuiltAt:    "builtat-valeur",
+		ConfigHash: "confighash-valeur",
+		Sources: []domain.Source{
+			{Name: "name-0", File: "file-0", SHA256: "sha256-0", SizeBytes: 100},
+			{Name: "name-1", File: "file-1", SHA256: "sha256-1", SizeBytes: 200},
+		},
+	}
+
+	var buf bytes.Buffer
+	if err := csr.Write(&buf, g, prov); err != nil {
+		t.Fatalf("Write : %v", err)
+	}
+
+	_, got, err := csr.ReadGraph(&buf)
+	if err != nil {
+		t.Fatalf("ReadGraph : %v", err)
+	}
+
+	if got.BuiltAt != prov.BuiltAt {
+		t.Errorf("BuiltAt = %q, attendu %q", got.BuiltAt, prov.BuiltAt)
+	}
+	if got.ConfigHash != prov.ConfigHash {
+		t.Errorf("ConfigHash = %q, attendu %q", got.ConfigHash, prov.ConfigHash)
+	}
+	if len(got.Sources) != len(prov.Sources) {
+		t.Fatalf("%d source(s), attendu %d : les comparaisons suivantes ne vérifieraient rien",
+			len(got.Sources), len(prov.Sources))
+	}
+	for i, want := range prov.Sources {
+		if got.Sources[i] != want {
+			t.Errorf("Sources[%d] = %+v, attendu %+v", i, got.Sources[i], want)
+		}
+	}
+}
+
+// champSourcesBrut écrit p et renvoie la valeur JSON brute du champ "sources"
+// dans l'en-tête produit. ReadGraph ne convient pas ici : depuisEnTete boucle
+// sur h.Sources et n'exécute aucune itération que l'en-tête porte "null" ou
+// "[]", si bien que domain.Provenance.Sources revient nil dans les deux cas
+// — la distinction ne survit que dans les octets de l'en-tête, pas dans le
+// type reconstruit.
+func champSourcesBrut(t *testing.T, p domain.Provenance) string {
+	t.Helper()
+
+	g := carre(t)
+	var buf bytes.Buffer
+	if err := csr.Write(&buf, g, p); err != nil {
+		t.Fatalf("Write : %v", err)
+	}
+	data := buf.Bytes()
+
+	headerLen := binary.LittleEndian.Uint32(data[6:10])
+	header := data[10 : 10+int(headerLen)]
+
+	var champs map[string]json.RawMessage
+	if err := json.Unmarshal(header, &champs); err != nil {
+		t.Fatalf("en-tête illisible : %v", err)
+	}
+	return string(champs["sources"])
+}
+
+// TestVersEnTeteDistingueSourcesNilEtVide verrouille les deux cas dégénérés
+// de la conversion domain.Provenance -> provenanceHeader : un Sources nil
+// doit rester "null" dans l'en-tête, et ne pas se confondre avec un Sources
+// vide non-nil, qui doit rester "[]". Les artefacts déjà produits avec un
+// Sources nil (le cas de csr.Provenance{} dans les tests de ce fichier)
+// verraient leur en-tête changer si les deux convergeaient vers la même
+// représentation.
+func TestVersEnTeteDistingueSourcesNilEtVide(t *testing.T) {
+	sourcesNil := domain.Provenance{BuiltAt: "sans-sources"}
+	sourcesVide := domain.Provenance{BuiltAt: "sources-vides", Sources: []domain.Source{}}
+
+	if got := champSourcesBrut(t, sourcesNil); got != "null" {
+		t.Errorf(`Sources nil : champ "sources" de l'en-tête = %s, attendu "null"`, got)
+	}
+	if got := champSourcesBrut(t, sourcesVide); got != "[]" {
+		t.Errorf(`Sources vide non-nil : champ "sources" de l'en-tête = %s, attendu "[]"`, got)
+	}
+}
+
 func TestCodecRefuseUnMauvaisFichier(t *testing.T) {
 	_, _, err := csr.ReadGraph(bytes.NewReader([]byte("ce n'est pas un graphe")))
 	if !errors.Is(err, csr.ErrBadMagic) {
@@ -82,7 +177,7 @@ func TestCodecRefuseUnMauvaisFichier(t *testing.T) {
 func TestCodecRefuseVersionInconnue(t *testing.T) {
 	g := carre(t)
 	var buf bytes.Buffer
-	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+	if err := csr.Write(&buf, g, domain.Provenance{}); err != nil {
 		t.Fatalf("Write : %v", err)
 	}
 
@@ -119,7 +214,7 @@ func offsetsLayout(t *testing.T, data []byte) (numNodesOffset, offsetsOffset int
 func TestCodecRefuseCibleHorsBornes(t *testing.T) {
 	g := carre(t)
 	var buf bytes.Buffer
-	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+	if err := csr.Write(&buf, g, domain.Provenance{}); err != nil {
 		t.Fatalf("Write : %v", err)
 	}
 	data := buf.Bytes()
@@ -142,7 +237,7 @@ func TestCodecRefuseCibleHorsBornes(t *testing.T) {
 func TestCodecRefuseOffsetsNonCroissants(t *testing.T) {
 	g := carre(t)
 	var buf bytes.Buffer
-	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+	if err := csr.Write(&buf, g, domain.Provenance{}); err != nil {
 		t.Fatalf("Write : %v", err)
 	}
 	data := buf.Bytes()
@@ -162,7 +257,7 @@ func TestCodecRefuseOffsetsNonCroissants(t *testing.T) {
 func TestCodecRefuseDernierOffsetIncoherent(t *testing.T) {
 	g := carre(t)
 	var buf bytes.Buffer
-	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+	if err := csr.Write(&buf, g, domain.Provenance{}); err != nil {
 		t.Fatalf("Write : %v", err)
 	}
 	data := buf.Bytes()
@@ -180,7 +275,7 @@ func TestCodecRefuseDernierOffsetIncoherent(t *testing.T) {
 func TestCodecRefuseCompteurDeNoeudsDemesure(t *testing.T) {
 	g := carre(t)
 	var buf bytes.Buffer
-	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+	if err := csr.Write(&buf, g, domain.Provenance{}); err != nil {
 		t.Fatalf("Write : %v", err)
 	}
 	data := buf.Bytes()

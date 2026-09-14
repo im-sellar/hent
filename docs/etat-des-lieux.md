@@ -151,6 +151,16 @@ identifiés sont ceux du §6 (réduire `numCandidates` de 20 à 12, plafonner le
 pondérations maximales), à trancher avant de considérer le critère de
 performance du §1 comme atteint sur la cible de déploiement réelle.
 
+Le budget mémoire du §12, jusqu'ici estimé, est désormais mesuré : `routed`
+répond **15,2 s après son démarrage**, le temps de charger les 294 Mo de
+`graph.bin`, pour une empreinte de **593 Mo de RSS** une fois le graphe en
+mémoire — ce qui impose un VPS d'au moins 2 Go.
+
+Ce premier chiffre a une conséquence de conception : embarquer l'interface web
+dans le binaire ferait payer quinze secondes d'indisponibilité à chaque
+retouche de feuille de style. C'est ce qui a fait retenir un service statique
+séparé, servi par Caddy, plutôt qu'un `//go:embed` dans `routed`.
+
 ## L'étape web — décisions prises
 
 Le moteur est complet ; ce qui suit concerne l'interface publique, conçue avant
@@ -193,6 +203,73 @@ bloquer.
 **Restent à trancher :** rien dans le design. Côté service, la latence (plus
 bas) et les artefacts de déploiement du §12.
 
+## Architecture — ce qui est garanti par un test
+
+Le durcissement de l'architecture (`docs/clean-archi-back.md`) a ajouté des
+gardiens à `go test ./...`, en plus de la règle de dépendance qui existait déjà
+depuis l'étape 1. Sept règles, vérifiées à chaque exécution :
+
+| Test | Ce qu'il empêche |
+|---|---|
+| `TestRegleDeDependance` | qu'une couche importe une couche interdite |
+| `TestDependanceInterditeRespecteLesSegments` | que la règle ci-dessus confonde `internal/app2` avec `internal/app` |
+| `TestAdaptateursCloisonnes` | qu'un adaptateur en importe un autre |
+| `TestDomaineIgnoreLaSerialisation` | qu'un tag `json:` réapparaisse dans le domaine |
+| Assertion de compilation (`internal/app/port/generator_test.go`) | que le moteur s'écarte du contrat entrant — au moment du build, avant même l'exécution des tests |
+| `TestAdaptateurNImportePasLeMoteurConcret` | qu'un adaptateur importe le moteur concret plutôt que `port.LoopGenerator` |
+| `TestNewConsommeLePort` | qu'un type concret remplace le port dans la signature de `httpapi.New` sans qu'aucun test ne bronche |
+
+Et six témoins, qui figent ce qui ne doit pas bouger :
+
+| Témoin | Ce qu'il fige |
+|---|---|
+| `TestContratJSONInchange` | les réponses HTTP publiques, octet pour octet |
+| `TestFormatArtefactStable` | l'en-tête binaire de `graph.bin`, relu depuis un artefact versionné |
+| `TestScoreDTOApparieLesChamps` | l'appariement des cinq champs du score entre domaine et DTO |
+| `TestLoopRequestApparieLesChamps` | l'appariement des sept champs de la requête entrante entre DTO et domaine |
+| `TestCodecAllerRetourProvenanceChampParChamp` | que l'aller-retour `Write`/`ReadGraph` perde un champ de `domain.Provenance`, ou l'intervertisse de façon asymétrique entre écriture et lecture |
+| `TestVersEnTeteDistingueSourcesNilEtVide` | qu'un `Sources` nil et un `Sources` vide non-nil convergent vers la même valeur JSON dans l'en-tête écrit |
+
+`TestFormatArtefactStable` ne couvre que la relecture d'un artefact déjà
+produit : il ne peut rien dire du sens écriture. C'est exactement le trou
+trouvé en revue de la tâche 4 — retirer un champ de la conversion aurait
+laissé toute la suite verte, et un futur artefact se serait écrit avec ce
+champ vide, en silence. `TestCodecAllerRetourProvenanceChampParChamp` ferme ce
+trou en vérifiant que chaque champ de `Provenance` survit à l'aller-retour
+`Write`/`ReadGraph`, avec des valeurs toutes distinctes pour qu'une perte ou
+une interversion se voie.
+
+Cet aller-retour a sa propre limite : une interversion symétrique entre deux
+champs, appliquée à la fois dans `versEnTete` et dans `depuisEnTete`, écrit un
+en-tête faux tout en relisant la valeur d'origine — le test reste vert. C'est
+`TestFormatArtefactStable` qui l'attrape : il relit `testdata/artefact-v2.bin`,
+écrit par un autre code, dont les champs sont donc à leur place d'origine, et
+compare le résultat à `provenanceTemoin()`. Une conversion qui échange deux
+champs des deux côtés les restitue croisés à cette relecture, et la
+comparaison tombe. La garantie vient précisément de là : relire un fichier
+qu'on n'a pas écrit soi-même, ce qu'un aller-retour par le même code ne peut
+pas offrir.
+
+`TestVersEnTeteDistingueSourcesNilEtVide` couvre un cas que la reconstruction
+du type ne peut pas voir : `depuisEnTete` renvoie `nil` aussi bien pour un
+`Sources` nil que pour un `Sources` vide non-nil, si bien que la distinction
+ne survit que dans les octets bruts de l'en-tête écrit — c'est là, et pas
+après relecture, qu'il faut la vérifier.
+
+**Deux couplages entre adaptateurs restent tolérés**, déclarés explicitement dans
+`couplagesToleres` :
+
+- `osmsource → network` — construire le graphe CSR en flux est l'unique raison
+  d'être de `osmsource` : la dépendance est son produit. La rompre demanderait un
+  port `GraphBuilder` et une refonte du chemin d'ingestion de six millions de
+  nœuds, qu'aucun témoin de performance n'encadre.
+- `httpapi → gpxfile` — l'adaptateur HTTP compose l'exportateur GPX. Un port
+  `LoopExporter` serait plus propre et peu coûteux ; c'est le candidat naturel si
+  ce point est repris.
+
+Ce sont des dettes identifiées, pas des oublis : tout couplage **nouveau** est
+refusé, et une exception devenue inutile fait échouer le test.
+
 ## Les documents
 
 - **[`design/README.md`](../design/README.md)** — le canevas de design : ce qui est source, ce qui est généré, comment régénérer.
@@ -200,6 +277,7 @@ bas) et les artefacts de déploiement du §12.
 - **[`docs/plan-etape-1.md`](plan-etape-1.md)** — le plan d'implémentation : neuf tâches, tout le code à écrire, en TDD. C'est lui qui a été déroulé, et il porte les corrections apportées en cours de route.
 - **[`docs/journal-execution.md`](journal-execution.md)** — le journal de bord : chaque décision prise pendant l'exécution, avec sa justification et son coût si elle s'avérait fausse.
 - **[`docs/revue-finale.md`](revue-finale.md)** — la revue de l'ensemble de la branche, celle qui a trouvé les deux défauts que les revues tâche par tâche ne pouvaient pas voir.
+- **[`docs/clean-archi-back.md`](clean-archi-back.md)** — la conception du durcissement de l'architecture : l'audit des quatre failles, la cible, l'ordre d'exécution en six étapes.
 
 Les briefs, rapports et revues détaillés de chaque tâche restent dans `.superpowers/sdd/`, ignoré par git et local à la machine. Le journal en contient la substance.
 
@@ -217,7 +295,6 @@ Les points 3 et 4 étaient de vrais défauts du plan, trouvés avant exécution 
 
 ## Constats mineurs laissés de côté
 
-- `internal/architecture_test.go:38` — la comparaison de préfixe d'import ne vérifie pas la frontière de segment. Une future couche `internal/app2` serait faussement détectée comme important `internal/app`. Aucun impact sur les quatre couches actuelles.
 - `internal/domain/geo_test.go` — `TestBBoxContains` ne couvre pas les points situés exactement sur `Min` ou `Max`, alors que `Contains` utilise des comparaisons inclusives.
 - `internal/adapter/network/csr/graph.go` — les offsets sont typés `[]uint32` plutôt que `domain.EdgeRef` ; `EdgeRange` convertit déjà, aucun bug latent, seulement une intention moins lisible.
 - `internal/adapter/network/csr/graph.go` — `AddEdge`/`AddNode` ne valident toujours pas les bornes côté `Builder` (alimenté uniquement par `osmsource`, sans risque). `ReadGraph`, en revanche, valide désormais la cohérence de ce qu'il lit (voir I2 ci-dessus) : c'est lui qui ingère des données externes.
@@ -351,7 +428,6 @@ fonctionne réellement. Le pendant en sens inverse
 
 Relevés en revue, non bloquants, à balayer avant de passer aux étapes suivantes :
 
-- `internal/architecture_test.go` — la comparaison de préfixe d'import ne vérifie pas la frontière de segment : une future couche `internal/app2` serait faussement vue comme important `internal/app`.
 - `internal/domain/geo_test.go` — `TestBBoxContains` ne couvre pas les points situés exactement sur `Min` ou `Max`, alors que `Contains` est inclusive.
 - `internal/adapter/network/csr/graph.go` — offsets typés `[]uint32` au lieu de `domain.EdgeRef` ; aucun bug latent.
 - `internal/adapter/httpapi/handler.go` — la garde de finitude ajoutée à la
