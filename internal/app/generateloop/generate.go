@@ -5,7 +5,6 @@ package generateloop
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"hash/fnv"
 	"math"
@@ -18,11 +17,6 @@ import (
 
 	"github.com/im-sellar/hent/internal/app/port"
 	"github.com/im-sellar/hent/internal/domain"
-)
-
-var (
-	ErrStartOutOfRange = errors.New("le point de départ est hors de la zone couverte")
-	ErrNoLoopFound     = errors.New("aucune boucle trouvée pour cette requête")
 )
 
 const (
@@ -69,7 +63,7 @@ func (g *Generator) Generate(ctx context.Context, req domain.LoopRequest) ([]dom
 
 	start, ok := g.net.NearestNode(req.Start)
 	if !ok {
-		return nil, ErrStartOutOfRange
+		return nil, port.ErrStartOutOfRange
 	}
 
 	// Le hasard est dérivé de la requête : deux appels identiques donnent le
@@ -111,7 +105,7 @@ func (g *Generator) Generate(ctx context.Context, req domain.LoopRequest) ([]dom
 		}
 	}
 	if len(loops) == 0 {
-		return nil, ErrNoLoopFound
+		return nil, port.ErrNoLoopFound
 	}
 
 	loops = dedupe(loops)
@@ -184,7 +178,7 @@ func (g *Generator) candidate(ctx context.Context, start domain.NodeRef,
 	// ce que l'utilisateur a demandé. Cette direction est abandonnée, les
 	// dix-neuf autres sont explorées en parallèle — et les mesures montrent
 	// qu'elles aboutissent presque toutes.
-	return domain.Loop{}, ErrNoLoopFound
+	return domain.Loop{}, port.ErrNoLoopFound
 }
 
 func (g *Generator) tryLoop(ctx context.Context, start domain.NodeRef,
@@ -226,7 +220,7 @@ func (g *Generator) tryLoop(ctx context.Context, start domain.NodeRef,
 	appendSegment(&loop, seg, used)
 
 	if loop.Nodes[len(loop.Nodes)-1] != start {
-		return domain.Loop{}, ErrNoLoopFound
+		return domain.Loop{}, port.ErrNoLoopFound
 	}
 	return loop, nil
 }

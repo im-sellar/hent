@@ -64,6 +64,47 @@ func dependanceInterdite(pkg, couche string) bool {
 	return pkg == prefixe || strings.HasPrefix(pkg, prefixe+"/")
 }
 
+// TestAdaptateurNImportePasLeMoteurConcret interdit qu'un paquet sous
+// internal/adapter importe internal/app/generateloop.
+//
+// Les erreurs sentinelles d'un moteur de génération sont un résultat du
+// contrat qu'il implémente, pas un détail de sa stratégie : une seconde
+// implémentation de port.LoopGenerator doit pouvoir les produire sans que
+// l'adaptateur ait à connaître le moteur concret. C'est le même raisonnement
+// qui a sorti csr.Provenance de la signature de httpapi.New.
+//
+// Les fichiers de test sont exclus : ils assemblent le moteur concret et le
+// handler HTTP pour des tests bout en bout, exactement comme le fait
+// cmd/routed — ce n'est pas le couplage que la règle vise.
+func TestAdaptateurNImportePasLeMoteurConcret(t *testing.T) {
+	root := projectRoot(t)
+	dir := filepath.Join(root, "internal/adapter")
+
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") {
+			return err
+		}
+
+		file, err := parser.ParseFile(token.NewFileSet(), path, nil, parser.ImportsOnly)
+		if err != nil {
+			return err
+		}
+
+		for _, imp := range file.Imports {
+			pkg := strings.Trim(imp.Path.Value, `"`)
+			if dependanceInterdite(pkg, "internal/app/generateloop") {
+				rel, _ := filepath.Rel(root, path)
+				t.Errorf("%s importe %s : un adaptateur ne doit dépendre que de port.LoopGenerator, pas du moteur concret",
+					rel, pkg)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 // TestDependanceInterditeRespecteLesSegments verrouille la comparaison de
 // chemins d'import. Une comparaison de préfixe nue confond internal/app et
 // internal/app2 : le test qui garantit l'architecture serait alors le seul

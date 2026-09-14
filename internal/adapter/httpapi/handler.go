@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/im-sellar/hent/internal/adapter/gpxfile"
-	"github.com/im-sellar/hent/internal/app/generateloop"
 	"github.com/im-sellar/hent/internal/app/port"
 	"github.com/im-sellar/hent/internal/domain"
 )
@@ -218,9 +217,9 @@ func (a *api) postLoops(w http.ResponseWriter, r *http.Request) {
 	loops, err := a.gen.Generate(ctx, req.toDomain())
 	if err != nil {
 		switch {
-		case errors.Is(err, generateloop.ErrStartOutOfRange):
+		case errors.Is(err, port.ErrStartOutOfRange):
 			a.fail(w, http.StatusBadRequest, "le point de départ est hors de la zone couverte")
-		case errors.Is(err, generateloop.ErrNoLoopFound):
+		case errors.Is(err, port.ErrNoLoopFound):
 			a.fail(w, http.StatusNotFound, "aucune boucle trouvée pour ces critères")
 		case errors.Is(err, context.DeadlineExceeded):
 			a.fail(w, http.StatusGatewayTimeout, "délai dépassé")
