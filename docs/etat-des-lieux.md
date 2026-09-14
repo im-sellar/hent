@@ -217,13 +217,29 @@ depuis l'étape 1. Cinq règles, vérifiées à chaque exécution :
 | `TestDomaineIgnoreLaSerialisation` | qu'un tag `json:` réapparaisse dans le domaine |
 | `TestGeneratorImplementeLePort` | que le moteur s'écarte du contrat entrant |
 
-Et trois témoins, qui figent ce qui ne doit pas bouger :
+Et cinq témoins, qui figent ce qui ne doit pas bouger :
 
 | Témoin | Ce qu'il fige |
 |---|---|
 | `TestContratJSONInchange` | les réponses HTTP publiques, octet pour octet |
 | `TestFormatArtefactStable` | l'en-tête binaire de `graph.bin`, relu depuis un artefact versionné |
 | `TestScoreDTOApparieLesChamps` | l'appariement des cinq champs du score entre domaine et DTO |
+| `TestCodecAllerRetourProvenanceChampParChamp` | que la conversion `domain.Provenance` → `provenanceHeader` perde ou intervertisse un champ au moment d'écrire |
+| `TestVersEnTeteDistingueSourcesNilEtVide` | qu'un `Sources` nil et un `Sources` vide non-nil convergent vers la même valeur JSON dans l'en-tête écrit |
+
+`TestFormatArtefactStable` ne couvre que la relecture d'un artefact déjà
+produit : il ne peut rien dire du sens écriture. C'est exactement le trou
+trouvé en revue de la tâche 4 — retirer un champ de la conversion aurait
+laissé toute la suite verte, et un futur artefact se serait écrit avec ce
+champ vide, en silence. `TestCodecAllerRetourProvenanceChampParChamp` ferme ce
+trou en vérifiant que chaque champ de `Provenance` survit à l'aller-retour
+`Write`/`ReadGraph`, avec des valeurs toutes distinctes pour qu'une
+interversion entre deux champs ne passe pas inaperçue.
+`TestVersEnTeteDistingueSourcesNilEtVide` couvre un cas que la reconstruction
+du type ne peut pas voir : `depuisEnTete` renvoie `nil` aussi bien pour un
+`Sources` nil que pour un `Sources` vide non-nil, si bien que la distinction
+ne survit que dans les octets bruts de l'en-tête écrit — c'est là, et pas
+après relecture, qu'il faut la vérifier.
 
 **Deux couplages entre adaptateurs restent tolérés**, déclarés explicitement dans
 `couplagesToleres` :
@@ -397,7 +413,6 @@ fonctionne réellement. Le pendant en sens inverse
 
 Relevés en revue, non bloquants, à balayer avant de passer aux étapes suivantes :
 
-- `internal/architecture_test.go` — la comparaison de préfixe d'import ne vérifie pas la frontière de segment : une future couche `internal/app2` serait faussement vue comme important `internal/app`.
 - `internal/domain/geo_test.go` — `TestBBoxContains` ne couvre pas les points situés exactement sur `Min` ou `Max`, alors que `Contains` est inclusive.
 - `internal/adapter/network/csr/graph.go` — offsets typés `[]uint32` au lieu de `domain.EdgeRef` ; aucun bug latent.
 - `internal/adapter/httpapi/handler.go` — la garde de finitude ajoutée à la
