@@ -35,6 +35,9 @@ func TestCodecAllerRetour(t *testing.T) {
 		t.Fatalf("relu %d nœuds / %d arêtes, écrit %d / %d",
 			got.NumNodes(), got.NumEdges(), g.NumNodes(), g.NumEdges())
 	}
+	if len(gotProv.Sources) != 1 {
+		t.Fatalf("%d source(s), attendu 1 : la comparaison suivante ne vérifierait rien", len(gotProv.Sources))
+	}
 	if gotProv.Sources[0].SHA256 != "deadbeef" {
 		t.Errorf("provenance perdue : %+v", gotProv)
 	}
