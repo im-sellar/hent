@@ -10,13 +10,13 @@ import (
 	"github.com/im-sellar/hent/internal/testsupport"
 )
 
-func reseauEtRequete() (*testsupport.Grille, generateloop.Request) {
+func reseauEtRequete() (*testsupport.Grille, domain.LoopRequest) {
 	// 40×40 nœuds espacés de 200 m : environ 8 km de côté, assez pour une
 	// boucle de 4 km.
 	g := testsupport.NouvelleGrille(40, 200)
 	depart := g.Coord(domain.NodeRef(40*20 + 20)) // au centre
 
-	return g, generateloop.Request{
+	return g, domain.LoopRequest{
 		Start:      depart,
 		DistanceM:  4000,
 		Tolerance:  0.15,

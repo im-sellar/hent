@@ -18,6 +18,7 @@ import (
 
 	"github.com/im-sellar/hent/internal/adapter/gpxfile"
 	"github.com/im-sellar/hent/internal/app/generateloop"
+	"github.com/im-sellar/hent/internal/app/port"
 	"github.com/im-sellar/hent/internal/domain"
 )
 
@@ -98,8 +99,8 @@ func (r loopsRequest) validate() error {
 	return nil
 }
 
-func (r loopsRequest) toDomain() generateloop.Request {
-	return generateloop.Request{
+func (r loopsRequest) toDomain() domain.LoopRequest {
+	return domain.LoopRequest{
 		Start:      domain.Coord{Lat: r.Start.Lat, Lon: r.Start.Lon},
 		DistanceM:  r.DistanceM,
 		Tolerance:  r.Tolerance,
@@ -168,7 +169,7 @@ func provenanceDTOOf(p domain.Provenance) provenanceDTO {
 }
 
 type api struct {
-	gen  *generateloop.Generator
+	gen  port.LoopGenerator
 	prov domain.Provenance
 	bbox domain.BBox
 
@@ -181,7 +182,7 @@ type api struct {
 // connexion (sans port) autorisées à fournir X-Forwarded-For pour la
 // limitation de débit — vide, l'en-tête est ignoré et seule l'adresse de
 // connexion compte, ce qui est le comportement sûr par défaut.
-func New(gen *generateloop.Generator, prov domain.Provenance, bbox domain.BBox, trustedProxies map[string]struct{}) http.Handler {
+func New(gen port.LoopGenerator, prov domain.Provenance, bbox domain.BBox, trustedProxies map[string]struct{}) http.Handler {
 	a := &api{gen: gen, prov: prov, bbox: bbox}
 
 	mux := http.NewServeMux()

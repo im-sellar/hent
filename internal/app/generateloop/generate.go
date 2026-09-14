@@ -45,15 +45,6 @@ const (
 	detourLo, detourHi = 0.8, 2.5
 )
 
-type Request struct {
-	Start      domain.Coord
-	DistanceM  float64
-	Tolerance  float64
-	Prefs      domain.Preferences
-	MaxResults int
-	Variant    int
-}
-
 type Generator struct {
 	net port.RouteNetwork
 
@@ -70,11 +61,11 @@ func (g *Generator) Stats() (exploredNodes, droppedCandidates int64) {
 	return g.net.ExploredNodesTotal(), g.dropped.Load()
 }
 
-func (g *Generator) Generate(ctx context.Context, req Request) ([]domain.Loop, error) {
+func (g *Generator) Generate(ctx context.Context, req domain.LoopRequest) ([]domain.Loop, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	req = req.withDefaults()
+	req = withDefaults(req)
 
 	start, ok := g.net.NearestNode(req.Start)
 	if !ok {
@@ -135,7 +126,7 @@ func (g *Generator) Generate(ctx context.Context, req Request) ([]domain.Loop, e
 	return loops, nil
 }
 
-func (r Request) withDefaults() Request {
+func withDefaults(r domain.LoopRequest) domain.LoopRequest {
 	if r.Tolerance <= 0 {
 		r.Tolerance = 0.10
 	}
@@ -145,7 +136,7 @@ func (r Request) withDefaults() Request {
 	return r
 }
 
-func seedOf(req Request) int64 {
+func seedOf(req domain.LoopRequest) int64 {
 	h := fnv.New64a()
 	fmt.Fprintf(h, "%.6f|%.6f|%.1f|%.3f|%.3f|%d|%d",
 		req.Start.Lat, req.Start.Lon, req.DistanceM, req.Tolerance,
@@ -160,7 +151,7 @@ func seedOf(req Request) int64 {
 // relief il serpente, en plaine il file. On ne peut pas le connaître à
 // l'avance, on le mesure.
 func (g *Generator) candidate(ctx context.Context, start domain.NodeRef,
-	theta float64, req Request) (domain.Loop, error) {
+	theta float64, req domain.LoopRequest) (domain.Loop, error) {
 
 	lo, hi := detourLo, detourHi
 	detour := 1.3
@@ -197,7 +188,7 @@ func (g *Generator) candidate(ctx context.Context, start domain.NodeRef,
 }
 
 func (g *Generator) tryLoop(ctx context.Context, start domain.NodeRef,
-	theta, radius float64, req Request) (domain.Loop, error) {
+	theta, radius float64, req domain.LoopRequest) (domain.Loop, error) {
 
 	center := g.net.Coord(start)
 	weights := req.Prefs.Weights()
