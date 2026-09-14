@@ -5,6 +5,7 @@ go 1.25
 require (
 	github.com/paulmach/osm v0.9.0
 	golang.org/x/sync v0.8.0
+	golang.org/x/time v0.14.0
 )
 
 require (

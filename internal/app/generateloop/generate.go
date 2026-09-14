@@ -12,6 +12,7 @@ import (
 	"math/rand"
 	"runtime"
 	"sort"
+	"sync/atomic"
 
 	"golang.org/x/sync/errgroup"
 
@@ -55,9 +56,17 @@ type Request struct {
 
 type Generator struct {
 	net port.RouteNetwork
+
+	exploredNodes atomic.Int64
+	dropped       atomic.Int64
 }
 
 func New(net port.RouteNetwork) *Generator { return &Generator{net: net} }
+
+// Stats retourne les compteurs cumulés depuis le démarrage.
+func (g *Generator) Stats() (exploredNodes, droppedCandidates int64) {
+	return g.exploredNodes.Load(), g.dropped.Load()
+}
 
 func (g *Generator) Generate(ctx context.Context, req Request) ([]domain.Loop, error) {
 	if err := ctx.Err(); err != nil {
@@ -91,7 +100,8 @@ func (g *Generator) Generate(ctx context.Context, req Request) ([]domain.Loop, e
 				if gctx.Err() != nil {
 					return gctx.Err()
 				}
-				return nil // une direction sans issue n'est pas une erreur
+				g.dropped.Add(1) // une direction sans issue n'est pas une erreur
+				return nil
 			}
 			results[i], found[i] = loop, true
 			return nil
@@ -210,7 +220,7 @@ func (g *Generator) tryLoop(ctx context.Context, start domain.NodeRef,
 		if err != nil {
 			return domain.Loop{}, err
 		}
-		appendSegment(&loop, seg, used)
+		g.appendSegment(&loop, seg, used)
 		current = wp
 	}
 
@@ -220,7 +230,7 @@ func (g *Generator) tryLoop(ctx context.Context, start domain.NodeRef,
 	if err != nil {
 		return domain.Loop{}, err
 	}
-	appendSegment(&loop, seg, used)
+	g.appendSegment(&loop, seg, used)
 
 	if loop.Nodes[len(loop.Nodes)-1] != start {
 		return domain.Loop{}, ErrNoLoopFound
@@ -230,7 +240,9 @@ func (g *Generator) tryLoop(ctx context.Context, start domain.NodeRef,
 
 // appendSegment recolle un segment à la boucle en évitant de dupliquer le
 // nœud de jonction, et note ses arêtes comme consommées.
-func appendSegment(loop *domain.Loop, seg domain.Path, used map[domain.EdgeRef]struct{}) {
+func (g *Generator) appendSegment(loop *domain.Loop, seg domain.Path, used map[domain.EdgeRef]struct{}) {
+	g.exploredNodes.Add(int64(seg.ExploredNodes))
+
 	if len(seg.Nodes) > 1 {
 		loop.Nodes = append(loop.Nodes, seg.Nodes[1:]...)
 		loop.Coords = append(loop.Coords, seg.Coords[1:]...)

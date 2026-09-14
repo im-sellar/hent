@@ -75,6 +75,31 @@ func TestConfigHashDeterministe(t *testing.T) {
 	}
 }
 
+// TestClassifyToutesLesClassesOntUnRevetementParDefaut verrouille un invariant
+// tacite entre les deux tables : lorsqu'un tronçon n'a pas de tag `surface` —
+// un quart d'entre eux — Classify retombe sur defaultSurfaces. Si une classe y
+// manquait, l'indexation de la map rendrait la valeur zéro, c'est-à-dire
+// SurfaceUnknown, silencieusement : le tronçon serait alors pénalisé à moitié
+// par le modèle de coût tout en comptant pour du chemin intégral dans le score.
+// Ajouter une entrée à wayClasses sans en ajouter une à defaultSurfaces doit
+// faire échouer ce test, pas produire une incohérence invisible.
+func TestClassifyToutesLesClassesOntUnRevetementParDefaut(t *testing.T) {
+	vues := map[domain.WayClass]string{}
+	for tag := range osmsource.WayClassesPourTest() {
+		class, surface, _, ok := osmsource.Classify(map[string]string{"highway": tag})
+		if !ok {
+			t.Fatalf("highway=%s devrait être retenu", tag)
+		}
+		if surface == domain.SurfaceUnknown {
+			t.Errorf("highway=%s (classe %v) n'a pas de revêtement par défaut", tag, class)
+		}
+		vues[class] = tag
+	}
+	if len(vues) == 0 {
+		t.Fatal("aucune classe parcourue : le test ne vérifierait rien")
+	}
+}
+
 func TestClassifyExpositionTrafic(t *testing.T) {
 	_, _, traficRoute, _ := osmsource.Classify(map[string]string{"highway": "secondary"})
 	_, _, traficSentier, _ := osmsource.Classify(map[string]string{"highway": "path"})

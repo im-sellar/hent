@@ -104,6 +104,17 @@ func ConfigHash() string {
 	return hex.EncodeToString(h.Sum(nil)[:8])
 }
 
+// WayClassesPourTest expose les valeurs de highway retenues, afin que les
+// tests puissent vérifier la cohérence entre les tables sans les dupliquer —
+// une copie finirait par diverger de l'original, et le test perdrait son sens.
+func WayClassesPourTest() map[string]struct{} {
+	tags := make(map[string]struct{}, len(wayClasses))
+	for k := range wayClasses {
+		tags[k] = struct{}{}
+	}
+	return tags
+}
+
 // Classify traduit les tags d'un way OSM. Le dernier retour indique si le
 // tronçon est praticable à pied et doit entrer dans le graphe.
 func Classify(tags map[string]string) (domain.WayClass, domain.Surface, uint8, bool) {
