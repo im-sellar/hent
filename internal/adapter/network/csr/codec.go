@@ -46,11 +46,10 @@ type provenanceHeader struct {
 
 func versEnTete(p domain.Provenance) provenanceHeader {
 	h := provenanceHeader{BuiltAt: p.BuiltAt, ConfigHash: p.ConfigHash}
-	// Un Sources nil doit rester nil (l'en-tête sérialise alors "sources":null,
-	// comme avant le déplacement de Provenance) : sans cette distinction, un
-	// Sources nil et un Sources vide non-nil convergeraient vers la même
-	// sortie et l'en-tête d'artefacts déjà produits avec un Sources nil
-	// changerait.
+	// Un Sources nil doit rester nil (l'en-tête sérialise alors "sources":null) :
+	// sans cette distinction, un Sources nil et un Sources vide non-nil
+	// convergeraient vers la même sortie et l'en-tête d'artefacts déjà produits
+	// avec un Sources nil changerait.
 	if p.Sources != nil {
 		h.Sources = make([]sourceHeader, 0, len(p.Sources))
 	}

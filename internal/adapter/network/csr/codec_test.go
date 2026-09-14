@@ -150,11 +150,11 @@ func champSourcesBrut(t *testing.T, p domain.Provenance) string {
 
 // TestVersEnTeteDistingueSourcesNilEtVide verrouille les deux cas dégénérés
 // de la conversion domain.Provenance -> provenanceHeader : un Sources nil
-// doit rester "null" dans l'en-tête, comme avant le déplacement de
-// Provenance, et ne pas se confondre avec un Sources vide non-nil, qui doit
-// rester "[]". Les artefacts déjà produits avec un Sources nil (le cas de
-// csr.Provenance{} dans les tests de ce fichier) verraient leur en-tête
-// changer si les deux convergeaient vers la même représentation.
+// doit rester "null" dans l'en-tête, et ne pas se confondre avec un Sources
+// vide non-nil, qui doit rester "[]". Les artefacts déjà produits avec un
+// Sources nil (le cas de csr.Provenance{} dans les tests de ce fichier)
+// verraient leur en-tête changer si les deux convergeaient vers la même
+// représentation.
 func TestVersEnTeteDistingueSourcesNilEtVide(t *testing.T) {
 	sourcesNil := domain.Provenance{BuiltAt: "sans-sources"}
 	sourcesVide := domain.Provenance{BuiltAt: "sources-vides", Sources: []domain.Source{}}
