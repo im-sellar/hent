@@ -12,10 +12,10 @@ import (
 
 func TestCodecAllerRetour(t *testing.T) {
 	g := carre(t)
-	prov := csr.Provenance{
+	prov := domain.Provenance{
 		BuiltAt:    "2026-08-18T10:00:00Z",
 		ConfigHash: "abc123",
-		Sources: []csr.Source{{
+		Sources: []domain.Source{{
 			Name: "geofabrik/bretagne", File: "bretagne-latest.osm.pbf",
 			SHA256: "deadbeef", SizeBytes: 12345,
 		}},
@@ -82,7 +82,7 @@ func TestCodecRefuseUnMauvaisFichier(t *testing.T) {
 func TestCodecRefuseVersionInconnue(t *testing.T) {
 	g := carre(t)
 	var buf bytes.Buffer
-	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+	if err := csr.Write(&buf, g, domain.Provenance{}); err != nil {
 		t.Fatalf("Write : %v", err)
 	}
 
@@ -119,7 +119,7 @@ func offsetsLayout(t *testing.T, data []byte) (numNodesOffset, offsetsOffset int
 func TestCodecRefuseCibleHorsBornes(t *testing.T) {
 	g := carre(t)
 	var buf bytes.Buffer
-	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+	if err := csr.Write(&buf, g, domain.Provenance{}); err != nil {
 		t.Fatalf("Write : %v", err)
 	}
 	data := buf.Bytes()
@@ -142,7 +142,7 @@ func TestCodecRefuseCibleHorsBornes(t *testing.T) {
 func TestCodecRefuseOffsetsNonCroissants(t *testing.T) {
 	g := carre(t)
 	var buf bytes.Buffer
-	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+	if err := csr.Write(&buf, g, domain.Provenance{}); err != nil {
 		t.Fatalf("Write : %v", err)
 	}
 	data := buf.Bytes()
@@ -162,7 +162,7 @@ func TestCodecRefuseOffsetsNonCroissants(t *testing.T) {
 func TestCodecRefuseDernierOffsetIncoherent(t *testing.T) {
 	g := carre(t)
 	var buf bytes.Buffer
-	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+	if err := csr.Write(&buf, g, domain.Provenance{}); err != nil {
 		t.Fatalf("Write : %v", err)
 	}
 	data := buf.Bytes()
@@ -180,7 +180,7 @@ func TestCodecRefuseDernierOffsetIncoherent(t *testing.T) {
 func TestCodecRefuseCompteurDeNoeudsDemesure(t *testing.T) {
 	g := carre(t)
 	var buf bytes.Buffer
-	if err := csr.Write(&buf, g, csr.Provenance{}); err != nil {
+	if err := csr.Write(&buf, g, domain.Provenance{}); err != nil {
 		t.Fatalf("Write : %v", err)
 	}
 	data := buf.Bytes()

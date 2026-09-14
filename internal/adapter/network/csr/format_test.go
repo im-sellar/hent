@@ -19,10 +19,10 @@ const cheminArtefact = "testdata/artefact-v2.bin"
 // provenanceTemoin est la provenance exacte encodée dans l'artefact versionné.
 // Toute divergence entre cette valeur et ce que ReadGraph en retire signale un
 // changement du format de graph.bin.
-func provenanceTemoin() csr.Provenance {
-	return csr.Provenance{
+func provenanceTemoin() domain.Provenance {
+	return domain.Provenance{
 		BuiltAt: "2026-09-14T08:30:00Z",
-		Sources: []csr.Source{{
+		Sources: []domain.Source{{
 			Name:      "bretagne",
 			File:      "bretagne-latest.osm.pbf",
 			SHA256:    "3f786850e387550fdab836ed7e6dc881de23001b",

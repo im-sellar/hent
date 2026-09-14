@@ -13,8 +13,8 @@ import (
 	"testing"
 
 	"github.com/im-sellar/hent/internal/adapter/httpapi"
-	"github.com/im-sellar/hent/internal/adapter/network/csr"
 	"github.com/im-sellar/hent/internal/app/generateloop"
+	"github.com/im-sellar/hent/internal/domain"
 	"github.com/im-sellar/hent/internal/testsupport"
 )
 
@@ -240,7 +240,7 @@ func testHandlerAvecProxiesDeConfiance(t *testing.T, trustedProxies map[string]s
 	g := testsupport.NouvelleGrille(40, 200) // ~8 km de côté autour de 48.10 / -1.68
 	return httpapi.New(
 		generateloop.New(g),
-		csr.Provenance{BuiltAt: "2026-08-18T10:00:00Z"},
+		domain.Provenance{BuiltAt: "2026-08-18T10:00:00Z"},
 		g.BBox(),
 		trustedProxies,
 	)

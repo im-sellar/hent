@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/im-sellar/hent/internal/adapter/gpxfile"
-	"github.com/im-sellar/hent/internal/adapter/network/csr"
 	"github.com/im-sellar/hent/internal/app/generateloop"
 	"github.com/im-sellar/hent/internal/domain"
 )
@@ -122,10 +121,10 @@ type loopsResponse struct {
 }
 
 // sourceDTO et provenanceDTO découplent le contrat JSON de /v1/regions des
-// tags de csr.Source et csr.Provenance. Ce sont ceux-ci qui fixent la
-// disposition binaire de graph.bin : les laisser fuir jusqu'ici ferait
-// dépendre l'API publique d'un choix de sérialisation interne, exactement ce
-// que l'en-tête du paquet promet d'éviter pour tout le reste des réponses.
+// tags de sérialisation propres au format binaire de graph.bin, portés par
+// l'adaptateur csr. Les laisser fuir jusqu'ici ferait dépendre l'API publique
+// d'un choix de sérialisation interne, exactement ce que l'en-tête du paquet
+// promet d'éviter pour tout le reste des réponses.
 type sourceDTO struct {
 	Name      string `json:"name"`
 	File      string `json:"file"`
@@ -139,7 +138,7 @@ type provenanceDTO struct {
 	ConfigHash string      `json:"config_hash"`
 }
 
-func provenanceDTOOf(p csr.Provenance) provenanceDTO {
+func provenanceDTOOf(p domain.Provenance) provenanceDTO {
 	sources := make([]sourceDTO, len(p.Sources))
 	for i, s := range p.Sources {
 		sources[i] = sourceDTO{Name: s.Name, File: s.File, SHA256: s.SHA256, SizeBytes: s.SizeBytes}
@@ -149,7 +148,7 @@ func provenanceDTOOf(p csr.Provenance) provenanceDTO {
 
 type api struct {
 	gen  *generateloop.Generator
-	prov csr.Provenance
+	prov domain.Provenance
 	bbox domain.BBox
 
 	requests atomic.Int64
@@ -161,7 +160,7 @@ type api struct {
 // connexion (sans port) autorisées à fournir X-Forwarded-For pour la
 // limitation de débit — vide, l'en-tête est ignoré et seule l'adresse de
 // connexion compte, ce qui est le comportement sûr par défaut.
-func New(gen *generateloop.Generator, prov csr.Provenance, bbox domain.BBox, trustedProxies map[string]struct{}) http.Handler {
+func New(gen *generateloop.Generator, prov domain.Provenance, bbox domain.BBox, trustedProxies map[string]struct{}) http.Handler {
 	a := &api{gen: gen, prov: prov, bbox: bbox}
 
 	mux := http.NewServeMux()
