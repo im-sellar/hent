@@ -200,6 +200,34 @@ les maquettes de l'écran de recherche en dépendent. La géolocalisation est un
 raccourci et jamais un passage obligé — un refus de permission ne doit rien
 bloquer.
 
+**La pile du front est arrêtée** — TypeScript, Svelte, Vite et MapLibre GL,
+testés au Vitest. Trois dépendances en tout. Svelte plutôt que rien : six écrans,
+trois états d'erreur, une autocomplétion et deux thèmes ne se tiennent pas à la
+main sans que l'état finisse dispersé dans le DOM. Svelte plutôt que Preact :
+compilé, sa syntaxe est du HTML augmenté — les maquettes s'y transposent presque
+littéralement — et il intègre proprement un composant impératif comme MapLibre,
+via ses actions et `onMount`. Le poids n'a pas départagé : MapLibre pèse
+vingt fois un framework, il écrase ce budget à lui seul.
+
+htmx a été écarté pour une raison précise : il remplace des fragments de DOM
+venus du serveur, or une carte est l'inverse — un composant impératif qui tient
+son viewport et ses gestes, et qu'il ne faut jamais remplacer. S'y ajoutent la
+latence (chaque geste deviendrait un aller-retour, sur un service sans état donc
+une régénération complète) et le terrain, où le réseau est souvent mauvais.
+
+**Le front est servi en statique par Caddy**, qui proxifie `/v1/*` vers `routed`.
+Ce qui a tranché : `routed` met 15,2 s à répondre après un redémarrage, donc
+embarquer l'interface dans le binaire ferait payer quinze secondes
+d'indisponibilité à chaque retouche de feuille de style. En développement, le
+serveur Vite proxifie vers `routed`. Effet de bord heureux : le piège du
+`//go:embed`, qui casse `go build ./...` sur un clone frais tant que le front
+n'est pas bâti, disparaît entièrement.
+
+**Vraies URLs et lien partageable.** `/b/<id>` affiche une boucle ; recharger ne
+perd rien, le bouton Précédent fonctionne. Un avertissement accompagne le partage :
+l'identifiant encode le point de départ, donc partager une boucle partie de chez
+soi diffuse son adresse.
+
 **Restent à trancher :** rien dans le design. Côté service, la latence (plus
 bas) et les artefacts de déploiement du §12.
 
@@ -293,6 +321,25 @@ Cinq points que le plan laissait ouverts ont été tranchés pour ne pas bloquer
 
 Les points 3 et 4 étaient de vrais défauts du plan, trouvés avant exécution ; ils y ont été corrigés le 19 août, il n'y a plus rien à reporter au moment d'attaquer les Tasks 7 et 9.
 
+## Dettes assumées du durcissement d'architecture
+
+Trois points relevés pendant la revue de branche, jugés à corriger plus tard ou
+jamais. Ils sont ici pour ne pas être redécouverts comme des défauts.
+
+- `internal/adapter/network/csr/codec.go` — `depuisEnTete` perd la distinction
+  entre une liste de sources vide et nulle, que `versEnTete` prend soin de
+  préserver dans l'autre sens. Un cycle relecture puis réécriture transformerait
+  donc `"sources":[]` en `"sources":null`. Aucun chemin d'appel ne fait ce cycle
+  aujourd'hui : `graphbuild` écrit, `routed` lit. À traiter si un outil de
+  relecture-réécriture apparaît.
+- `internal/architecture_test.go` — `internal/testsupport` n'apparaît dans aucune
+  règle de couches, et la vérification ne voit que les imports directs. Un chemin
+  `app → testsupport → adapter` passerait donc sans alerte. Sans risque
+  actuellement : `testsupport` ne dépend que du domaine.
+- `internal/adapter/network/csr/format_test.go` — le `SHA256` de la provenance
+  témoin fait quarante caractères hexadécimaux, c'est-à-dire un SHA-1. Cosmétique
+  et confiné à un test, sans effet sur ce qu'il prouve.
+
 ## Constats mineurs laissés de côté
 
 - `internal/domain/geo_test.go` — `TestBBoxContains` ne couvre pas les points situés exactement sur `Min` ou `Max`, alors que `Contains` utilise des comparaisons inclusives.
@@ -304,16 +351,27 @@ Les points 3 et 4 étaient de vrais défauts du plan, trouvés avant exécution 
 
 ### Par où commencer
 
-L'étape 1 de la feuille de route est **complète et revue**. La suite dépend
-de la feuille de route du §12 de `docs/design.md` : artefacts de déploiement
-(unité systemd, `Caddyfile` d'exemple, cible de build reproductible),
-garde-fous de disponibilité (`/healthz` qui distingue « prêt » de « graphe
-chargé mais incohérent », sémaphore global de générations concurrentes,
-`recover()` autour de la génération, `IdleTimeout`), budget mémoire mesuré
-(RSS réel après chargement, pas seulement estimé), et un lien vers le dépôt
-dans `/v1/regions` et le README pour clore l'engagement ODbL de
-reconstructibilité. Le travail de performance mentionné plus haut (500 ms
-visés, 738 ms mesurés sur `GOMAXPROCS=2`) en fait partie.
+L'étape 1 est **complète et revue**, et l'architecture a été durcie depuis (voir
+plus haut). Trois chantiers restent ouverts.
+
+**Le front**, dont la conception est faite : six écrans dessinés en deux thèmes,
+système de design conforme RGAA AA, styles de carte générés. La pile est arrêtée
+(plus haut). Ce qui manque est la spec d'implémentation, puis le code. C'est le
+chantier qui donne au projet son premier usage réel.
+
+**Une variante JSON de `GET /v1/loops/{id}`.** La route existe mais ne rend que
+du GPX. Afficher une boucle depuis un lien partagé demande le même contenu en
+JSON — une vingtaine de lignes et ses tests, dans l'adaptateur HTTP. Sans elle,
+le front devrait décoder l'identifiant lui-même et dupliquerait une logique qui
+appartient au serveur.
+
+**Le déploiement**, §12 de `docs/design.md` : unité systemd, `Caddyfile`
+d'exemple, cible de build reproductible, `/healthz` distinguant « prêt » de
+« graphe chargé mais incohérent », sémaphore de générations concurrentes,
+`recover()` autour de la génération, `IdleTimeout`, et un lien vers le dépôt
+dans `/v1/regions` et le README pour clore l'engagement ODbL. Le budget mémoire
+qui figurait ici est désormais mesuré : 593 Mo de RSS, 15,2 s de démarrage, donc
+un VPS de 2 Go au minimum. Reste la latence — 738 ms médian contre 500 visés.
 
 ### Où vivent les documents
 
