@@ -25,13 +25,13 @@ func (generateurFactice) Stats() (exploredNodes, droppedCandidates int64) {
 // TestNewConsommeLePort verrouille que httpapi.New dépend du port entrant
 // port.LoopGenerator, et non d'une implémentation concrète.
 //
-// TestGeneratorImplementeLePort garde le sens inverse — que le moteur
-// satisfait le port — mais ne dit rien de savoir si l'adaptateur HTTP
-// consomme réellement cette interface : remettre le type concret
-// *generateloop.Generator dans la signature de New compilerait encore et
-// laisserait toute la suite verte. generateurFactice, typé explicitement en
-// port.LoopGenerator et non convertible vers *generateloop.Generator, ferme
-// ce trou.
+// L'assertion de compilation de internal/app/port/generator_test.go garde le
+// sens inverse — que le moteur satisfait le port — mais ne dit rien de savoir
+// si l'adaptateur HTTP consomme réellement cette interface : remettre le type
+// concret *generateloop.Generator dans la signature de New compilerait
+// encore et laisserait toute la suite verte. generateurFactice, typé
+// explicitement en port.LoopGenerator et non convertible vers
+// *generateloop.Generator, ferme ce trou.
 func TestNewConsommeLePort(t *testing.T) {
 	var gen port.LoopGenerator = generateurFactice{}
 	var _ http.Handler = httpapi.New(gen, domain.Provenance{}, domain.BBox{}, nil)

@@ -242,8 +242,13 @@ une interversion se voie.
 Cet aller-retour a sa propre limite : une interversion symétrique entre deux
 champs, appliquée à la fois dans `versEnTete` et dans `depuisEnTete`, écrit un
 en-tête faux tout en relisant la valeur d'origine — le test reste vert. C'est
-`TestFormatArtefactStable` qui l'attrape, en comparant l'en-tête produit à un
-artefact figé plutôt qu'à ce que le même code y a mis.
+`TestFormatArtefactStable` qui l'attrape : il relit `testdata/artefact-v2.bin`,
+écrit par un autre code, dont les champs sont donc à leur place d'origine, et
+compare le résultat à `provenanceTemoin()`. Une conversion qui échange deux
+champs des deux côtés les restitue croisés à cette relecture, et la
+comparaison tombe. La garantie vient précisément de là : relire un fichier
+qu'on n'a pas écrit soi-même, ce qu'un aller-retour par le même code ne peut
+pas offrir.
 
 `TestVersEnTeteDistingueSourcesNilEtVide` couvre un cas que la reconstruction
 du type ne peut pas voir : `depuisEnTete` renvoie `nil` aussi bien pour un

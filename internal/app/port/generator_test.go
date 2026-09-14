@@ -5,10 +5,10 @@ import (
 	"github.com/im-sellar/hent/internal/app/port"
 )
 
-// TestGeneratorImplementeLePort verrouille le contrat entrant. Sans cette
-// assertion, une signature de Generator pourrait diverger du port sans que
-// rien ne le signale avant l'assemblage dans cmd/.
+// Cette assertion verrouille le contrat entrant. Sans elle, une signature de
+// Generator pourrait diverger du port sans que rien ne le signale avant
+// l'assemblage dans cmd/.
 //
-// Le compilateur tranche seul cette assertion : nul besoin d'instancier une
-// grille ni de lancer quoi que ce soit.
+// Le compilateur la tranche seul : nul besoin d'instancier une grille ni de
+// lancer quoi que ce soit.
 var _ port.LoopGenerator = (*generateloop.Generator)(nil)
