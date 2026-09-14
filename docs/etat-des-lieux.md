@@ -70,7 +70,9 @@ Le garde-fou d'architecture a été vérifié comme mordant réellement : import
 `cmd/routed` charge `graph.bin` au démarrage et sert :
 
 - `POST /v1/loops` — génère jusqu'à `max_results` boucles pour un point de
-  départ, une distance et des préférences ;
+  départ, une distance et des préférences. Chaque boucle porte un score :
+  `distance_m`, `part_non_bitume`, `part_trafic`, `part_retracee`,
+  `ecart_cible` ;
 - `GET /v1/loops/{id}.gpx` — régénère et exporte une boucle précise en GPX,
   sans état côté serveur : c'est le déterminisme de la génération qui le
   permet ;
@@ -149,8 +151,51 @@ identifiés sont ceux du §6 (réduire `numCandidates` de 20 à 12, plafonner le
 pondérations maximales), à trancher avant de considérer le critère de
 performance du §1 comme atteint sur la cible de déploiement réelle.
 
+## L'étape web — décisions prises
+
+Le moteur est complet ; ce qui suit concerne l'interface publique, conçue avant
+d'être codée. Le canevas de design vit dans `design/`, son README dit ce qui est
+source et ce qui est dérivé.
+
+**Le système de design tient dans un seul fichier.** `design/_themes.json` porte
+vingt jetons en deux jeux de valeurs ; les maquettes n'emploient que des
+`var(--jeton)`. Le thème clair est *dérivé* des écrans sombres par script, pas
+redessiné — et les planches de documentation sont générées depuis la même
+source, ratios de contraste compris.
+
+**Conformité RGAA AA, mesurée et non estimée.** Un premier passage a trouvé six
+non-conformités réelles : un gris à 3,62:1, quatre contours de composants entre
+1,29 et 2,48:1 là où il en faut 3, et un lien identifié par la seule couleur
+(1,68:1 contre le texte environnant). S'y ajoutaient deux manques structurels —
+aucun état de focus dans tout le système, et des cibles tactiles à 34 px. Le
+thème clair n'hérite d'aucun de ces contrastes : les vingt jetons ont été
+recalculés, et un seul change de caractère — l'accent, car `#a8c98a` tombe à
+1,6:1 sur du papier et ne peut y être ni lien, ni tracé, ni aplat.
+
+**Fond de carte : MapLibre GL et les tuiles vectorielles `PLAN.IGN`** de la
+Géoplateforme, servies sans clé ni quota. L'argument décisif est que ce jeu
+porte `routier_chemin` comme couche distincte de `routier_route` : le style peut
+dessiner le chemin *au-dessus* de la route et plus épais qu'elle, ce qui est
+l'inverse d'un fond routier et exactement ce que trie hent. Les deux styles sont
+générés depuis les mêmes jetons ; le générateur vérifie à chaque exécution que
+les `source-layer` employées existent réellement. Attribution `© IGN` obligatoire.
+Le style officiel publié par l'IGN n'est pas réutilisable tel quel : son JSON est
+mal formé.
+
+**Géocodage : la Base Adresse Nationale** (`api-adresse.data.gouv.fr`), pour la
+recherche comme pour le géocodage inverse — ce dernier étant nécessaire dès
+qu'on pose un départ par la géolocalisation ou en déplaçant la carte. Nominatim
+a été écarté : sa limite d'une requête par seconde interdit l'autocomplétion, et
+les maquettes de l'écran de recherche en dépendent. La géolocalisation est un
+raccourci et jamais un passage obligé — un refus de permission ne doit rien
+bloquer.
+
+**Restent à trancher :** rien dans le design. Côté service, la latence (plus
+bas) et les artefacts de déploiement du §12.
+
 ## Les documents
 
+- **[`design/README.md`](../design/README.md)** — le canevas de design : ce qui est source, ce qui est généré, comment régénérer.
 - **`docs/design.md`** — la spec. Autorité sur toutes les décisions techniques : modèle de coût, invariant des pénalités, contrainte ODbL, feuille de route en 5 étapes.
 - **[`docs/plan-etape-1.md`](plan-etape-1.md)** — le plan d'implémentation : neuf tâches, tout le code à écrire, en TDD. C'est lui qui a été déroulé, et il porte les corrections apportées en cours de route.
 - **[`docs/journal-execution.md`](journal-execution.md)** — le journal de bord : chaque décision prise pendant l'exécution, avec sa justification et son coût si elle s'avérait fausse.
