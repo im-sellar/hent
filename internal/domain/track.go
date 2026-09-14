@@ -21,6 +21,7 @@ type Path struct {
 	// calcule le score sans jamais accéder au graphe.
 	UnpavedM         float64 // longueur cumulée hors revêtement dur
 	TrafficExposureM float64 // longueur pondérée par l'exposition au trafic
+	RetracedM        float64 // longueur empruntée alors qu'elle l'était déjà
 
 	// ExploredNodes : nœuds dépilés par la recherche. Donnée d'observabilité,
 	// et non résultat métier — elle rend visible l'arbitrage du modèle de
@@ -57,4 +58,5 @@ type Loop struct {
 	// accéder au graphe.
 	UnpavedM         float64 // longueur cumulée hors revêtement dur
 	TrafficExposureM float64 // longueur pondérée par l'exposition au trafic
+	RetracedM        float64 // longueur empruntée alors qu'elle l'était déjà
 }

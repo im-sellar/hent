@@ -251,6 +251,7 @@ func appendSegment(loop *domain.Loop, seg domain.Path, used map[domain.EdgeRef]s
 	loop.LengthM += seg.LengthM
 	loop.UnpavedM += seg.UnpavedM
 	loop.TrafficExposureM += seg.TrafficExposureM
+	loop.RetracedM += seg.RetracedM
 
 	for _, e := range seg.Edges {
 		used[e] = struct{}{}

@@ -528,3 +528,97 @@ func BenchmarkFindPath(b *testing.B) {
 		})
 	}
 }
+
+// ligne construit A—B—C, bidirectionnel, pour que le chemin de A à C soit forcé
+// et ses longueurs connues. Le carré ne convient pas : ses deux itinéraires
+// entre coins opposés sont de longueur égale, et le choix entre eux est
+// arbitraire.
+func ligne(t *testing.T) (*csr.Graph, [3]domain.NodeRef, [2]float64) {
+	t.Helper()
+
+	b := csr.NewBuilder()
+	n := [3]domain.NodeRef{
+		b.AddNode(domain.Coord{Lat: 48.100, Lon: -1.680}),
+		b.AddNode(domain.Coord{Lat: 48.100, Lon: -1.670}),
+		b.AddNode(domain.Coord{Lat: 48.100, Lon: -1.650}),
+	}
+	var longueurs [2]float64
+	for i := 0; i < 2; i++ {
+		l := domain.HaversineM(coordOf(b, n[i]), coordOf(b, n[i+1]))
+		longueurs[i] = l
+		b.AddEdge(n[i], n[i+1], csr.EdgeAttrs{LengthM: l})
+		b.AddEdge(n[i+1], n[i], csr.EdgeAttrs{LengthM: l})
+	}
+	return b.Build(), n, longueurs
+}
+
+func TestFindPathCompteLeTraceRepasse(t *testing.T) {
+	g, n, longueurs := ligne(t)
+
+	// Seul le premier tronçon a déjà servi. ReuseFactor 1 laisse l'itinéraire
+	// intact : ce qui est mesuré ici est le compte, pas l'évitement.
+	used := map[domain.EdgeRef]struct{}{}
+	depart, err := g.FindPath(context.Background(), n[0], n[1], domain.Weights{}, domain.PathOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range depart.Edges {
+		used[e] = struct{}{}
+	}
+
+	p, err := g.FindPath(context.Background(), n[0], n[2], domain.Weights{},
+		domain.PathOptions{UsedEdges: used, ReuseFactor: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if math.Abs(p.RetracedM-longueurs[0]) > 1e-6 {
+		t.Errorf("RetracedM = %v, attendu %v (le premier tronçon seulement)", p.RetracedM, longueurs[0])
+	}
+	if p.RetracedM <= 0 || p.RetracedM >= p.LengthM {
+		t.Errorf("RetracedM = %v hors de ]0, %v[ : le compte est dégénéré", p.RetracedM, p.LengthM)
+	}
+}
+
+// TestFindPathCompteLeTraceRepasseEnSensInverse est celui qui compte : un
+// aller-retour emprunte l'EdgeRef jumelle, jamais celle qui est dans UsedEdges.
+// Un compte qui ignorerait la table des arêtes inverses passerait le test
+// précédent et raterait le seul cas qui se produit vraiment.
+func TestFindPathCompteLeTraceRepasseEnSensInverse(t *testing.T) {
+	g, n, longueurs := ligne(t)
+
+	used := map[domain.EdgeRef]struct{}{}
+	retourDeja, err := g.FindPath(context.Background(), n[1], n[0], domain.Weights{}, domain.PathOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range retourDeja.Edges {
+		used[e] = struct{}{}
+	}
+
+	p, err := g.FindPath(context.Background(), n[0], n[2], domain.Weights{},
+		domain.PathOptions{UsedEdges: used, ReuseFactor: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if math.Abs(p.RetracedM-longueurs[0]) > 1e-6 {
+		t.Errorf("RetracedM = %v, attendu %v : le sens inverse n'est pas compté", p.RetracedM, longueurs[0])
+	}
+}
+
+func TestFindPathSansReutilisationNeRepasseSurRien(t *testing.T) {
+	g, n, _ := ligne(t)
+
+	p, err := g.FindPath(context.Background(), n[0], n[2], domain.Weights{}, domain.PathOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if p.LengthM <= 0 {
+		t.Fatalf("LengthM = %v : le chemin est vide, le reste du test ne prouve rien", p.LengthM)
+	}
+	if p.RetracedM != 0 {
+		t.Errorf("RetracedM = %v, attendu 0 sans arête déjà consommée", p.RetracedM)
+	}
+}

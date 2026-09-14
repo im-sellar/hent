@@ -130,3 +130,33 @@ func TestPreferableEstUnOrdreStrictFaible(t *testing.T) {
 		}
 	}
 }
+
+func TestNewScorePartRetracee(t *testing.T) {
+	l := domain.Loop{LengthM: 10000, RetracedM: 2500}
+
+	s := domain.NewScore(l, 10000)
+
+	if math.Abs(s.PartRetracee-0.25) > 1e-9 {
+		t.Errorf("PartRetracee = %v, attendu 0.25", s.PartRetracee)
+	}
+}
+
+// TestNewScorePartRetraceeResteFinie garde la division : une boucle de longueur
+// nulle produirait NaN, et NaN traverse toutes les comparaisons sans en faire
+// échouer aucune — y compris celles qui sont censées le rattraper.
+func TestNewScorePartRetraceeResteFinie(t *testing.T) {
+	for _, l := range []domain.Loop{
+		{},
+		{RetracedM: 500},
+		{LengthM: 10000, RetracedM: 10000},
+		{LengthM: 1e-9, RetracedM: 1e-9},
+	} {
+		s := domain.NewScore(l, 10000)
+		if math.IsNaN(s.PartRetracee) || math.IsInf(s.PartRetracee, 0) {
+			t.Errorf("PartRetracee = %v pour %+v : la valeur doit rester finie", s.PartRetracee, l)
+		}
+		if s.PartRetracee < 0 || s.PartRetracee > 1 {
+			t.Errorf("PartRetracee = %v pour %+v : hors de [0, 1]", s.PartRetracee, l)
+		}
+	}
+}

@@ -10,6 +10,7 @@ type Score struct {
 	DistanceM     float64 `json:"distance_m"`
 	PartNonBitume float64 `json:"part_non_bitume"`
 	PartTrafic    float64 `json:"part_trafic"`
+	PartRetracee  float64 `json:"part_retracee"`
 	EcartCible    float64 `json:"ecart_cible"`
 }
 
@@ -19,6 +20,7 @@ func NewScore(l Loop, targetM float64) Score {
 	if l.LengthM > 0 {
 		s.PartNonBitume = l.UnpavedM / l.LengthM
 		s.PartTrafic = l.TrafficExposureM / l.LengthM
+		s.PartRetracee = l.RetracedM / l.LengthM
 	}
 	if targetM > 0 {
 		s.EcartCible = (l.LengthM - targetM) / targetM

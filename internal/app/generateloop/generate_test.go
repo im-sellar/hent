@@ -223,3 +223,68 @@ func recouvrement(a, b domain.Loop) float64 {
 	}
 	return float64(inter) / float64(len(sa)+len(sb)-inter)
 }
+
+// reseauToutRepasse déclare chaque mètre parcouru comme déjà emprunté. Une
+// boucle dont les agrégats sont correctement cumulés affiche alors exactement
+// 100 % de tracé repassé — quel que soit le nombre de segments recollés, et
+// sans dépendre de la topologie de la grille. Un cumul oublié donnerait zéro.
+type reseauToutRepasse struct{ *testsupport.Grille }
+
+func (r reseauToutRepasse) FindPath(ctx context.Context, from, to domain.NodeRef,
+	w domain.Weights, opt domain.PathOptions) (domain.Path, error) {
+
+	p, err := r.Grille.FindPath(ctx, from, to, w, opt)
+	p.RetracedM = p.LengthM
+	return p, err
+}
+
+func TestGenerateCumuleLeTraceRepasse(t *testing.T) {
+	g, req := reseauEtRequete()
+
+	loops, err := generateloop.New(reseauToutRepasse{g}).Generate(context.Background(), req)
+	if err != nil {
+		t.Fatalf("Generate : %v", err)
+	}
+	if len(loops) == 0 {
+		t.Fatal("aucune boucle produite : les assertions qui suivent ne vérifieraient rien")
+	}
+
+	for i, l := range loops {
+		if l.LengthM <= 0 {
+			t.Fatalf("boucle %d de longueur nulle : le rapport qui suit n'aurait pas de sens", i)
+		}
+		if math.Abs(l.RetracedM-l.LengthM) > 1e-6 {
+			t.Errorf("boucle %d : RetracedM = %v pour LengthM = %v, attendu l'égalité",
+				i, l.RetracedM, l.LengthM)
+		}
+		if part := domain.NewScore(l, req.DistanceM).PartRetracee; math.Abs(part-1) > 1e-9 {
+			t.Errorf("boucle %d : PartRetracee = %v, attendu 1", i, part)
+		}
+	}
+}
+
+// TestGenerateNeRepassePasSurLaGrille est le pendant du test précédent sur le
+// réseau nu : la grille synthétique offre partout une alternative, donc une
+// boucle correcte n'y repasse jamais. C'est ce qui distingue un cumul juste
+// d'un cumul qui additionnerait tout.
+func TestGenerateNeRepassePasSurLaGrille(t *testing.T) {
+	g, req := reseauEtRequete()
+
+	loops, err := generateloop.New(g).Generate(context.Background(), req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(loops) == 0 {
+		t.Fatal("aucune boucle produite : les assertions qui suivent ne vérifieraient rien")
+	}
+
+	for i, l := range loops {
+		if l.RetracedM < 0 || l.RetracedM > l.LengthM {
+			t.Errorf("boucle %d : RetracedM = %v hors de [0, %v]", i, l.RetracedM, l.LengthM)
+		}
+		if part := domain.NewScore(l, req.DistanceM).PartRetracee; part > 0.15 {
+			t.Errorf("boucle %d : %.1f %% de tracé repassé sur une grille régulière, attendu presque zéro",
+				i, part*100)
+		}
+	}
+}

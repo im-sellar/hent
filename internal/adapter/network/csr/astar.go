@@ -131,7 +131,7 @@ func (g *Graph) FindPath(
 		explored++
 
 		if cur.node == to {
-			p := g.rebuild(from, to, parentNode, parentEdge, gScore[to])
+			p := g.rebuild(from, to, parentNode, parentEdge, gScore[to], opt.UsedEdges)
 			p.ExploredNodes = explored
 			return p, nil
 		}
@@ -179,6 +179,7 @@ func (g *Graph) rebuild(
 	parentNode []domain.NodeRef,
 	parentEdge []domain.EdgeRef,
 	cost float64,
+	used map[domain.EdgeRef]struct{},
 ) domain.Path {
 	var revNodes []domain.NodeRef
 	var revEdges []domain.EdgeRef
@@ -209,6 +210,17 @@ func (g *Graph) rebuild(
 			p.UnpavedM += a.LengthM
 		}
 		p.TrafficExposureM += a.LengthM * float64(a.Traffic) / 255
+
+		// Même test que pendant la recherche : un tronçon bidirectionnel porte
+		// deux EdgeRef, et un aller-retour emprunte la jumelle. Compter la
+		// seule EdgeRef directe raterait le cas qui se produit réellement.
+		if used != nil {
+			_, direct := used[e]
+			_, inverse := used[g.Reverse(e)]
+			if direct || inverse {
+				p.RetracedM += a.LengthM
+			}
+		}
 	}
 	return p
 }
