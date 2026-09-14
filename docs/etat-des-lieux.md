@@ -207,7 +207,7 @@ bas) et les artefacts de déploiement du §12.
 
 Le durcissement de l'architecture (`docs/clean-archi-back.md`) a ajouté des
 gardiens à `go test ./...`, en plus de la règle de dépendance qui existait déjà
-depuis l'étape 1. Cinq règles, vérifiées à chaque exécution :
+depuis l'étape 1. Sept règles, vérifiées à chaque exécution :
 
 | Test | Ce qu'il empêche |
 |---|---|
@@ -215,15 +215,18 @@ depuis l'étape 1. Cinq règles, vérifiées à chaque exécution :
 | `TestDependanceInterditeRespecteLesSegments` | que la règle ci-dessus confonde `internal/app2` avec `internal/app` |
 | `TestAdaptateursCloisonnes` | qu'un adaptateur en importe un autre |
 | `TestDomaineIgnoreLaSerialisation` | qu'un tag `json:` réapparaisse dans le domaine |
-| `TestGeneratorImplementeLePort` | que le moteur s'écarte du contrat entrant |
+| Assertion de compilation (`internal/app/port/generator_test.go`) | que le moteur s'écarte du contrat entrant — au moment du build, avant même l'exécution des tests |
+| `TestAdaptateurNImportePasLeMoteurConcret` | qu'un adaptateur importe le moteur concret plutôt que `port.LoopGenerator` |
+| `TestNewConsommeLePort` | qu'un type concret remplace le port dans la signature de `httpapi.New` sans qu'aucun test ne bronche |
 
-Et cinq témoins, qui figent ce qui ne doit pas bouger :
+Et six témoins, qui figent ce qui ne doit pas bouger :
 
 | Témoin | Ce qu'il fige |
 |---|---|
 | `TestContratJSONInchange` | les réponses HTTP publiques, octet pour octet |
 | `TestFormatArtefactStable` | l'en-tête binaire de `graph.bin`, relu depuis un artefact versionné |
 | `TestScoreDTOApparieLesChamps` | l'appariement des cinq champs du score entre domaine et DTO |
+| `TestLoopRequestApparieLesChamps` | l'appariement des sept champs de la requête entrante entre DTO et domaine |
 | `TestCodecAllerRetourProvenanceChampParChamp` | que l'aller-retour `Write`/`ReadGraph` perde un champ de `domain.Provenance`, ou l'intervertisse de façon asymétrique entre écriture et lecture |
 | `TestVersEnTeteDistingueSourcesNilEtVide` | qu'un `Sources` nil et un `Sources` vide non-nil convergent vers la même valeur JSON dans l'en-tête écrit |
 
