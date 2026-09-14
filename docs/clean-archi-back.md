@@ -209,11 +209,9 @@ après la correction, rien ne prouve qu'il attrape quoi que ce soit.
 - Aucun découpage de `RouteNetwork`. La granularité des ports n'est pas un
   critère de clean architecture ; ce port est cohérent et a deux
   implémentations utiles.
-- Aucun changement de l'API publique. La route `GET /v1/loops/{id}` dont le
-  front a besoin appartient au chantier suivant.
-- Le POC web (`internal/adapter/httpapi/web/`, le `//go:embed`, la route
-  `GET /{$}`) n'est pas touché ici. Il disparaîtra avec le chantier front,
-  quand Caddy servira l'interface.
+- Aucun changement de l'API publique. La route `GET /v1/loops/{id}` existe
+  déjà et sert la boucle en GPX ; une variante rendant du JSON, dont le front
+  a besoin, appartient au chantier suivant.
 
 ## Risques
 
