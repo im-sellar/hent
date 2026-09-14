@@ -4,7 +4,7 @@ Où en est `hent`, et comment reprendre.
 
 ## En un coup d'œil
 
-**7 tâches sur 9** terminées, toutes revues et approuvées. Le moteur lit
+**8 tâches sur 9** terminées, toutes revues et approuvées. Le moteur lit
 OpenStreetMap, construit son graphe, le sérialise en artefact versionné,
 calcule un itinéraire optimal entre deux points, et **génère des boucles**.
 
@@ -25,7 +25,7 @@ bien plus large que prévu.
 | 5 | Lecture OSM et construction du graphe | ✅ `bc8032b` | ✅ approuvée |
 | 6 | Sérialisation `graph.bin` et binaire `graphbuild` | ✅ `a089e71` | ✅ approuvée |
 | 7 | Génération de boucles | ✅ `3ca036a` | ✅ approuvée |
-| 8 | Score lisible | — | — |
+| 8 | Score lisible | ✅ `eff04e5` | ✅ approuvée |
 | 9 | API HTTP, export GPX, binaire `routed` | — | — |
 
 `go vet ./... && go test ./...` passe sur les trois paquets existants.
@@ -80,9 +80,8 @@ Les points 3 et 4 étaient de vrais défauts du plan, trouvés avant exécution 
 
 ### Par où commencer
 
-La **tâche 8** (score lisible), puis la **tâche 9** (API, export GPX,
-serveur). Après quoi l'étape 1 de la feuille de route est complète et le
-service tourne en local.
+La **tâche 9** : API HTTP, export GPX et serveur. C'est la dernière — après
+elle, l'étape 1 de la feuille de route est complète et le service tourne.
 
 ### Où vivent les documents
 
