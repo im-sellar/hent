@@ -1,0 +1,250 @@
+{
+  "version": 8,
+  "name": "hent — sombre",
+  "glyphs": "https://data.geopf.fr/annexes/ressources/vectorTiles/fonts/{fontstack}/{range}.pbf",
+  "sources": {
+    "plan-ign": {
+      "type": "vector",
+      "tiles": [
+        "https://data.geopf.fr/tms/1.0.0/PLAN.IGN/{z}/{x}/{y}.pbf"
+      ],
+      "minzoom": 0,
+      "maxzoom": 18,
+      "attribution": "<a href=\"https://geoservices.ign.fr/\">© IGN</a>"
+    }
+  },
+  "layers": [
+    {
+      "id": "fond",
+      "type": "background",
+      "paint": {
+        "background-color": "#1d2418"
+      }
+    },
+    {
+      "id": "vegetation",
+      "type": "fill",
+      "source": "plan-ign",
+      "source-layer": "ocs_vegetation_surf",
+      "paint": {
+        "fill-color": "#1f2a17"
+      }
+    },
+    {
+      "id": "eau-surface",
+      "type": "fill",
+      "source": "plan-ign",
+      "source-layer": "hydro_surf",
+      "paint": {
+        "fill-color": "#1a2430"
+      }
+    },
+    {
+      "type": "line",
+      "source": "plan-ign",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "id": "eau-lineaire",
+      "source-layer": "hydro_reseau",
+      "paint": {
+        "line-color": "#1a2430",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          11,
+          0.7,
+          16,
+          2.4
+        ]
+      }
+    },
+    {
+      "id": "bati",
+      "type": "fill",
+      "source": "plan-ign",
+      "source-layer": "bati_surf",
+      "minzoom": 14,
+      "paint": {
+        "fill-color": "#36422c",
+        "fill-opacity": 0.55
+      }
+    },
+    {
+      "type": "line",
+      "source": "plan-ign",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "id": "routes",
+      "source-layer": "routier_route",
+      "paint": {
+        "line-color": "#36422c",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          9,
+          0.5,
+          13,
+          1.4,
+          17,
+          3.4
+        ]
+      }
+    },
+    {
+      "type": "line",
+      "source": "plan-ign",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "id": "routes-importantes",
+      "source-layer": "routier_route_sup",
+      "paint": {
+        "line-color": "#36422c",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          9,
+          0.9,
+          13,
+          2.2,
+          17,
+          5
+        ]
+      }
+    },
+    {
+      "type": "line",
+      "source": "plan-ign",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "id": "chemins",
+      "source-layer": "routier_chemin",
+      "paint": {
+        "line-color": "#4d5f3e",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          11,
+          0.9,
+          14,
+          2.2,
+          17,
+          4.2
+        ]
+      }
+    },
+    {
+      "type": "line",
+      "source": "plan-ign",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "id": "chemins-importants",
+      "source-layer": "routier_chemin_sup",
+      "paint": {
+        "line-color": "#4d5f3e",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          11,
+          1.2,
+          14,
+          2.8,
+          17,
+          5
+        ]
+      }
+    },
+    {
+      "id": "toponymes-lieux",
+      "type": "symbol",
+      "source": "plan-ign",
+      "source-layer": "toponyme_localite_ponc",
+      "minzoom": 9,
+      "layout": {
+        "text-field": [
+          "get",
+          "graphie"
+        ],
+        "text-font": [
+          "Open Sans Regular"
+        ],
+        "text-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          9,
+          11,
+          14,
+          14
+        ],
+        "text-padding": 6
+      },
+      "paint": {
+        "text-color": "#8d9678",
+        "text-halo-color": "#1d2418",
+        "text-halo-width": 1.4
+      }
+    },
+    {
+      "id": "toponymes-rues",
+      "type": "symbol",
+      "source": "plan-ign",
+      "source-layer": "toponyme_routier_odonyme_lin",
+      "minzoom": 15,
+      "layout": {
+        "symbol-placement": "line",
+        "text-field": [
+          "get",
+          "graphie"
+        ],
+        "text-font": [
+          "Open Sans Regular"
+        ],
+        "text-size": 11
+      },
+      "paint": {
+        "text-color": "#8d9678",
+        "text-halo-color": "#1d2418",
+        "text-halo-width": 1.2
+      }
+    }
+  ]
+}

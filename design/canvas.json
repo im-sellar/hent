@@ -1,0 +1,264 @@
+{
+  "pages": [
+    {
+      "id": "page-1",
+      "name": "Parcours"
+    },
+    {
+      "id": "page-2",
+      "name": "Système"
+    },
+    {
+      "id": "page-3",
+      "name": "Explorations"
+    }
+  ],
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "page": "page-1",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 1500,
+      "title": "1. Accueil — sombre"
+    },
+    {
+      "file": "MainClair.dc.html",
+      "page": "page-1",
+      "x": 0,
+      "y": 1660,
+      "w": 390,
+      "h": 1500,
+      "title": "1. Accueil — clair"
+    },
+    {
+      "file": "Depart.dc.html",
+      "page": "page-1",
+      "x": 490,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "2. Poser le départ — sombre"
+    },
+    {
+      "file": "DepartClair.dc.html",
+      "page": "page-1",
+      "x": 490,
+      "y": 1660,
+      "w": 390,
+      "h": 844,
+      "title": "2. Poser le départ — clair"
+    },
+    {
+      "file": "DepartRecherche.dc.html",
+      "page": "page-1",
+      "x": 980,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "3. Chercher une adresse — sombre"
+    },
+    {
+      "file": "DepartRechercheClair.dc.html",
+      "page": "page-1",
+      "x": 980,
+      "y": 1660,
+      "w": 390,
+      "h": 844,
+      "title": "3. Chercher une adresse — clair"
+    },
+    {
+      "file": "Generateur.dc.html",
+      "page": "page-1",
+      "x": 1470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "4. Régler — sombre"
+    },
+    {
+      "file": "GenerateurClair.dc.html",
+      "page": "page-1",
+      "x": 1470,
+      "y": 1660,
+      "w": 390,
+      "h": 844,
+      "title": "4. Régler — clair"
+    },
+    {
+      "file": "Boucles.dc.html",
+      "page": "page-1",
+      "x": 1960,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "5. Choisir — sombre"
+    },
+    {
+      "file": "BouclesClair.dc.html",
+      "page": "page-1",
+      "x": 1960,
+      "y": 1660,
+      "w": 390,
+      "h": 844,
+      "title": "5. Choisir — clair"
+    },
+    {
+      "file": "Detail.dc.html",
+      "page": "page-1",
+      "x": 2450,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "6. Une boucle — sombre"
+    },
+    {
+      "file": "DetailClair.dc.html",
+      "page": "page-1",
+      "x": 2450,
+      "y": 1660,
+      "w": 390,
+      "h": 844,
+      "title": "6. Une boucle — clair"
+    },
+    {
+      "file": "Etats.dc.html",
+      "page": "page-1",
+      "x": 0,
+      "y": 3320,
+      "w": 1080,
+      "h": 1120,
+      "title": "États : attente et échecs"
+    },
+    {
+      "file": "Symbole.dc.html",
+      "page": "page-2",
+      "x": 0,
+      "y": 0,
+      "w": 960,
+      "h": 880,
+      "title": "Le symbole"
+    },
+    {
+      "file": "Fondations.dc.html",
+      "page": "page-2",
+      "x": 1080,
+      "y": 0,
+      "w": 1080,
+      "h": 1800,
+      "title": "Fondations"
+    },
+    {
+      "file": "Composants.dc.html",
+      "page": "page-2",
+      "x": 2280,
+      "y": 0,
+      "w": 1080,
+      "h": 1980,
+      "title": "Composants"
+    },
+    {
+      "file": "LogoDosage.dc.html",
+      "page": "page-3",
+      "x": 0,
+      "y": 0,
+      "w": 960,
+      "h": 1000,
+      "title": "Le curseur arbre / chemin"
+    },
+    {
+      "file": "LogoArbre.dc.html",
+      "page": "page-3",
+      "x": 0,
+      "y": 1120,
+      "w": 940,
+      "h": 940,
+      "title": "B poussée vers le chemin"
+    },
+    {
+      "file": "Logo.dc.html",
+      "page": "page-3",
+      "x": 0,
+      "y": 2180,
+      "w": 900,
+      "h": 880,
+      "title": "Premières pistes"
+    },
+    {
+      "file": "LogoBoucle.dc.html",
+      "page": "page-3",
+      "x": 0,
+      "y": 3180,
+      "w": 900,
+      "h": 820,
+      "title": "Autour de la boucle"
+    },
+    {
+      "file": "LogoRond.dc.html",
+      "page": "page-3",
+      "x": 0,
+      "y": 4120,
+      "w": 940,
+      "h": 900,
+      "title": "Le rond sans les pattes"
+    },
+    {
+      "file": "DirectionSobre.dc.html",
+      "page": "page-3",
+      "x": 1100,
+      "y": 0,
+      "w": 390,
+      "h": 1500,
+      "title": "Direction Sobre"
+    },
+    {
+      "file": "DirectionInstrument.dc.html",
+      "page": "page-3",
+      "x": 1590,
+      "y": 0,
+      "w": 390,
+      "h": 1500,
+      "title": "Direction Instrument"
+    },
+    {
+      "file": "Themes.dc.html",
+      "page": "page-2",
+      "x": 3480,
+      "y": 0,
+      "w": 1080,
+      "h": 1760,
+      "title": "Les deux thèmes"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "note-parcours",
+      "page": "page-1",
+      "x": 0,
+      "y": -130,
+      "w": 1370,
+      "text": "Le parcours complet, de l'accueil au GPX. Rangée du haut en sombre, rangée du bas générée depuis elle avec l'autre jeu de jetons. En dessous, ce qui se passe pendant le calcul et quand il échoue."
+    },
+    {
+      "id": "note-systeme",
+      "page": "page-2",
+      "x": 0,
+      "y": -130,
+      "w": 1080,
+      "text": "Le symbole, les fondations, les composants et les deux thèmes. Dix-huit jetons, conformes RGAA AA en sombre comme en clair — les ratios de la dernière planche sont calculés à chaque génération."
+    },
+    {
+      "id": "note-explorations",
+      "page": "page-3",
+      "x": 0,
+      "y": -130,
+      "w": 960,
+      "text": "Tout ce qui a été écarté en chemin, de la plus récente à la plus ancienne. Gardé pour mémoire ; rien n'en dépend."
+    }
+  ],
+  "launch": {
+    "view": "canvas",
+    "page": "page-2"
+  }
+}

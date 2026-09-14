@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Karla:wght@400;500;700&display=swap">
+  <style>
+    /* theme:debut */
+    :root {
+      --fond: #f1efe7;
+      --feuille: #fbfaf6;
+      --tuile: #e7e4d9;
+      --carte: #eae7dc;
+      --voile: rgba(251,250,246,.92);
+      --trait: #d9d5c6;
+      --trait-vif: #74845d;
+      --rail: #828d6d;
+      --voie: #bfc6ae;
+      --grille: #dcd9cb;
+      --texte: #1c2116;
+      --texte-doux: #474e3c;
+      --texte-gris: #5e6650;
+      --accent: #45662c;
+      --sur-accent: #f6f8f2;
+      --accent-vif: #2c401d;
+      --alerte: #7d520c;
+      --ombre-feuille: 0 -16px 32px rgba(28,33,22,.16);
+      --ombre-poignee: 0 2px 8px rgba(28,33,22,.28);
+      --trace-fond: rgba(69,102,44,.14);
+      --carte-vegetation: #e3e8d3;
+      --carte-eau: #dce4ea;
+    }
+    /* theme:fin */
+    body { margin: 0; font-family: Karla, 'Helvetica Neue', sans-serif; }
+    a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: var(--accent-vif); }
+    a.btn { text-decoration: none; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-vif); outline-offset: 2px; border-radius: 4px; }
+    .res { display: flex; align-items: center; gap: 13px; padding: 13px 0; border-bottom: 1px solid var(--trait); text-decoration: none; color: inherit; }
+  </style>
+</helmet>
+
+<div style="width: 390px; height: 844px; position: relative; background: var(--feuille); color: var(--texte); overflow: hidden;">
+
+  <div style="position: absolute; top: 0; left: 0; right: 0; padding: 18px; display: flex; align-items: center; gap: 10px; background: var(--feuille); border-bottom: 1px solid var(--trait);">
+    <a href="#" class="btn" style="display: flex; align-items: center; justify-content: center; min-height: 44px; width: 44px; border: 1px solid var(--trait-vif); border-radius: 4px; flex-shrink: 0;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H6M11 18l-6-6 6-6"/></svg>
+    </a>
+    <div style="flex-grow: 1; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 14px; background: var(--tuile); border: 1px solid var(--trait-vif); border-radius: 4px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.9" stroke-linecap="round" style="flex-shrink: 0;"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
+      <span style="font-size: 15px;">bruz vert<span style="opacity:.5;">|</span></span>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--texte-gris)" stroke-width="2.2" stroke-linecap="round" style="margin-left: auto; flex-shrink: 0;"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </div>
+  </div>
+
+  <div style="position: absolute; top: 81px; left: 0; right: 0; bottom: 0; padding: 6px 20px 0; display: flex; flex-direction: column;">
+
+    <a href="#" class="res">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" style="flex-shrink: 0;">
+        <path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/>
+      </svg>
+      <div style="min-width: 0;">
+        <div style="font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Place du <strong style="font-weight: 700;">Vert</strong> Buisson</div>
+        <div style="font-size: 14px; color: var(--texte-gris); margin-top: 1px;">35170 Bruz</div>
+      </div>
+      <span style="margin-left: auto; font-size: 13px; color: var(--texte-gris); flex-shrink: 0;">1,2 km</span>
+    </a>
+
+    <a href="#" class="res">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" style="flex-shrink: 0;">
+        <path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/>
+      </svg>
+      <div style="min-width: 0;">
+        <div style="font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rue du <strong style="font-weight: 700;">Vert</strong> Village</div>
+        <div style="font-size: 14px; color: var(--texte-gris); margin-top: 1px;">35170 Bruz</div>
+      </div>
+      <span style="margin-left: auto; font-size: 13px; color: var(--texte-gris); flex-shrink: 0;">2,4 km</span>
+    </a>
+
+    <a href="#" class="res">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" style="flex-shrink: 0;">
+        <path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/>
+      </svg>
+      <div style="min-width: 0;">
+        <div style="font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Allée des <strong style="font-weight: 700;">Vert</strong>es Rives</div>
+        <div style="font-size: 14px; color: var(--texte-gris); margin-top: 1px;">35170 Bruz</div>
+      </div>
+      <span style="margin-left: auto; font-size: 13px; color: var(--texte-gris); flex-shrink: 0;">3,1 km</span>
+    </a>
+
+    <a href="#" class="res" style="border-bottom: none;">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" style="flex-shrink: 0;">
+        <circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.3 2.6 3.4 5.4 3.4 8.5s-1.1 5.9-3.4 8.5c-2.3-2.6-3.4-5.4-3.4-8.5S9.7 6.1 12 3.5Z"/>
+      </svg>
+      <div style="min-width: 0;">
+        <div style="font-size: 16px;"><strong style="font-weight: 700;">Bruz</strong></div>
+        <div style="font-size: 14px; color: var(--texte-gris); margin-top: 1px;">Commune, Ille‑et‑Vilaine</div>
+      </div>
+      <span style="margin-left: auto; font-size: 13px; color: var(--texte-gris); flex-shrink: 0;">1,8 km</span>
+    </a>
+
+    <div style="margin-top: auto; padding: 20px 0 26px; font-size: 12px; color: var(--texte-gris); line-height: 1.6;">
+      Adresses : <a href="#">Base Adresse Nationale</a>, sous licence ouverte.<br>
+      Les distances sont comptées depuis ta position.
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

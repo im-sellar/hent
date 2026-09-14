@@ -1,0 +1,320 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400&display=swap">
+  <style>
+    body { margin: 0; font-family: Karla, 'Helvetica Neue', sans-serif; }
+    .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+  </style>
+</helmet>
+
+<div style="width: 1080px; background: #14190f; color: #e9ead9; padding: 44px 44px 52px; display: flex; flex-direction: column; gap: 36px;">
+
+  <div>
+    <h1 style="margin: 0 0 7px; font-family: Spectral, Georgia, serif; font-size: 25px; font-weight: 600;">Les deux thèmes</h1>
+    <p style="margin: 0; color: #8d9678; font-size: 14px; max-width: 760px;">
+      Dix-huit jetons, deux jeux de valeurs. Les maquettes ne connaissent que les noms — aucune couleur n'y est écrite en dur, ce qui rend le second thème gratuit et le troisième possible. Un thème clair n'hérite d'aucun contraste du sombre : les deux colonnes de droite sont recalculées, pas recopiées.
+    </p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 190px 200px 200px 1fr; gap: 0 22px;">
+    <div style="padding: 0 0 9px; border-bottom: 1px solid #607a4a; font-size: 12px; color: #8d9678; letter-spacing: .16em; text-transform: uppercase;">Jeton</div><div style="padding: 0 0 9px; border-bottom: 1px solid #607a4a; font-size: 12px; color: #8d9678; letter-spacing: .16em; text-transform: uppercase;">Sombre</div><div style="padding: 0 0 9px; border-bottom: 1px solid #607a4a; font-size: 12px; color: #8d9678; letter-spacing: .16em; text-transform: uppercase;">Clair</div><div style="padding: 0 0 9px; border-bottom: 1px solid #607a4a; font-size: 12px; color: #8d9678; letter-spacing: .16em; text-transform: uppercase;">Rôle</div>
+    
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--fond</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #14190f, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#14190f</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #f1efe7, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#f1efe7</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Fond général de l'écran</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--feuille</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #191f13, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#191f13</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #fbfaf6, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#fbfaf6</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Panneaux, feuille basse, blocs</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--tuile</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #212a19, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#212a19</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #e7e4d9, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#e7e4d9</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Champs et tuiles de chiffres</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--carte</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #1d2418, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#1d2418</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #eae7dc, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#eae7dc</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Fond cartographique</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--carte-vegetation</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #1f2a17, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#1f2a17</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #e3e8d3, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#e3e8d3</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Bois et prairies sur la carte</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--carte-eau</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #1a2430, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#1a2430</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #dce4ea, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#dce4ea</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Cours d'eau et plans d'eau</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--voile</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px rgba(20,25,15,.9), 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">rgba(20,25,15,.9)</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px rgba(251,250,246,.92), 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">rgba(251,250,246,.92)</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Pastilles posées sur la carte</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--trait</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #2f3d24, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#2f3d24</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #d9d5c6, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#d9d5c6</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Séparateurs, contours de tuiles — décoratif</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--trait-vif</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #607a4a, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#607a4a</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #74845d, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#74845d</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Contour d'un composant — tient les 3:1</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--rail</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #607a4a, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#607a4a</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #828d6d, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#828d6d</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Piste de curseur, non parcourue</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--voie</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #4d5f3e, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#4d5f3e</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #bfc6ae, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#bfc6ae</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Chemins sur la carte, lèvre de la feuille</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--grille</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #36422c, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#36422c</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #dcd9cb, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#dcd9cb</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Maillage de la carte, arbres de fond</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--texte</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #e9ead9, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#e9ead9</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #1c2116, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#1c2116</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Texte principal, poignée de curseur</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--texte-doux</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #a9b096, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#a9b096</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #474e3c, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#474e3c</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Explications, texte secondaire</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--texte-gris</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #8d9678, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#8d9678</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #5e6650, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#5e6650</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Étiquettes, unités, mentions</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--accent</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #a8c98a, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#a8c98a</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #45662c, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#45662c</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Action, tracé, symbole, liens</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--sur-accent</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #14190f, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#14190f</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #f6f8f2, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#f6f8f2</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Texte posé sur un aplat d'accent</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--accent-vif</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #c5e0a8, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#c5e0a8</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #2c401d, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#2c401d</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Survol, focus, portion parcourue</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--alerte</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px #c9a35e, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#c9a35e</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px #7d520c, 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">#7d520c</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Ce qu'on subit : trafic, bitume, erreur</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--trace-fond</div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#191f13;box-shadow:inset 0 0 0 26px rgba(168,201,138,.12), 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">rgba(168,201,138,.12)</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; display: flex; align-items: center; gap: 10px;">
+          <span style="display:inline-block;width:26px;height:26px;border-radius:4px;background:#fbfaf6;box-shadow:inset 0 0 0 26px rgba(69,102,44,.14), 0 0 0 1px #2f3d24;vertical-align:middle;flex-shrink:0;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #a9b096;">rgba(69,102,44,.14)</span>
+        </div>
+        <div style="padding: 9px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #8d9678;">Remplissage de la boucle sur la carte</div>
+      </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+    <div>
+      <h2 style="margin: 0 0 5px; font-family: Spectral, Georgia, serif; font-size: 19px; font-weight: 600;">Contrôles RGAA</h2>
+      <p style="margin: 0; color: #8d9678; font-size: 14px;">Calculés à chaque génération de cette planche. Le pire fond est retenu quand un rôle en côtoie plusieurs.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 110px 110px 90px; gap: 0 22px;">
+      <div style="padding: 0 0 9px; border-bottom: 1px solid #607a4a; font-size: 12px; color: #8d9678; letter-spacing: .16em; text-transform: uppercase;">Couple</div><div style="padding: 0 0 9px; border-bottom: 1px solid #607a4a; font-size: 12px; color: #8d9678; letter-spacing: .16em; text-transform: uppercase;">Sombre</div><div style="padding: 0 0 9px; border-bottom: 1px solid #607a4a; font-size: 12px; color: #8d9678; letter-spacing: .16em; text-transform: uppercase;">Clair</div><div style="padding: 0 0 9px; border-bottom: 1px solid #607a4a; font-size: 12px; color: #8d9678; letter-spacing: .16em; text-transform: uppercase;">Seuil</div>
+      
+      <div style="display: contents;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #a9b096;">Texte principal</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">12.22</div><div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">12.90</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8d9678;">≥ 4.5</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #a9b096;">Texte secondaire</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">6.62</div><div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">6.81</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8d9678;">≥ 4.5</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #a9b096;">Étiquettes</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">4.80</div><div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">4.72</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8d9678;">≥ 4.5</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #a9b096;">Lien et icône d'accent</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">8.08</div><div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">5.17</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8d9678;">≥ 4.5</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #a9b096;">Texte sur aplat d'accent</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">9.69</div><div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">6.15</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8d9678;">≥ 4.5</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #a9b096;">Contour de composant</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">3.11</div><div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">3.17</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8d9678;">≥ 3</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #a9b096;">Aplat d'accent / page</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">9.13</div><div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">5.72</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8d9678;">≥ 3</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #a9b096;">Piste de curseur</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">3.51</div><div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">3.36</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8d9678;">≥ 3</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #a9b096;">Portion parcourue</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">3.33</div><div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">3.22</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8d9678;">≥ 3</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #a9b096;">Anneau de focus</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">10.36</div><div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">8.88</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8d9678;">≥ 3</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #a9b096;">Tracé sur la carte</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">3.77</div><div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">3.73</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8d9678;">≥ 3</div>
+      </div>
+      <div style="display: contents;">
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-size: 14px; color: #a9b096;">Chiffre en alerte</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">6.30</div><div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #a8c98a;">5.35</div>
+        <div style="padding: 8px 0; border-bottom: 1px solid #2f3d24; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8d9678;">≥ 4.5</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 22px;">
+    <div style="flex: 1; padding: 20px 22px; background: #191f13; border: 1px solid #2f3d24; border-radius: 4px;">
+      <div style="font-family: Spectral, Georgia, serif; font-size: 19px; margin-bottom: 10px;">Ce qui change entre les deux</div>
+      <div style="font-size: 15px; color: #a9b096; line-height: 1.6;">
+        L'accent bascule du vert pâle au vert profond : sur du papier, <span class="mono" style="font-size: 14px;">#a8c98a</span> tombe à 1,6:1 et ne peut être ni un lien, ni un tracé, ni un aplat. C'est le seul jeton dont le <em>caractère</em> change — les autres ne font que s'inverser.
+      </div>
+    </div>
+    <div style="flex: 1; padding: 20px 22px; background: #191f13; border: 1px solid #2f3d24; border-radius: 4px;">
+      <div style="font-family: Spectral, Georgia, serif; font-size: 19px; margin-bottom: 10px;">Comment on bascule</div>
+      <div style="font-size: 15px; color: #a9b096; line-height: 1.6;">
+        Le sombre est le défaut. <span class="mono" style="font-size: 14px;">prefers-color-scheme: light</span> pose le jeu clair, et un attribut <span class="mono" style="font-size: 14px;">data-theme</span> sur la racine tranche quand la personne a choisi elle-même. Aucun composant n'a à savoir lequel est actif.
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

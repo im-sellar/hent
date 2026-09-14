@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Karla:wght@400;500;700&display=swap">
+  <style>
+    /* theme:debut */
+    :root {
+      --fond: #14190f;
+      --feuille: #191f13;
+      --tuile: #212a19;
+      --carte: #1d2418;
+      --voile: rgba(20,25,15,.9);
+      --trait: #2f3d24;
+      --trait-vif: #607a4a;
+      --rail: #607a4a;
+      --voie: #4d5f3e;
+      --grille: #36422c;
+      --texte: #e9ead9;
+      --texte-doux: #a9b096;
+      --texte-gris: #8d9678;
+      --accent: #a8c98a;
+      --sur-accent: #14190f;
+      --accent-vif: #c5e0a8;
+      --alerte: #c9a35e;
+      --ombre-feuille: 0 -16px 32px rgba(0,0,0,.45);
+      --ombre-poignee: 0 2px 8px rgba(0,0,0,.5);
+      --trace-fond: rgba(168,201,138,.12);
+      --carte-vegetation: #1f2a17;
+      --carte-eau: #1a2430;
+    }
+    /* theme:fin */
+    body { margin: 0; font-family: Karla, 'Helvetica Neue', sans-serif; }
+    a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: var(--accent-vif); }
+    a.btn { text-decoration: none; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--accent-vif); outline-offset: 2px; border-radius: 4px; }
+  </style>
+</helmet>
+
+<div style="width: 390px; height: 844px; position: relative; background: var(--fond); color: var(--texte); overflow: hidden;">
+
+  <svg viewBox="0 0 390 420" style="position: absolute; top: 0; left: 0; width: 100%; height: 420px;" aria-hidden="true">
+    <rect width="390" height="420" fill="var(--carte)"/>
+    <g stroke="var(--grille)" stroke-width="1" fill="none">
+      <path d="M0 80 H390 M0 180 H390 M0 280 H390 M0 380 H390"/>
+      <path d="M80 0 V420 M180 0 V420 M280 0 V420"/>
+    </g>
+    <g stroke="var(--voie)" stroke-width="2.5" fill="none" stroke-linecap="round">
+      <path d="M-10 150 C70 132 120 176 190 158 C260 140 320 184 400 166"/>
+      <path d="M60 420 C76 330 50 280 96 226"/>
+    </g>
+    <path d="M138 302 C78 256 92 166 160 144 C232 120 302 156 314 214 C326 276 264 338 200 328 C172 322 158 316 138 302 Z"
+          fill="var(--trace-fond)" stroke="var(--accent)" stroke-width="4" stroke-linejoin="round"/>
+    <circle cx="138" cy="302" r="8" fill="var(--texte)"/>
+    <circle cx="138" cy="302" r="8" fill="none" stroke="var(--fond)" stroke-width="2.5"/>
+  </svg>
+
+  <div style="position: absolute; top: 18px; left: 18px; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 15px 0 11px; background: var(--voile); border: 1px solid var(--trait-vif); border-radius: 4px;">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H6M11 18l-6-6 6-6"/></svg>
+    <span style="font-size: 14px;">Les 5 boucles</span>
+  </div>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; top: 372px; background: var(--feuille); border-top: 1px solid var(--voie); border-radius: 14px 14px 0 0; box-shadow: var(--ombre-feuille); padding: 22px 20px 26px; display: flex; flex-direction: column; gap: 20px;">
+
+    <div style="display: flex; align-items: baseline; justify-content: space-between;">
+      <div style="display: flex; align-items: baseline; gap: 10px;">
+        <span style="font-family: Spectral, Georgia, serif; font-size: 36px; line-height: 1;">17,4</span>
+        <span style="font-size: 17px; color: var(--texte-doux);">km</span>
+      </div>
+      <span style="font-size: 14px; color: var(--texte-gris);">tu en demandais 18</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 13px;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+          <span style="font-size: 14px; color: var(--texte-doux);">Hors bitume</span>
+          <span style="font-family: Spectral, Georgia, serif; font-size: 17px;">55 %</span>
+        </div>
+        <div style="height: 6px; background: var(--trait); border-radius: 4px; overflow: hidden;">
+          <div style="width: 55%; height: 100%; background: var(--accent);"></div>
+        </div>
+      </div>
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+          <span style="font-size: 14px; color: var(--texte-doux);">Exposition au trafic</span>
+          <span style="font-family: Spectral, Georgia, serif; font-size: 17px;">2,3 %</span>
+        </div>
+        <div style="height: 6px; background: var(--trait); border-radius: 4px; overflow: hidden;">
+          <div style="width: 2.3%; min-width: 4px; height: 100%; background: var(--alerte);"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 9px;">
+      <div style="flex-grow: 1; padding: 11px 13px; background: var(--tuile); border: 1px solid var(--trait); border-radius: 4px;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 19px;">2 h 10</div>
+        <div style="font-size: 12px; color: var(--texte-gris); letter-spacing: .04em; margin-top: 2px;">à 8 km/h</div>
+      </div>
+      <div style="flex-grow: 1; padding: 11px 13px; background: var(--tuile); border: 1px solid var(--trait); border-radius: 4px;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 19px;">0,4 %</div>
+        <div style="font-size: 12px; color: var(--texte-gris); letter-spacing: .04em; margin-top: 2px;">de chemin refait</div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 11px; margin-top: auto;">
+      <a href="#" class="btn" style="display: flex; align-items: center; justify-content: center; min-height: 52px; width: 52px; background: transparent; border: 1px solid var(--trait-vif); border-radius: 4px; flex-shrink: 0;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.9" stroke-linecap="round"><path d="M12 3v11"/><path d="M8 11l4 4 4-4"/><path d="M4 19h16"/></svg>
+      </a>
+      <a href="#" class="btn" style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 52px; background: var(--accent); color: var(--sur-accent); border-radius: 4px; font-weight: 700; font-size: 17px;">
+        Télécharger le GPX
+      </a>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

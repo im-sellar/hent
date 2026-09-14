@@ -1,0 +1,278 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400&display=swap">
+  <style>
+    body { margin: 0; font-family: Karla, 'Helvetica Neue', sans-serif; }
+    a { color: #a8c98a; text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: #c5e0a8; }
+    a.btn { text-decoration: none; }
+    a:focus-visible { outline: 2px solid #c5e0a8; outline-offset: 2px; border-radius: 4px; }
+    .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+    .lab { font-size: 12px; color: #8d9678; letter-spacing: .04em; }
+    .sec { font-family: Spectral, Georgia, serif; font-size: 19px; font-weight: 600; margin: 0 0 3px; }
+    .note { margin: 0; color: #8d9678; font-size: 14px; }
+    .card { background: #191f13; border: 1px solid #2f3d24; border-radius: 4px; padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; }
+  </style>
+</helmet>
+
+<div style="width: 1080px; background: #14190f; color: #e9ead9; padding: 44px 44px 52px; display: flex; flex-direction: column; gap: 30px;">
+
+  <div>
+    <h1 style="margin: 0 0 7px; font-family: Spectral, Georgia, serif; font-size: 25px; font-weight: 600;">Composants</h1>
+    <p class="note" style="max-width: 700px;">
+      Les pièces telles qu'elles apparaissent dans les trois écrans, sorties de leur contexte. Une seule action verte par vue : tout le reste attend son tour en contour.
+    </p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 22px;">
+
+    <div class="card">
+      <div>
+        <h2 class="sec">Actions</h2>
+        <p class="note">52 px de haut, rayon 4, Karla 700 à 17. Quatre états, dont le focus qu'on n'a pas le droit d'effacer.</p>
+      </div>
+
+      <a href="#" class="btn" style="display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; background: #a8c98a; color: #14190f; border-radius: 4px; font-weight: 700; font-size: 17px;">
+        Tracer ma boucle
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+      </a>
+
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <a href="#" class="btn" style="display: flex; align-items: center; justify-content: center; min-height: 52px; background: #a8c98a; color: #14190f; border-radius: 4px; font-weight: 700; font-size: 17px;">Tracer</a>
+        <a href="#" class="btn" style="display: flex; align-items: center; justify-content: center; min-height: 52px; background: #c5e0a8; color: #14190f; border-radius: 4px; font-weight: 700; font-size: 17px;">Tracer</a>
+        <a href="#" class="btn" style="display: flex; align-items: center; justify-content: center; min-height: 52px; background: #a8c98a; color: #14190f; border-radius: 4px; font-weight: 700; font-size: 17px; outline: 2px solid #c5e0a8; outline-offset: 2px;">Tracer</a>
+        <div style="display: flex; align-items: center; justify-content: center; min-height: 52px; background: #2f3d24; color: #a9b096; border-radius: 4px; font-weight: 700; font-size: 17px;">Tracer</div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: -10px;">
+        <span class="lab">repos</span><span class="lab">survol</span><span class="lab">focus</span><span class="lab">inactif</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <a href="#" class="btn" style="display: flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 30px; color: #a8c98a; border: 1px solid #607a4a; border-radius: 4px; font-weight: 700; font-size: 17px;">Tracer ma boucle</a>
+        <a href="#" class="btn" style="display: flex; align-items: center; justify-content: center; min-height: 52px; width: 52px; border: 1px solid #607a4a; border-radius: 4px; flex-shrink: 0;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.9" stroke-linecap="round"><path d="M12 3v11"/><path d="M8 11l4 4 4-4"/><path d="M4 19h16"/></svg>
+        </a>
+        <div style="display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 15px 0 11px; background: rgba(20,25,15,.9); border: 1px solid #607a4a; border-radius: 4px;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H6M11 18l-6-6 6-6"/></svg>
+          <span style="font-size: 14px;">Les 5 boucles</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <span class="lab" style="width: 186px;">secondaire</span>
+        <span class="lab" style="width: 64px;">carré</span>
+        <span class="lab">retour, sur carte — 44 px, rayon 3</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div>
+        <h2 class="sec">Réglages</h2>
+        <p class="note">La valeur se lit en Spectral, à droite de son étiquette. Rail 4 px, poignée 26.</p>
+      </div>
+
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 11px;">
+          <span style="font-size: 14px; color: #8d9678; letter-spacing: .04em;">Distance</span>
+          <span style="font-family: Spectral, Georgia, serif; font-size: 25px;">18 km</span>
+        </div>
+        <div style="position: relative; height: 26px;">
+          <div style="position: absolute; top: 11px; left: 0; right: 0; height: 4px; background: #607a4a; border-radius: 2px;"></div>
+          <div style="position: absolute; top: 11px; left: 0; width: 62%; height: 4px; background: #c5e0a8; border-radius: 2px;"></div>
+          <div style="position: absolute; top: 0; left: calc(62% - 13px); width: 26px; height: 26px; background: #e9ead9; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,.5);"></div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 9px; min-height: 52px; padding: 0 15px; background: #212a19; border: 1px solid #2f3d24; border-radius: 4px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.8" stroke-linecap="round" style="flex-shrink: 0;">
+          <path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/>
+        </svg>
+        <span style="font-size: 14px; color: #a9b096;">Départ posé</span>
+      </div>
+      <span class="lab" style="margin-top: -10px;">champ — même hauteur que l'action qu'il précède</span>
+
+      <div style="display: flex; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 8px; min-height: 44px; box-sizing: border-box; padding: 9px 14px; background: rgba(20,25,15,.9); border: 1px solid #607a4a; border-radius: 4px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.8" stroke-linecap="round">
+            <path d="M12 20c0-4 .5-7.4 0-11.4"/><path d="M12.19 14.2C10 12.6 8.4 11 6.8 8.8"/><path d="M12.21 11.4c1.6-2 3.4-3.8 5.4-5.6"/><path d="M12.09 16.6c1.2-1 2.3-2.1 3.4-3.4"/><circle cx="12" cy="21.4" r="1.9" fill="#a8c98a" stroke="none"/>
+          </svg>
+          <span style="font-family: Spectral, Georgia, serif; font-size: 15px;">hent</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 7px; min-height: 44px; box-sizing: border-box; padding: 9px 13px; background: rgba(20,25,15,.9); border: 1px solid #607a4a; border-radius: 4px; font-size: 12px; color: #a9b096;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          Ille‑et‑Vilaine
+        </div>
+      </div>
+      <span class="lab" style="margin-top: -10px;">pastilles posées sur la carte — fond à 90 %, rayon 3</span>
+    </div>
+
+    <div class="card">
+      <div>
+        <h2 class="sec">Chiffres</h2>
+        <p class="note">Tout ce qui est mesuré passe en Spectral ; l'étiquette reste en Karla, petite et grise.</p>
+      </div>
+
+      <div style="display: flex; align-items: baseline; justify-content: space-between;">
+        <div style="display: flex; align-items: baseline; gap: 10px;">
+          <span style="font-family: Spectral, Georgia, serif; font-size: 36px; line-height: 1;">17,4</span>
+          <span style="font-size: 17px; color: #a9b096;">km</span>
+        </div>
+        <span style="font-size: 14px; color: #8d9678;">3,2 % sous les 18 demandés</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 13px;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+            <span style="font-size: 14px; color: #a9b096;">Hors bitume</span>
+            <span style="font-family: Spectral, Georgia, serif; font-size: 17px;">55 %</span>
+          </div>
+          <div style="height: 6px; background: #2f3d24; border-radius: 4px; overflow: hidden;"><div style="width: 55%; height: 100%; background: #a8c98a;"></div></div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+            <span style="font-size: 14px; color: #a9b096;">Exposition au trafic</span>
+            <span style="font-family: Spectral, Georgia, serif; font-size: 17px;">2,3 %</span>
+          </div>
+          <div style="height: 6px; background: #2f3d24; border-radius: 4px; overflow: hidden;"><div style="width: 2.3%; min-width: 4px; height: 100%; background: #c9a35e;"></div></div>
+        </div>
+      </div>
+      <span class="lab" style="margin-top: -10px;">jauge 6 px — ambre dès qu'elle mesure un coût</span>
+
+      <div style="display: flex; gap: 9px;">
+        <div style="flex-grow: 1; padding: 11px 13px; background: #212a19; border: 1px solid #2f3d24; border-radius: 4px;">
+          <div style="font-family: Spectral, Georgia, serif; font-size: 19px;">2 h 10</div>
+          <div style="font-size: 12px; color: #8d9678; letter-spacing: .04em; margin-top: 2px;">à 8 km/h</div>
+        </div>
+        <div style="flex-grow: 1; padding: 11px 13px; background: #212a19; border: 1px solid #2f3d24; border-radius: 4px;">
+          <div style="font-family: Spectral, Georgia, serif; font-size: 19px;">0,4 %</div>
+          <div style="font-size: 12px; color: #8d9678; letter-spacing: .04em; margin-top: 2px;">de tracé repassé</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div>
+        <h2 class="sec">Carte</h2>
+        <p class="note">Fond assourdi, une seule ligne vive. Le départ est un point crème cerné du fond, pour tenir sur le tracé comme sur la grille.</p>
+      </div>
+      <svg viewBox="0 0 460 220" style="width: 100%; border-radius: 4px;" aria-hidden="true">
+        <rect width="460" height="220" fill="#1d2418"/>
+        <g stroke="#36422c" stroke-width="1" fill="none">
+          <path d="M0 55 H460 M0 110 H460 M0 165 H460"/><path d="M92 0 V220 M184 0 V220 M276 0 V220 M368 0 V220"/>
+        </g>
+        <g stroke="#4d5f3e" stroke-width="2.5" fill="none" stroke-linecap="round">
+          <path d="M-10 74 C70 58 120 100 190 84 C260 68 320 108 470 90"/>
+          <path d="M56 220 C72 150 46 110 90 68"/>
+        </g>
+        <path d="M150 168 C96 128 110 56 172 40 C238 22 300 52 310 100 C320 150 264 198 206 190 C180 186 168 180 150 168 Z"
+              fill="rgba(168,201,138,.12)" stroke="#a8c98a" stroke-width="4" stroke-linejoin="round"/>
+        <circle cx="150" cy="168" r="8" fill="#e9ead9"/>
+        <circle cx="150" cy="168" r="8" fill="none" stroke="#14190f" stroke-width="2.5"/>
+        <path d="M360 150 C382 138 398 146 418 132" fill="none" stroke="#4d5f3e" stroke-width="3" stroke-linecap="round" stroke-dasharray="9 8"/>
+      </svg>
+      <div style="display: flex; gap: 24px; flex-wrap: wrap; font-size: 14px; color: #8d9678;">
+        <span>tracé <span style="color: #e9ead9;">3,5</span> px, <span style="color: #e9ead9;">4</span> si c'est la boucle ouverte</span>
+        <span>remplissage <span style="color: #e9ead9;">10 à 12 %</span></span>
+        <span>tirets = boucle écartée</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 22px;">
+
+    <div class="card">
+      <div>
+        <h2 class="sec">Feuille basse</h2>
+        <p class="note">La carte occupe l'écran, les commandes remontent par-dessus. Rayon 14 en haut, poignée de 38 × 4, trait supérieur plus clair que les autres.</p>
+      </div>
+      <div style="background: #191f13; border: 1px solid #4d5f3e; border-bottom: none; border-radius: 14px 14px 0 0; padding: 12px 20px 24px; margin-bottom: -22px; box-shadow: 0 -14px 28px rgba(0,0,0,.35);">
+        <div style="width: 38px; height: 4px; background: #607a4a; border-radius: 2px; margin: 0 auto 20px;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 11px;">
+          <span style="font-size: 14px; color: #8d9678; letter-spacing: .04em;">Éviter le bitume</span>
+          <span style="font-family: Spectral, Georgia, serif; font-size: 25px;">beaucoup</span>
+        </div>
+        <div style="position: relative; height: 26px;">
+          <div style="position: absolute; top: 11px; left: 0; right: 0; height: 4px; background: #607a4a; border-radius: 2px;"></div>
+          <div style="position: absolute; top: 11px; left: 0; width: 80%; height: 4px; background: #c5e0a8; border-radius: 2px;"></div>
+          <div style="position: absolute; top: 0; left: calc(80% - 13px); width: 26px; height: 26px; background: #e9ead9; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,.5);"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div>
+        <h2 class="sec">Rangées et séparations</h2>
+        <p class="note">Icône à trait de 1,5 sur 26, titre Spectral 19, explication Karla 15 en gris. 30 px entre deux rangées.</p>
+      </div>
+      <div style="display: flex; gap: 15px;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.5" stroke-linecap="round" style="flex-shrink: 0; margin-top: 2px;">
+          <path d="M4 17c3-6 6 3 9-3s4 2 7-4"/><circle cx="4" cy="17" r="2"/>
+        </svg>
+        <div>
+          <div style="font-family: Spectral, Georgia, serif; font-size: 19px; margin-bottom: 3px;">Des vraies boucles</div>
+          <div style="color: #a9b096; font-size: 15px;">Le tracé ne repasse pas sur ses pas.</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; padding: 22px 0; border-top: 1px solid #2f3d24; border-bottom: 1px solid #2f3d24;">
+        <div style="flex-grow: 1;">
+          <div style="font-family: Spectral, Georgia, serif; font-size: 25px;">6 M</div>
+          <div style="font-size: 12px; color: #8d9678; letter-spacing: .04em;">carrefours cartographiés</div>
+        </div>
+        <div style="flex-grow: 1;">
+          <div style="font-family: Spectral, Georgia, serif; font-size: 25px;">2 à 50</div>
+          <div style="font-size: 12px; color: #8d9678; letter-spacing: .04em;">kilomètres au choix</div>
+        </div>
+      </div>
+      <div style="font-size: 12px; color: #8d9678; line-height: 1.6;">
+        Données <a href="#">© les contributeurs OpenStreetMap</a>, sous licence ODbL.<br>
+        <em style="font-family: Spectral, Georgia, serif;">hent</em> — « chemin », en breton.
+      </div>
+    </div>
+
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 22px;">
+
+    <div class="card">
+      <div>
+        <h2 class="sec">Ce qui tient le tout</h2>
+        <p class="note">Six règles. Elles tranchent à ma place quand un nouvel écran arrive.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 13px; font-size: 15px; color: #a9b096;">
+        <div><span style="color: #e9ead9;">Une action verte par vue.</span> Tout le reste est un contour. Si deux choses semblent également importantes, c'est que la vue n'a pas encore été tranchée.</div>
+        <div><span style="color: #e9ead9;">L'ambre ne félicite jamais.</span> Il ne chiffre que ce qu'on subit : bitume, trafic, erreur. Et jamais seul — le nombre est toujours écrit à côté.</div>
+        <div><span style="color: #e9ead9;">Le serif porte les faits, la grotesque porte les commandes.</span> Un nombre ne s'écrit pas en Karla.</div>
+        <div><span style="color: #e9ead9;">Le vert n'est jamais du texte courant</span> — un lien, un tracé, un pictogramme, rien de plus long.</div>
+        <div><span style="color: #e9ead9;">Rien ne descend sous 44 px</span> de cible tactile, 52 pour ce qui décide.</div>
+        <div><span style="color: #e9ead9;">Pas de compte, pas de modale.</span> L'écran suivant remplace l'écran courant, ou remonte depuis le bas.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div>
+        <h2 class="sec">Ce qui ne se dessine pas</h2>
+        <p class="note">Invisible sur une planche, obligatoire dans le code. RGAA 4.1, niveau AA.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 11px; font-size: 15px; color: #a9b096;">
+        <div><span style="color: #e9ead9;">La carte a une alternative textuelle.</span> Les chiffres de l'écran Détail <em>sont</em> cette alternative : distance, part hors bitume, exposition, durée. Une boucle doit rester compréhensible sans jamais voir le tracé.</div>
+        <div><span style="color: #e9ead9;">Les curseurs annoncent leur valeur.</span> <span class="mono" style="font-size: 14px; color: #8d9678;">role="slider"</span>, et <span class="mono" style="font-size: 14px; color: #8d9678;">aria-valuetext</span> quand la valeur est un mot — « beaucoup », pas « 80 ».</div>
+        <div><span style="color: #e9ead9;">Un lien dans du texte est souligné.</span> Le vert seul ne suffit pas à le distinguer du gris qui l'entoure : 1,68:1, très loin des 3:1 (RGAA 10.6).</div>
+        <div><span style="color: #e9ead9;">L'ordre de tabulation suit l'ordre visuel</span>, et la feuille basse se ferme à Échap.</div>
+        <div><span style="color: #e9ead9;">Les tailles en rem</span>, pour survivre à un zoom de 200 % (RGAA 10.4).</div>
+        <div><span style="color: #e9ead9;">Le tracé ne s'anime pas</span> sans respecter <span class="mono" style="font-size: 14px; color: #8d9678;">prefers-reduced-motion</span>.</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400&display=swap">
+  <style>
+    /* theme:debut */
+    :root {
+      --fond: #14190f;
+      --feuille: #191f13;
+      --tuile: #212a19;
+      --carte: #1d2418;
+      --voile: rgba(20,25,15,.9);
+      --trait: #2f3d24;
+      --trait-vif: #607a4a;
+      --rail: #607a4a;
+      --voie: #4d5f3e;
+      --grille: #36422c;
+      --texte: #e9ead9;
+      --texte-doux: #a9b096;
+      --texte-gris: #8d9678;
+      --accent: #a8c98a;
+      --sur-accent: #14190f;
+      --accent-vif: #c5e0a8;
+      --alerte: #c9a35e;
+      --ombre-feuille: 0 -16px 32px rgba(0,0,0,.45);
+      --ombre-poignee: 0 2px 8px rgba(0,0,0,.5);
+      --trace-fond: rgba(168,201,138,.12);
+      --carte-vegetation: #1f2a17;
+      --carte-eau: #1a2430;
+    }
+    /* theme:fin */
+    body { margin: 0; font-family: Karla, 'Helvetica Neue', sans-serif; }
+    a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+    a.btn { text-decoration: none; }
+    .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+    .ecran { background: var(--feuille); border: 1px solid var(--trait); border-top: 1px solid var(--voie);
+             border-radius: 14px 14px 4px 4px; padding: 12px 20px 24px; display: flex; flex-direction: column; gap: 18px; }
+    .poignee { width: 38px; height: 4px; background: var(--rail); border-radius: 2px; margin: 0 auto 2px; }
+    .titre { font-family: Spectral, Georgia, serif; font-size: 19px; line-height: 1.35; margin: 0; }
+    .corps { font-size: 15px; color: var(--texte-doux); margin: 0; line-height: 1.55; }
+    .primaire { display: flex; align-items: center; justify-content: center; min-height: 52px; background: var(--accent);
+                color: var(--sur-accent); border-radius: 4px; font-weight: 700; font-size: 17px; }
+    .secondaire { display: flex; align-items: center; justify-content: center; min-height: 52px; color: var(--accent);
+                  border: 1px solid var(--trait-vif); border-radius: 4px; font-weight: 700; font-size: 17px; }
+    .code { font-size: 12px; color: var(--texte-gris); letter-spacing: .16em; text-transform: uppercase; }
+  </style>
+</helmet>
+
+<div style="width: 1080px; background: var(--fond); color: var(--texte); padding: 44px 44px 52px; display: flex; flex-direction: column; gap: 34px;">
+
+  <div>
+    <h1 style="margin: 0 0 7px; font-family: Spectral, Georgia, serif; font-size: 25px; font-weight: 600;">États</h1>
+    <p style="margin: 0; color: var(--texte-gris); font-size: 14px; max-width: 760px;">
+      Ce que voit la personne quand ça met du temps, ou quand ça ne marche pas. Le serveur distingue trois échecs ; ils appellent trois réponses différentes, et chacun sort par une action — jamais par un constat.
+    </p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;">
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="code">Pendant le calcul</div>
+      <div class="ecran">
+        <div class="poignee"></div>
+        <svg viewBox="0 0 240 92" style="width: 100%; height: 92px;" aria-hidden="true">
+          <path d="M40 72 C10 52 22 18 60 12 C104 5 140 20 146 44"
+                fill="none" stroke="var(--rail)" stroke-width="4" stroke-linecap="round"/>
+          <path d="M146 44 C152 70 126 88 96 84 C74 81 56 80 40 72 Z"
+                fill="none" stroke="var(--rail)" stroke-width="4" stroke-linecap="round" opacity=".35"/>
+          <path d="M40 72 C10 52 22 18 60 12 C88 8 112 13 128 26"
+                fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="128" cy="26" r="5.5" fill="var(--accent)"/>
+          <circle cx="40" cy="72" r="6" fill="var(--texte)"/>
+        </svg>
+        <div>
+          <h2 class="titre">Je parcours les chemins autour de Bruz.</h2>
+          <p class="corps" style="margin-top: 6px;">Une poignée de secondes, le temps de comparer les boucles.</p>
+        </div>
+        <a href="#" class="btn secondaire">Annuler</a>
+      </div>
+      <p class="corps" style="font-size: 14px; color: var(--texte-gris);">
+        738 ms en médiane, 1,17 s au pire sur la cible de déploiement : au‑delà de 400 ms sans retour visuel, on croit que c'est cassé.
+      </p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="code">400 · hors de la zone</div>
+      <div class="ecran">
+        <div class="poignee"></div>
+        <svg viewBox="0 0 240 92" style="width: 100%; height: 92px;" aria-hidden="true">
+          <path d="M60 20 C92 10 132 14 158 30 C186 47 184 72 156 80 C124 89 78 84 56 68 C36 53 36 28 60 20 Z"
+                fill="none" stroke="var(--rail)" stroke-width="3" stroke-dasharray="7 7"/>
+          <text x="107" y="52" text-anchor="middle" font-family="Karla, sans-serif" font-size="13" fill="var(--texte-gris)">Bretagne</text>
+          <circle cx="208" cy="26" r="7" fill="var(--alerte)"/>
+          <circle cx="208" cy="26" r="7" fill="none" stroke="var(--feuille)" stroke-width="2.5"/>
+        </svg>
+        <div>
+          <h2 class="titre">Ce point est en dehors de la Bretagne.</h2>
+          <p class="corps" style="margin-top: 6px;">C'est la seule région cartographiée pour l'instant. Le reste viendra.</p>
+        </div>
+        <a href="#" class="btn primaire">Choisir un autre départ</a>
+      </div>
+      <p class="corps" style="font-size: 14px; color: var(--texte-gris);">
+        On montre la zone plutôt que de la décrire : la personne voit d'un coup d'œil de combien elle est à côté.
+      </p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="code">404 · aucune boucle</div>
+      <div class="ecran">
+        <div class="poignee"></div>
+        <svg viewBox="0 0 240 92" style="width: 100%; height: 92px;" aria-hidden="true">
+          <g stroke="var(--rail)" stroke-width="3" fill="none" stroke-linecap="round">
+            <path d="M40 76 C34 54 48 36 70 32"/>
+            <path d="M40 76 C62 82 86 78 104 66"/>
+            <path d="M148 30 C170 36 182 54 178 74"/>
+          </g>
+          <circle cx="40" cy="76" r="6" fill="var(--texte)"/>
+          <path d="M116 44l24 24M140 44l-24 24" stroke="var(--alerte)" stroke-width="3.4" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <h2 class="titre">Pas de boucle de 18 km par ici.</h2>
+          <p class="corps" style="margin-top: 6px;">Les chemins autour de ce point ne se referment pas sur cette distance.</p>
+        </div>
+        <a href="#" class="btn primaire">Essayer 12 km</a>
+        <a href="#" class="btn secondaire" style="margin-top: -8px;">Accepter plus de bitume</a>
+      </div>
+      <p class="corps" style="font-size: 14px; color: var(--texte-gris);">
+        Deux sorties, toutes deux chiffrées : le serveur sait quel réglage bloque, l'écran doit le proposer plutôt que de le faire deviner.
+      </p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="code">429 · trop de demandes</div>
+      <div class="ecran">
+        <div class="poignee"></div>
+        <div>
+          <h2 class="titre">Une minute, le temps de souffler.</h2>
+          <p class="corps" style="margin-top: 6px;">Trop de demandes d'un coup. Le service est petit et gratuit ; il tient debout comme ça.</p>
+        </div>
+        <a href="#" class="btn secondaire">Réessayer dans 30 s</a>
+      </div>
+      <p class="corps" style="font-size: 14px; color: var(--texte-gris);">
+        Le seul échec sans issue immédiate. On dit pourquoi — l'honnêteté vaut mieux qu'un message d'erreur technique.
+      </p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="code">Position refusée</div>
+      <div class="ecran">
+        <div class="poignee"></div>
+        <div>
+          <h2 class="titre">Je n'ai pas accès à ta position.</h2>
+          <p class="corps" style="margin-top: 6px;">Ça n'empêche rien : cherche une adresse, ou touche un point sur la carte.</p>
+        </div>
+        <a href="#" class="btn primaire">Chercher une adresse</a>
+      </div>
+      <p class="corps" style="font-size: 14px; color: var(--texte-gris);">
+        La géolocalisation est un raccourci, jamais un passage obligé — sinon un refus bloque tout le produit.
+      </p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="code">Ce qui vaut pour tous</div>
+      <div style="background: var(--feuille); border: 1px solid var(--trait); border-radius: 4px; padding: 20px; display: flex; flex-direction: column; gap: 12px; font-size: 15px; color: var(--texte-doux); line-height: 1.55;">
+        <div><span style="color: var(--texte);">Jamais le code HTTP à l'écran.</span> Il va dans la console, pas sous les yeux.</div>
+        <div><span style="color: var(--texte);">Les réglages sont conservés.</span> Un échec ne remet jamais la distance ou le curseur à zéro.</div>
+        <div><span style="color: var(--texte);">Le message est annoncé</span> aux lecteurs d'écran — <span class="mono" style="font-size: 14px;">role="status"</span> pendant l'attente, <span class="mono" style="font-size: 14px;">role="alert"</span> sur un échec.</div>
+        <div><span style="color: var(--texte);">L'ambre marque l'échec</span>, jamais le rouge : le vocabulaire reste celui du produit.</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

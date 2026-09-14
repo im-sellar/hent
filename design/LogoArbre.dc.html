@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600&family=Karla:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; font-family: Karla, 'Helvetica Neue', sans-serif; }
+    a { color: #a8c98a; } a:hover { color: #c5e0a8; }
+  </style>
+</helmet>
+
+<div style="width: 940px; background: #14190f; color: #e9ead9; padding: 44px 44px 52px; display: flex; flex-direction: column; gap: 40px;">
+
+  <div>
+    <h1 style="margin: 0 0 7px; font-family: Spectral, Georgia, serif; font-size: 27px; font-weight: 600;">B, poussée vers le chemin</h1>
+    <p style="margin: 0; color: #8d9678; font-size: 15px; max-width: 720px;">
+      Ce qui manque à B pour qu'on y voie des sentiers : ses branches sont des segments droits à 45°, une géométrie d'icône. Cinq façons de les rendre chemin sans perdre l'arbre. Le marqueur de départ reste dans les cinq.
+    </p>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 20px; padding: 16px 24px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+    <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#6e7860" stroke-width="1.5" stroke-linecap="round">
+      <path d="M12 20V11"/><path d="M12 13 6 7"/><path d="M12 10l6-6"/>
+      <circle cx="12" cy="21" r="2.1" fill="#6e7860" stroke="none"/><circle cx="12" cy="21" r="3.6" stroke="#6e7860" stroke-width="1.1" opacity=".5"/>
+    </svg>
+    <span style="font-size: 13px; color: #6e7860;">B, le point de départ de ce travail</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px;">
+
+    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; padding: 26px 12px; background: #223018; border: 1px solid #4a6234; border-radius: 4px;">
+      <svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20v-9"/><path d="M12 13.4 6.4 7.6"/><path d="M12 10.6l5.6-5.8"/>
+        <circle cx="6.4" cy="7.6" r="1.5"/><circle cx="17.6" cy="4.8" r="1.5"/><circle cx="12" cy="11" r="1.5"/>
+        <circle cx="12" cy="21.2" r="1.9" fill="#a8c98a" stroke="none"/>
+      </svg>
+      <div style="text-align: center;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 15px; color: #c5e0a8;">F1 · Carrefours</div>
+        <div style="font-size: 12px; color: #a9b096; margin-top: 3px; line-height: 1.45;">Des nœuds aux embranchements et aux bouts. C'est un arbre, et c'est exactement le graphe que le moteur parcourt.</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; padding: 26px 12px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+      <svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.5" stroke-linecap="round">
+        <path d="M12 20c0-3 .6-5.2 0-9"/>
+        <path d="M12 13.4C10 11.8 8.4 10.4 6.4 7.6"/>
+        <path d="M12 10.6c1.6-1.8 3.4-3.6 5.6-5.8"/>
+        <circle cx="12" cy="21.2" r="1.9" fill="#a8c98a" stroke="none"/>
+      </svg>
+      <div style="text-align: center;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 15px;">F2 · Sentiers</div>
+        <div style="font-size: 12px; color: #8d9678; margin-top: 3px; line-height: 1.45;">Les mêmes branches, mais qui serpentent. Un chemin ne va jamais droit.</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; padding: 26px 12px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+      <svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.5" stroke-linecap="round">
+        <path d="M12 20v-9"/>
+        <path d="M12 13.4 6.4 7.6" stroke-dasharray="2.4 2.2"/>
+        <path d="M12 10.6l5.6-5.8"/>
+        <circle cx="12" cy="21.2" r="1.9" fill="#a8c98a" stroke="none"/>
+      </svg>
+      <div style="text-align: center;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 15px;">F3 · Revêtu et non revêtu</div>
+        <div style="font-size: 12px; color: #8d9678; margin-top: 3px; line-height: 1.45;">Le pointillé est la convention cartographique du chemin. Dit aussi le cœur du produit : éviter le bitume.</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; padding: 26px 12px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+      <svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.5" stroke-linecap="round">
+        <path d="M12 20v-9"/><path d="M12 13.4 6.4 7.6"/><path d="M12 10.6l5.6-5.8"/>
+        <path d="M8.8 10.2 7.4 4.8"/><path d="M15 7.8l4.4 1.6"/>
+        <circle cx="12" cy="21.2" r="1.9" fill="#a8c98a" stroke="none"/>
+      </svg>
+      <div style="text-align: center;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 15px;">F4 · Réseau</div>
+        <div style="font-size: 12px; color: #8d9678; margin-top: 3px; line-height: 1.45;">Deux ramifications de plus. On passe de l'arbre isolé au maillage de sentiers.</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; padding: 26px 12px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+      <svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.5" stroke-linecap="round">
+        <path d="M12 20.2C12 17 10.6 15 11.4 12.2 12 10 12 10.4 12 8.6"/>
+        <path d="M11.6 13.6C9.6 12.2 8 10.6 6.6 8"/>
+        <path d="M12 10.4c1.4-2 3-3.8 5-5.6"/>
+        <circle cx="12" cy="21.6" r="1.9" fill="#a8c98a" stroke="none"/>
+      </svg>
+      <div style="text-align: center;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 15px;">F5 · Tronc-chemin</div>
+        <div style="font-size: 12px; color: #8d9678; margin-top: 3px; line-height: 1.45;">Le tronc lui-même serpente : c'est le chemin principal qui monte, pas un mât.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="height: 1px; background: #2a3420;"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 18px;">
+    <div>
+      <h2 style="margin: 0 0 5px; font-family: Spectral, Georgia, serif; font-size: 20px; font-weight: 600;">Les cinq à 20 px</h2>
+      <p style="margin: 0; color: #8d9678; font-size: 14px;">La taille où les fausses lectures sortent — et où le détail se referme. Plisse les yeux.</p>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 52px; padding: 26px 30px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20v-9"/><path d="M12 13.4 6.4 7.6"/><path d="M12 10.6l5.6-5.8"/>
+          <circle cx="6.4" cy="7.6" r="1.7"/><circle cx="17.6" cy="4.8" r="1.7"/><circle cx="12" cy="11" r="1.7"/>
+          <circle cx="12" cy="21.2" r="2.1" fill="#a8c98a" stroke="none"/>
+        </svg>
+        <span style="font-size: 11px; color: #6e7860;">F1</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="2" stroke-linecap="round">
+          <path d="M12 20c0-3 .6-5.2 0-9"/><path d="M12 13.4C10 11.8 8.4 10.4 6.4 7.6"/><path d="M12 10.6c1.6-1.8 3.4-3.6 5.6-5.8"/>
+          <circle cx="12" cy="21.2" r="2.1" fill="#a8c98a" stroke="none"/>
+        </svg>
+        <span style="font-size: 11px; color: #6e7860;">F2</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="2" stroke-linecap="round">
+          <path d="M12 20v-9"/><path d="M12 13.4 6.4 7.6" stroke-dasharray="2.6 2.4"/><path d="M12 10.6l5.6-5.8"/>
+          <circle cx="12" cy="21.2" r="2.1" fill="#a8c98a" stroke="none"/>
+        </svg>
+        <span style="font-size: 11px; color: #6e7860;">F3</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="2" stroke-linecap="round">
+          <path d="M12 20v-9"/><path d="M12 13.4 6.4 7.6"/><path d="M12 10.6l5.6-5.8"/><path d="M8.8 10.2 7.4 4.8"/><path d="M15 7.8l4.4 1.6"/>
+          <circle cx="12" cy="21.2" r="2.1" fill="#a8c98a" stroke="none"/>
+        </svg>
+        <span style="font-size: 11px; color: #6e7860;">F4</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="2" stroke-linecap="round">
+          <path d="M12 20.2C12 17 10.6 15 11.4 12.2 12 10 12 10.4 12 8.6"/><path d="M11.6 13.6C9.6 12.2 8 10.6 6.6 8"/><path d="M12 10.4c1.4-2 3-3.8 5-5.6"/>
+          <circle cx="12" cy="21.6" r="2.1" fill="#a8c98a" stroke="none"/>
+        </svg>
+        <span style="font-size: 11px; color: #6e7860;">F5</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 1px; background: #2a3420;"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 20px;">
+    <div>
+      <h2 style="margin: 0 0 5px; font-family: Spectral, Georgia, serif; font-size: 20px; font-weight: 600;">F1 en usage</h2>
+      <p style="margin: 0; color: #8d9678; font-size: 14px;">Celle que je garderais : les nœuds font basculer la lecture de « arbre décoratif » vers « réseau de chemins », sans rien enlever à l'arbre.</p>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 36px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 13px; padding: 18px 24px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20v-9"/><path d="M12 13.4 6.4 7.6"/><path d="M12 10.6l5.6-5.8"/>
+          <circle cx="6.4" cy="7.6" r="1.5"/><circle cx="17.6" cy="4.8" r="1.5"/><circle cx="12" cy="11" r="1.5"/>
+          <circle cx="12" cy="21.2" r="1.9" fill="#a8c98a" stroke="none"/>
+        </svg>
+        <span style="font-family: Spectral, Georgia, serif; font-size: 31px; letter-spacing: .02em;">hent</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 9px;">
+        <div style="width: 66px; height: 66px; display: flex; align-items: center; justify-content: center; background: #a8c98a; border-radius: 13px;">
+          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#14190f" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20v-9"/><path d="M12 13.4 6.4 7.6"/><path d="M12 10.6l5.6-5.8"/>
+            <circle cx="6.4" cy="7.6" r="1.5"/><circle cx="17.6" cy="4.8" r="1.5"/><circle cx="12" cy="11" r="1.5"/>
+            <circle cx="12" cy="21.2" r="1.9" fill="#14190f" stroke="none"/>
+          </svg>
+        </div>
+        <span style="font-size: 11px; color: #6e7860;">icône</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 18px 24px; background: #f4f3ef; border-radius: 4px;">
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#23241f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20v-9"/><path d="M12 13.4 6.4 7.6"/><path d="M12 10.6l5.6-5.8"/>
+          <circle cx="6.4" cy="7.6" r="1.5"/><circle cx="17.6" cy="4.8" r="1.5"/><circle cx="12" cy="11" r="1.5"/>
+          <circle cx="12" cy="21.2" r="1.9" fill="#23241f" stroke="none"/>
+        </svg>
+        <span style="font-size: 11px; color: #83867b;">sur fond clair</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

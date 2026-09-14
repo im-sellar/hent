@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600&family=Karla:wght@400;500;700&display=swap">
+  <style>
+    body { margin: 0; font-family: Karla, 'Helvetica Neue', sans-serif; }
+    a { color: #a8c98a; } a:hover { color: #c5e0a8; }
+  </style>
+</helmet>
+
+<div style="width: 940px; background: #14190f; color: #e9ead9; padding: 44px 44px 52px; display: flex; flex-direction: column; gap: 40px;">
+
+  <div>
+    <h1 style="margin: 0 0 7px; font-family: Spectral, Georgia, serif; font-size: 27px; font-weight: 600;">Le rond, sans les pattes</h1>
+    <p style="margin: 0; color: #8d9678; font-size: 15px; max-width: 700px;">
+      D1 faisait une ampoule parce qu'un rond fermé posé sur deux traits courts et parallèles se lit comme un culot. Ici le tronc disparaît : le point de départ est <em style="font-family: Spectral, Georgia, serif;">sur</em> le tracé, là où on part et où on revient.
+    </p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px;">
+
+    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; padding: 26px 12px; background: #223018; border: 1px solid #4a6234; border-radius: 4px;">
+      <svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20.6c-4.4-.2-7.6-3.3-7.4-7.7.2-4.8 4.2-9 8.8-8.2 4.6.8 7 5.6 5.6 10-1.2 3.8-3.4 5.8-7 5.9Z"/>
+        <circle cx="12" cy="20.6" r="2.1" fill="#a8c98a" stroke="none"/>
+      </svg>
+      <div style="text-align: center;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 15px; color: #c5e0a8;">E1 · Le tracé</div>
+        <div style="font-size: 12px; color: #a9b096; margin-top: 3px; line-height: 1.45;">Un circuit légèrement irrégulier, le départ posé dessus. Lecture carte immédiate.</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; padding: 26px 12px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+      <svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.6" stroke-linecap="round">
+        <path d="M13.6 20.3c4-.8 6.6-4.6 5.8-8.6-.8-4-4.6-6.6-8.6-5.8-4 .8-6.6 4.6-5.8 8.6.5 2.4 2 4.3 4 5.3"/>
+        <circle cx="12" cy="20.9" r="2.1" fill="#a8c98a" stroke="none"/>
+      </svg>
+      <div style="text-align: center;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 15px;">E2 · Boucle ouverte</div>
+        <div style="font-size: 12px; color: #8d9678; margin-top: 3px; line-height: 1.45;">Le cercle ne se referme pas tout à fait : on voit par où ça part et par où ça revient.</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; padding: 26px 12px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+      <svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 21c-5-1.6-8-5.4-7.2-10C5.5 6.7 8.6 3.4 12 3c3.4.4 6.5 3.7 7.2 8 .8 4.6-2.2 8.4-7.2 10Z"/>
+        <path d="M12 21V3" stroke-dasharray="1.6 2.4" opacity=".55"/>
+        <circle cx="12" cy="21" r="2.1" fill="#a8c98a" stroke="none"/>
+      </svg>
+      <div style="text-align: center;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 15px;">E3 · Feuille</div>
+        <div style="font-size: 12px; color: #8d9678; margin-top: 3px; line-height: 1.45;">La boucle prend la forme d'une feuille, sa nervure en pointillés comme un sentier.</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; padding: 26px 12px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+      <svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20.8C7.4 19.4 4.6 15.4 5.4 11.4 6 8 8.4 5.6 11.2 4.6"/>
+        <path d="M12 20.8c4.6-1.4 7.4-5.4 6.6-9.4-.6-3.4-3-5.8-5.8-6.8"/>
+        <path d="M11.2 4.6 12 2.8l1.2 1.6"/>
+        <circle cx="12" cy="20.8" r="2.1" fill="#a8c98a" stroke="none"/>
+      </svg>
+      <div style="text-align: center;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 15px;">E4 · Le sommet</div>
+        <div style="font-size: 12px; color: #8d9678; margin-top: 3px; line-height: 1.45;">Deux versants qui se rejoignent en haut. Le point bas est le départ, le haut le but.</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; padding: 26px 12px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+      <svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9.4 20.2C5.4 18.2 3.6 13.6 5.4 9.6 7.2 5.6 11.8 3.8 15.8 5.6c4 1.8 5.8 6.4 4 10.4-.8 1.8-2.2 3.2-3.8 4"/>
+        <circle cx="9.4" cy="20.2" r="2.1" fill="#a8c98a" stroke="none"/>
+      </svg>
+      <div style="text-align: center;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 15px;">E5 · Décentré</div>
+        <div style="font-size: 12px; color: #8d9678; margin-top: 3px; line-height: 1.45;">Le départ n'est pas au centre bas : la boucle s'organise autour de lui, pas sous lui.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="padding: 18px 24px; background: #241d15; border: 1px solid #4a3a24; border-radius: 4px; display: flex; align-items: flex-start; gap: 14px;">
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#c9a35e" stroke-width="1.8" stroke-linecap="round" style="flex-shrink: 0; margin-top: 1px;">
+      <circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.2v.1"/>
+    </svg>
+    <div style="font-size: 14px; color: #c4b393; line-height: 1.5;">
+      Ce qu'on perd en enlevant le tronc : la lecture « arbre » s'efface au profit de la lecture « carte ». E3 et E4 sont les deux qui gardent un pied dans la nature — la feuille pour l'une, le relief pour l'autre.
+    </div>
+  </div>
+
+  <div style="height: 1px; background: #2a3420;"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 20px;">
+    <h2 style="margin: 0; font-family: Spectral, Georgia, serif; font-size: 20px; font-weight: 600;">Les cinq à 20 px</h2>
+    <p style="margin: -8px 0 0; color: #8d9678; font-size: 14px;">C'est la taille où les fausses lectures apparaissent. Plisse les yeux : si tu vois autre chose qu'un circuit, la forme est mauvaise.</p>
+
+    <div style="display: flex; align-items: center; gap: 46px; padding: 24px 28px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20.6c-4.4-.2-7.6-3.3-7.4-7.7.2-4.8 4.2-9 8.8-8.2 4.6.8 7 5.6 5.6 10-1.2 3.8-3.4 5.8-7 5.9Z"/><circle cx="12" cy="20.6" r="2.3" fill="#a8c98a" stroke="none"/>
+        </svg>
+        <span style="font-size: 11px; color: #6e7860;">E1</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="2.1" stroke-linecap="round">
+          <path d="M13.6 20.3c4-.8 6.6-4.6 5.8-8.6-.8-4-4.6-6.6-8.6-5.8-4 .8-6.6 4.6-5.8 8.6.5 2.4 2 4.3 4 5.3"/><circle cx="12" cy="20.9" r="2.3" fill="#a8c98a" stroke="none"/>
+        </svg>
+        <span style="font-size: 11px; color: #6e7860;">E2</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 21c-5-1.6-8-5.4-7.2-10C5.5 6.7 8.6 3.4 12 3c3.4.4 6.5 3.7 7.2 8 .8 4.6-2.2 8.4-7.2 10Z"/><circle cx="12" cy="21" r="2.3" fill="#a8c98a" stroke="none"/>
+        </svg>
+        <span style="font-size: 11px; color: #6e7860;">E3</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20.8C7.4 19.4 4.6 15.4 5.4 11.4 6 8 8.4 5.6 11.2 4.6"/><path d="M12 20.8c4.6-1.4 7.4-5.4 6.6-9.4-.6-3.4-3-5.8-5.8-6.8"/><path d="M11.2 4.6 12 2.8l1.2 1.6"/><circle cx="12" cy="20.8" r="2.3" fill="#a8c98a" stroke="none"/>
+        </svg>
+        <span style="font-size: 11px; color: #6e7860;">E4</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9.4 20.2C5.4 18.2 3.6 13.6 5.4 9.6 7.2 5.6 11.8 3.8 15.8 5.6c4 1.8 5.8 6.4 4 10.4-.8 1.8-2.2 3.2-3.8 4"/><circle cx="9.4" cy="20.2" r="2.3" fill="#a8c98a" stroke="none"/>
+        </svg>
+        <span style="font-size: 11px; color: #6e7860;">E5</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 40px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 13px; padding: 18px 24px; background: #1b2213; border: 1px solid #2a3420; border-radius: 4px;">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20.6c-4.4-.2-7.6-3.3-7.4-7.7.2-4.8 4.2-9 8.8-8.2 4.6.8 7 5.6 5.6 10-1.2 3.8-3.4 5.8-7 5.9Z"/><circle cx="12" cy="20.6" r="2.1" fill="#a8c98a" stroke="none"/>
+      </svg>
+      <span style="font-family: Spectral, Georgia, serif; font-size: 31px; letter-spacing: .02em;">hent</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 9px;">
+      <div style="width: 66px; height: 66px; display: flex; align-items: center; justify-content: center; background: #a8c98a; border-radius: 13px;">
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#14190f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20.6c-4.4-.2-7.6-3.3-7.4-7.7.2-4.8 4.2-9 8.8-8.2 4.6.8 7 5.6 5.6 10-1.2 3.8-3.4 5.8-7 5.9Z"/><circle cx="12" cy="20.6" r="2.1" fill="#14190f" stroke="none"/>
+        </svg>
+      </div>
+      <span style="font-size: 11px; color: #6e7860;">icône</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 18px 24px; background: #f4f3ef; border-radius: 4px;">
+      <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#23241f" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20.6c-4.4-.2-7.6-3.3-7.4-7.7.2-4.8 4.2-9 8.8-8.2 4.6.8 7 5.6 5.6 10-1.2 3.8-3.4 5.8-7 5.9Z"/><circle cx="12" cy="20.6" r="2.1" fill="#23241f" stroke="none"/>
+      </svg>
+      <span style="font-size: 11px; color: #83867b;">sur fond clair</span>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400&display=swap">
+  <style>
+    body { margin: 0; font-family: Karla, 'Helvetica Neue', sans-serif; }
+    a { color: #a8c98a; } a:hover { color: #c5e0a8; }
+    .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+    .sec { font-family: Spectral, Georgia, serif; font-size: 19px; font-weight: 600; margin: 0 0 5px; }
+    .note { margin: 0; color: #8d9678; font-size: 14px; }
+    .sw { border: 1px solid #2f3d24; border-radius: 4px; overflow: hidden; }
+    .sw .meta { padding: 11px 13px; background: #191f13; }
+    .sw .name { font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+    .sw .hex { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8d9678; margin-top: 2px; }
+    .sw .use { font-size: 12px; color: #8d9678; margin-top: 5px; }
+    .ok { color: #a8c98a; }
+  </style>
+</helmet>
+
+<div style="width: 1080px; background: #14190f; color: #e9ead9; padding: 44px 44px 52px; display: flex; flex-direction: column; gap: 40px;">
+
+  <div>
+    <h1 style="margin: 0 0 7px; font-family: Spectral, Georgia, serif; font-size: 25px; font-weight: 600;">Fondations</h1>
+    <p class="note" style="max-width: 720px;">
+      Dix-huit jetons, huit tailles, trois rayons. Tout est relevé sur les écrans, et tout ce qui portait deux fois la même chose a été fusionné. Les ratios sont calculés, pas estimés : seuil RGAA 3.2 de 4,5:1 pour le texte, 3.3 de 3:1 pour les composants. Les valeurs ci-dessous sont celles du <strong style="color: #e9ead9; font-weight: 400;">thème sombre</strong>, le défaut ; la planche <em>Les deux thèmes</em> donne le jeu clair en regard.
+    </p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 18px;">
+    <div>
+      <h2 class="sec">Surfaces</h2>
+      <p class="note">Quatre profondeurs. Rien ne s'empile plus haut que la tuile.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px;">
+      <div class="sw">
+        <div style="height: 58px; background: #14190f;"></div>
+        <div class="meta"><div class="name">--fond</div><div class="hex">#14190f</div><div class="use">Fond général, texte des boutons verts</div></div>
+      </div>
+      <div class="sw">
+        <div style="height: 58px; background: #191f13;"></div>
+        <div class="meta"><div class="name">--feuille</div><div class="hex">#191f13</div><div class="use">Feuille basse, blocs, cartes</div></div>
+      </div>
+      <div class="sw">
+        <div style="height: 58px; background: #212a19;"></div>
+        <div class="meta"><div class="name">--tuile</div><div class="hex">#212a19</div><div class="use">Champs, tuiles de chiffres</div></div>
+      </div>
+      <div class="sw">
+        <div style="height: 58px; background: #1d2418;"></div>
+        <div class="meta"><div class="name">--carte</div><div class="hex">#1d2418</div><div class="use">Fond cartographique</div></div>
+      </div>
+      <div class="sw" style="border-color: #dedbd2;">
+        <div style="height: 58px; background: #f4f3ef;"></div>
+        <div class="meta"><div class="name">--papier</div><div class="hex">#f4f3ef</div><div class="use">Impression, logo sur fond clair</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 18px;">
+    <div>
+      <h2 class="sec">Traits</h2>
+      <p class="note">Deux traits seulement, et la frontière entre eux est une règle d'accessibilité : dès qu'un contour est <em>ce qui délimite un composant</em> — champ, bouton, rail de curseur, pastille — il passe en <span class="mono">--trait-vif</span>, qui tient les 3:1. Un séparateur, le contour d'une tuile ou le fond d'une jauge ne délimitent aucun contrôle : ils restent discrets.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
+      <div style="padding: 14px; background: #191f13; border: 1px solid #2f3d24; border-radius: 4px;">
+        <div style="height: 24px; border-bottom: 2px solid #2f3d24; margin-bottom: 12px;"></div>
+        <div class="name mono" style="font-size: 12px;">--trait</div>
+        <div class="hex mono" style="font-size: 12px; color: #8d9678;">#2f3d24 · 1,45:1</div>
+        <div class="use" style="font-size: 12px; color: #8d9678; margin-top: 5px;">Séparateurs, contours de tuiles. Décoratif — non soumis au seuil.</div>
+      </div>
+      <div style="padding: 14px; background: #191f13; border: 1px solid #2f3d24; border-radius: 4px;">
+        <div style="height: 24px; border-bottom: 2px solid #607a4a; margin-bottom: 12px;"></div>
+        <div class="name mono" style="font-size: 12px;">--trait-vif</div>
+        <div class="hex mono" style="font-size: 12px; color: #8d9678;">#607a4a · <span class="ok">3,51:1</span></div>
+        <div class="use" style="font-size: 12px; color: #8d9678; margin-top: 5px;">Champs, boutons secondaires, rails, pastilles.</div>
+      </div>
+      <div style="padding: 14px; background: #1d2418; border: 1px solid #2f3d24; border-radius: 4px;">
+        <div style="height: 24px; border-bottom: 2px solid #4d5f3e; margin-bottom: 12px;"></div>
+        <div class="name mono" style="font-size: 12px;">--voie</div>
+        <div class="hex mono" style="font-size: 12px; color: #8d9678;">#4d5f3e · 2,29:1</div>
+        <div class="use" style="font-size: 12px; color: #8d9678; margin-top: 5px;">Chemins sur la carte, lèvre de la feuille basse.</div>
+      </div>
+      <div style="padding: 14px; background: #1d2418; border: 1px solid #2f3d24; border-radius: 4px;">
+        <div style="height: 24px; border-bottom: 2px solid #36422c; margin-bottom: 12px;"></div>
+        <div class="name mono" style="font-size: 12px;">--grille</div>
+        <div class="hex mono" style="font-size: 12px; color: #8d9678;">#36422c · 1,50:1</div>
+        <div class="use" style="font-size: 12px; color: #8d9678; margin-top: 5px;">Maillage de la carte, arbres de fond.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 18px;">
+    <div>
+      <h2 class="sec">Texte et accents</h2>
+      <p class="note">Trois gris, pas quatre : le plus pâle plafonnait à 3,84:1 et a été supprimé. Chaque ratio ci-dessous est le pire des trois surfaces sombres.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+      <div style="padding: 15px 16px; background: #191f13; border: 1px solid #2f3d24; border-radius: 4px;">
+        <div style="color: #e9ead9; font-size: 19px; margin-bottom: 10px;">Le texte qu'on lit</div>
+        <div class="mono" style="font-size: 12px;">--texte</div>
+        <div class="mono" style="font-size: 12px; color: #8d9678;">#e9ead9 · <span class="ok">13,8:1</span></div>
+      </div>
+      <div style="padding: 15px 16px; background: #191f13; border: 1px solid #2f3d24; border-radius: 4px;">
+        <div style="color: #a9b096; font-size: 19px; margin-bottom: 10px;">Le texte qui explique</div>
+        <div class="mono" style="font-size: 12px;">--texte-doux</div>
+        <div class="mono" style="font-size: 12px; color: #8d9678;">#a9b096 · <span class="ok">6,62:1</span></div>
+      </div>
+      <div style="padding: 15px 16px; background: #191f13; border: 1px solid #2f3d24; border-radius: 4px;">
+        <div style="color: #8d9678; font-size: 19px; margin-bottom: 10px;">L'étiquette et l'unité</div>
+        <div class="mono" style="font-size: 12px;">--texte-gris</div>
+        <div class="mono" style="font-size: 12px; color: #8d9678;">#8d9678 · <span class="ok">4,80:1</span></div>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+      <div class="sw">
+        <div style="height: 58px; background: #a8c98a; display: flex; align-items: center; justify-content: center; color: #14190f; font-weight: 700; font-size: 17px;">Tracer ma boucle</div>
+        <div class="meta"><div class="name">--accent</div><div class="hex">#a8c98a · <span class="ok">9,69:1</span> sur fond, <span class="ok">9,69:1</span> en fond</div><div class="use">Une seule action par vue, le tracé, le symbole.</div></div>
+      </div>
+      <div class="sw">
+        <div style="height: 58px; background: #c5e0a8;"></div>
+        <div class="meta"><div class="name">--accent-vif</div><div class="hex">#c5e0a8 · <span class="ok">11,7:1</span></div><div class="use">Survol, anneau de focus, et la portion parcourue d'un rail — la partie active, toujours.</div></div>
+      </div>
+      <div class="sw">
+        <div style="height: 58px; background: #c9a35e;"></div>
+        <div class="meta"><div class="name">--alerte</div><div class="hex">#c9a35e · <span class="ok">7,13:1</span></div><div class="use">Ce qu'on subit : trafic, bitume, erreur. Jamais une réussite.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 1px; background: #2f3d24;"></div>
+
+  <div style="display: flex; gap: 44px;">
+
+    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 18px;">
+      <div>
+        <h2 class="sec">Typographie</h2>
+        <p class="note">Huit tailles au lieu de quatorze. Spectral pour ce qu'on lit et tout ce qui se mesure ; Karla pour ce qu'on manipule.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 15px;">
+        <div style="display: flex; align-items: baseline; gap: 16px;">
+          <span style="font-family: Spectral, Georgia, serif; font-size: 40px; line-height: 1.1; font-weight: 600;">Une boucle</span>
+          <span class="mono" style="font-size: 12px; color: #8d9678;">Spectral 600 · 40/44</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 16px;">
+          <span style="font-family: Spectral, Georgia, serif; font-size: 36px; line-height: 1;">17,4</span>
+          <span class="mono" style="font-size: 12px; color: #8d9678;">Spectral 400 · 36 — le chiffre qui répond</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 16px;">
+          <span style="font-family: Spectral, Georgia, serif; font-size: 25px;">18 km</span>
+          <span class="mono" style="font-size: 12px; color: #8d9678;">Spectral 400 · 25 — valeurs et statistiques</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 16px;">
+          <span style="font-family: Spectral, Georgia, serif; font-size: 19px;">Des vraies boucles</span>
+          <span class="mono" style="font-size: 12px; color: #8d9678;">Spectral 400 · 19 — intertitres</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 16px;">
+          <span style="font-size: 17px;">Corps de texte, et libellés de boutons</span>
+          <span class="mono" style="font-size: 12px; color: #8d9678;">Karla 400 / 700 · 17/26</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 16px;">
+          <span style="font-size: 15px; color: #a9b096;">Explications, texte secondaire</span>
+          <span class="mono" style="font-size: 12px; color: #8d9678;">Karla 400 · 15</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 16px;">
+          <span style="font-size: 14px; color: #a9b096;">Étiquettes de réglage, contenu dense</span>
+          <span class="mono" style="font-size: 12px; color: #8d9678;">Karla 400 · 14</span>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 16px;">
+          <span style="font-size: 12px; color: #8d9678; letter-spacing: .16em; text-transform: uppercase;">Section</span>
+          <span class="mono" style="font-size: 12px; color: #8d9678;">Karla 400 · 12 — le plancher</span>
+        </div>
+      </div>
+      <p class="note">Toutes ces valeurs s'écrivent en <span class="mono" style="color: #e9ead9;">rem</span> dans le code : le texte doit encore tenir à 200 % (RGAA 10.4).</p>
+    </div>
+
+    <div style="width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 18px;">
+      <div>
+        <h2 class="sec">Mesures</h2>
+        <p class="note">Peu de valeurs, toujours les mêmes.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 9px; font-size: 14px;">
+        <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid #2f3d24;"><span style="color: #a9b096;">Marge d'écran</span><span class="mono">20 · 24</span></div>
+        <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid #2f3d24;"><span style="color: #a9b096;">Espacements</span><span class="mono">9 · 13 · 22 · 30</span></div>
+        <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid #2f3d24;"><span style="color: #a9b096;">Rayon</span><span class="mono">4 · 14 · pilule</span></div>
+        <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid #2f3d24;"><span style="color: #a9b096;">Cible tactile</span><span class="mono">52, jamais &lt; 44</span></div>
+        <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid #2f3d24;"><span style="color: #a9b096;">Trait d'icône</span><span class="mono">1,5 → 2,2</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="color: #a9b096;">Tracé sur carte</span><span class="mono">3,5 · 4 si actif</span></div>
+      </div>
+
+      <div style="margin-top: 8px; padding: 16px 18px; background: #191f13; border: 1px solid #2f3d24; border-radius: 4px;">
+        <div style="font-family: Spectral, Georgia, serif; font-size: 19px; margin-bottom: 12px;">Le focus</div>
+        <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 14px;">
+          <span style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 20px; background: #a8c98a; color: #14190f; border-radius: 4px; font-weight: 700; font-size: 17px; outline: 2px solid #c5e0a8; outline-offset: 2px;">Tracer</span>
+          <span style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; width: 52px; border: 1px solid #607a4a; border-radius: 4px; outline: 2px solid #c5e0a8; outline-offset: 2px;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#a8c98a" stroke-width="1.9" stroke-linecap="round"><path d="M12 3v11"/><path d="M8 11l4 4 4-4"/><path d="M4 19h16"/></svg>
+          </span>
+        </div>
+        <p class="note"><span class="mono" style="color: #e9ead9;">outline 2px #c5e0a8, offset 2px</span> — l'anneau se pose sur le fond, jamais sur le composant, ce qui lui garantit ses 10:1 même sur le bouton vert. Il n'est jamais supprimé (RGAA 10.7).</p>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

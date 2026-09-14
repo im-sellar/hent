@@ -10,3 +10,6 @@ data/
 /hent
 /graphbuild
 /routed
+
+# Canevas assemblé : 2,7 Mo de moteur d'édition, reconstruit par seed-canvas.mjs
+design/hent-directions.html

@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: Archivo, 'Helvetica Neue', sans-serif; }
+    a { color: #35603f; text-decoration: none; }
+    a:hover { color: #24452c; }
+  </style>
+</helmet>
+
+<div style="width: 390px; background: #f4f3ef; color: #23241f; font-size: 16px; line-height: 1.5;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 22px; border-bottom: 1px solid #dedbd2;">
+    <span style="font-weight: 700; font-size: 18px; letter-spacing: -.01em;">hent</span>
+    <span style="font-size: 13px; color: #6f7268;">Bretagne</span>
+  </div>
+
+  <div style="padding: 36px 22px 30px; display: flex; flex-direction: column; gap: 18px;">
+    <h1 style="margin: 0; font-size: 33px; line-height: 1.15; font-weight: 700; letter-spacing: -.02em; text-wrap: pretty;">
+      Des boucles de trail, calculées sur mesure
+    </h1>
+    <p style="margin: 0; color: #56584e; font-size: 16px;">
+      Un point de départ, une distance. Le tracé revient à son point d'origine en évitant les routes.
+    </p>
+    <a href="#" style="display: flex; align-items: center; justify-content: center; min-height: 50px; background: #23241f; color: #f4f3ef; border-radius: 3px; font-weight: 600;">
+      Commencer
+    </a>
+  </div>
+
+  <div style="height: 210px; position: relative; background: #e6e4dc; border-top: 1px solid #dedbd2; border-bottom: 1px solid #dedbd2; overflow: hidden;">
+    <svg viewBox="0 0 390 210" style="width: 100%; height: 100%;" aria-hidden="true">
+      <g stroke="#cfcdc2" stroke-width="1" fill="none">
+        <path d="M0 40 H390 M0 90 H390 M0 140 H390 M0 190 H390"/>
+        <path d="M60 0 V210 M150 0 V210 M240 0 V210 M330 0 V210"/>
+      </g>
+      <path d="M110 168 C58 140 70 84 124 70 C182 55 238 74 256 108 C276 146 226 186 176 180 C148 176 132 178 110 168 Z"
+            fill="none" stroke="#35603f" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="110" cy="168" r="6" fill="#35603f"/>
+      <circle cx="110" cy="168" r="11" fill="none" stroke="#35603f" stroke-width="1.5" opacity=".45"/>
+    </svg>
+  </div>
+
+  <div style="display: flex; flex-direction: column;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 17px 22px; border-bottom: 1px solid #dedbd2;">
+      <span style="font-size: 15px;">Distance visée</span>
+      <span style="font-weight: 600;">2 à 50 km</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 17px 22px; border-bottom: 1px solid #dedbd2;">
+      <span style="font-size: 15px;">Évitement du bitume</span>
+      <span style="font-weight: 600;">réglable</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 17px 22px; border-bottom: 1px solid #dedbd2;">
+      <span style="font-size: 15px;">Export</span>
+      <span style="font-weight: 600;">GPX</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 17px 22px; border-bottom: 1px solid #dedbd2;">
+      <span style="font-size: 15px;">Compte requis</span>
+      <span style="font-weight: 600; color: #6f7268;">aucun</span>
+    </div>
+  </div>
+
+  <div style="padding: 30px 22px 34px; display: flex; flex-direction: column; gap: 13px;">
+    <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #6f7268;">
+      Comment ça marche
+    </h2>
+    <p style="margin: 0; color: #56584e; font-size: 15px;">
+      Le calcul explore le réseau des chemins autour de ton départ et cherche un circuit de la bonne longueur. Un tracé qui repasserait sur ses pas est écarté, ce qui rend le problème nettement plus coûteux qu'un simple itinéraire — compte environ une seconde.
+    </p>
+  </div>
+
+  <div style="padding: 18px 22px 26px; border-top: 1px solid #dedbd2; font-size: 12px; color: #83867b; line-height: 1.6;">
+    Données <a href="#">© les contributeurs OpenStreetMap</a>, ODbL.
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
