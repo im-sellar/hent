@@ -113,7 +113,9 @@ func (g *Generator) Generate(ctx context.Context, req Request) ([]domain.Loop, e
 
 	loops = dedupe(loops)
 	sort.Slice(loops, func(a, b int) bool {
-		return ecartRelatif(loops[a], req) < ecartRelatif(loops[b], req)
+		sa := domain.NewScore(loops[a], req.DistanceM)
+		sb := domain.NewScore(loops[b], req.DistanceM)
+		return sa.Preferable(sb, req.Tolerance)
 	})
 	if len(loops) > req.MaxResults {
 		loops = loops[:req.MaxResults]
@@ -129,10 +131,6 @@ func (r Request) withDefaults() Request {
 		r.MaxResults = 5
 	}
 	return r
-}
-
-func ecartRelatif(l domain.Loop, req Request) float64 {
-	return math.Abs(l.LengthM-req.DistanceM) / req.DistanceM
 }
 
 func seedOf(req Request) int64 {
@@ -239,6 +237,8 @@ func appendSegment(loop *domain.Loop, seg domain.Path, used map[domain.EdgeRef]s
 	}
 	loop.Edges = append(loop.Edges, seg.Edges...)
 	loop.LengthM += seg.LengthM
+	loop.UnpavedM += seg.UnpavedM
+	loop.TrafficExposureM += seg.TrafficExposureM
 
 	for _, e := range seg.Edges {
 		used[e] = struct{}{}

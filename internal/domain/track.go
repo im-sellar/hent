@@ -16,6 +16,12 @@ type Path struct {
 	LengthM float64
 	Cost    float64
 
+	// Agrégats calculés par l'adaptateur pendant la reconstruction du chemin.
+	// Ils traversent la frontière sous forme de données : la couche métier
+	// calcule le score sans jamais accéder au graphe.
+	UnpavedM         float64 // longueur cumulée hors revêtement dur
+	TrafficExposureM float64 // longueur pondérée par l'exposition au trafic
+
 	// ExploredNodes : nœuds dépilés par la recherche. Donnée d'observabilité,
 	// et non résultat métier — elle rend visible l'arbitrage du modèle de
 	// coût : plus les pondérations s'écartent, moins l'heuristique informe, et
@@ -44,4 +50,10 @@ type Loop struct {
 	Edges   []EdgeRef
 	Coords  []Coord
 	LengthM float64
+
+	// Agrégats calculés par l'adaptateur pendant la reconstruction du chemin.
+	// Ils traversent la frontière sous forme de données : la couche métier
+	// calcule le score sans jamais accéder au graphe.
+	UnpavedM         float64 // longueur cumulée hors revêtement dur
+	TrafficExposureM float64 // longueur pondérée par l'exposition au trafic
 }

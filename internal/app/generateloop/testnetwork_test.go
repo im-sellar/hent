@@ -180,6 +180,7 @@ func (g *grille) FindPath(ctx context.Context, from, to domain.NodeRef,
 		for _, a := range g.voisins[p.Nodes[i]] {
 			if a.cible == p.Nodes[i+1] {
 				p.LengthM += a.long
+				p.UnpavedM += a.long // la grille de test est intégralement en chemin
 				break
 			}
 		}

@@ -188,7 +188,13 @@ func (g *Graph) rebuild(
 	}
 	for i, e := range revEdges {
 		p.Edges[len(revEdges)-1-i] = e
-		p.LengthM += g.attrs[e].LengthM
+
+		a := g.attrs[e]
+		p.LengthM += a.LengthM
+		if a.Surface != domain.SurfacePaved {
+			p.UnpavedM += a.LengthM
+		}
+		p.TrafficExposureM += a.LengthM * float64(a.Traffic) / 255
 	}
 	return p
 }
