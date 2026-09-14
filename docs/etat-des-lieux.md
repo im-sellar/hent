@@ -1,10 +1,10 @@
-# État des lieux — 11 septembre 2026 (soir)
+# État des lieux — 14 septembre 2026
 
 Où en est `hent`, et comment reprendre.
 
 ## En un coup d'œil
 
-**7 tâches sur 9** écrites, dont 6 revues et approuvées. Le moteur lit
+**7 tâches sur 9** terminées, toutes revues et approuvées. Le moteur lit
 OpenStreetMap, construit son graphe, le sérialise en artefact versionné,
 calcule un itinéraire optimal entre deux points, et **génère des boucles**.
 
@@ -24,7 +24,7 @@ bien plus large que prévu.
 | 4 | A*, index spatial, benchmark, port réseau | ✅ `9b954bf` | ✅ approuvée |
 | 5 | Lecture OSM et construction du graphe | ✅ `bc8032b` | ✅ approuvée |
 | 6 | Sérialisation `graph.bin` et binaire `graphbuild` | ✅ `a089e71` | ✅ approuvée |
-| 7 | Génération de boucles | ✅ `9e77459` | ⚠️ **pas encore relue** |
+| 7 | Génération de boucles | ✅ `3ca036a` | ✅ approuvée |
 | 8 | Score lisible | — | — |
 | 9 | API HTTP, export GPX, binaire `routed` | — | — |
 
@@ -80,11 +80,9 @@ Les points 3 et 4 étaient de vrais défauts du plan, trouvés avant exécution 
 
 ### Par où commencer
 
-1. **Faire relire la tâche 7.** Son code est commité et sa suite est verte,
-   mais aucun relecteur ne l'a examinée : la session s'est arrêtée entre
-   l'implémentation et la revue. Diff à relire : `b15cbe8..9e77459`.
-2. Puis la **tâche 8** (score lisible), puis la **tâche 9** (API, export GPX,
-   serveur).
+La **tâche 8** (score lisible), puis la **tâche 9** (API, export GPX,
+serveur). Après quoi l'étape 1 de la feuille de route est complète et le
+service tourne en local.
 
 ### Où vivent les documents
 
