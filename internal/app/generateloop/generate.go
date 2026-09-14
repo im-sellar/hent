@@ -155,9 +155,6 @@ func (g *Generator) candidate(ctx context.Context, start domain.NodeRef,
 	lo, hi := detourLo, detourHi
 	detour := 1.3
 
-	var best domain.Loop
-	bestEcart := math.Inf(1)
-
 	for i := 0; i < maxRadiusIterations; i++ {
 		radius := req.DistanceM / (2 * math.Pi * detour)
 
@@ -167,9 +164,6 @@ func (g *Generator) candidate(ctx context.Context, start domain.NodeRef,
 		}
 
 		ecart := (loop.LengthM - req.DistanceM) / req.DistanceM
-		if math.Abs(ecart) < math.Abs(bestEcart) {
-			best, bestEcart = loop, ecart
-		}
 		if math.Abs(ecart) <= req.Tolerance {
 			return loop, nil
 		}
@@ -184,10 +178,12 @@ func (g *Generator) candidate(ctx context.Context, start domain.NodeRef,
 		detour = (lo + hi) / 2
 	}
 
-	if math.Abs(bestEcart) > req.Tolerance {
-		return domain.Loop{}, ErrNoLoopFound
-	}
-	return best, nil
+	// Aucune itération n'a atteint la tolérance, et il n'y a délibérément pas
+	// de repli sur « la moins mauvaise » : une boucle hors tolérance n'est pas
+	// ce que l'utilisateur a demandé. Cette direction est abandonnée, les
+	// dix-neuf autres sont explorées en parallèle — et les mesures montrent
+	// qu'elles aboutissent presque toutes.
+	return domain.Loop{}, ErrNoLoopFound
 }
 
 func (g *Generator) tryLoop(ctx context.Context, start domain.NodeRef,

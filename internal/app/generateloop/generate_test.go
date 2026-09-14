@@ -105,6 +105,9 @@ func TestGenerateEstDeterministe(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	if len(a) == 0 {
+		t.Fatal("aucune boucle produite : les assertions qui suivent ne vérifieraient rien")
+	}
 	if len(a) != len(b) {
 		t.Fatalf("%d boucles puis %d", len(a), len(b))
 	}
@@ -126,6 +129,10 @@ func TestGenerateVariantDonneAutreChose(t *testing.T) {
 	b, err := generateloop.New(g).Generate(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	if len(a) == 0 || len(b) == 0 {
+		t.Fatal("aucune boucle produite : les assertions qui suivent ne vérifieraient rien")
 	}
 
 	// On compare les ensembles d'arêtes, et non la longueur ni le nombre de
