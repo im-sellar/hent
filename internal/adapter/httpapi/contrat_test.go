@@ -100,3 +100,67 @@ func TestContratJSONInchange(t *testing.T) {
 		})
 	}
 }
+
+// TestContratJSONBoucleInchange fige la réponse de GET /v1/loops/{id}, la
+// représentation JSON d'une boucle ouverte depuis son lien.
+//
+// L'identifiant est lu dans le témoin du POST plutôt que redemandé au serveur :
+// ce fichier est figé, donc l'identifiant l'est aussi, et le témoin de cette
+// route ne dépend d'aucune exécution.
+func TestContratJSONBoucleInchange(t *testing.T) {
+	brutPost, err := os.ReadFile(filepath.Join("testdata", "contrat-loops.json"))
+	if err != nil {
+		t.Fatalf("témoin du POST absent (%v) : celui-ci en dépend", err)
+	}
+	var post struct {
+		Loops []struct {
+			ID string `json:"id"`
+		} `json:"loops"`
+	}
+	if err := json.Unmarshal(brutPost, &post); err != nil {
+		t.Fatal(err)
+	}
+	if len(post.Loops) == 0 || post.Loops[0].ID == "" {
+		t.Fatal("le témoin du POST ne porte aucun identifiant : ce test ne vérifierait rien")
+	}
+
+	srv := httptest.NewServer(testHandler(t))
+	defer srv.Close()
+
+	resp, err := http.Get(srv.URL + "/v1/loops/" + post.Loops[0].ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("statut %d, attendu 200 : le témoin ne prouverait rien sur une erreur", resp.StatusCode)
+	}
+	brut, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var indente bytes.Buffer
+	if err := json.Indent(&indente, brut, "", "  "); err != nil {
+		t.Fatalf("réponse illisible comme JSON : %v", err)
+	}
+	obtenu := append(indente.Bytes(), '\n')
+
+	chemin := filepath.Join("testdata", "contrat-loop.json")
+	if *majTemoins {
+		if err := os.WriteFile(chemin, obtenu, 0o644); err != nil {
+			t.Fatal(err)
+		}
+		t.Logf("témoin réécrit : %s", chemin)
+		return
+	}
+
+	attendu, err := os.ReadFile(chemin)
+	if err != nil {
+		t.Fatalf("témoin absent (%v) — le régénérer avec : go test ./internal/adapter/httpapi/ -run TestContratJSON -maj-temoins", err)
+	}
+	if !bytes.Equal(obtenu, attendu) {
+		t.Errorf("le contrat public a changé.\n--- attendu ---\n%s\n--- obtenu ---\n%s", attendu, obtenu)
+	}
+}

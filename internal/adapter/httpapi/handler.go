@@ -141,6 +141,19 @@ type loopsResponse struct {
 	Attribution string    `json:"attribution"`
 }
 
+// loopResponse est la réponse de GET /v1/loops/{id}. Elle rend la demande à
+// côté de la boucle : l'identifiant l'encode déjà, et un client qui ouvre une
+// boucle par son lien n'a pas d'autre moyen de savoir quelle distance avait
+// été demandée — la déduire de l'écart à la cible serait un calcul à rebours.
+//
+// loopsRequest y sert de représentation de la demande plutôt qu'un type jumeau :
+// c'est le même contrat, décrit une fois, lu à l'entrée et rendu à la sortie.
+type loopResponse struct {
+	Loop        loopDTO      `json:"loop"`
+	Request     loopsRequest `json:"request"`
+	Attribution string       `json:"attribution"`
+}
+
 // sourceDTO et provenanceDTO découplent le contrat JSON de /v1/regions des
 // tags de sérialisation propres au format binaire de graph.bin, portés par
 // l'adaptateur csr. Les laisser fuir jusqu'ici ferait dépendre l'API publique
@@ -186,7 +199,7 @@ func New(gen port.LoopGenerator, prov domain.Provenance, bbox domain.BBox, trust
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /v1/loops", a.postLoops)
-	mux.HandleFunc("GET /v1/loops/{id}", a.getGPX)
+	mux.HandleFunc("GET /v1/loops/{id}", a.getLoop)
 	mux.HandleFunc("GET /v1/regions", a.getRegions)
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.Write([]byte("ok"))
@@ -247,8 +260,18 @@ func (a *api) postLoops(w http.ResponseWriter, r *http.Request) {
 // getGPX régénère la boucle à partir de l'identifiant, qui encode la requête
 // et l'indice. Le serveur ne conserve aucun état entre les deux appels : c'est
 // possible uniquement parce que la génération est déterministe.
-func (a *api) getGPX(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimSuffix(r.PathValue("id"), ".gpx")
+// getLoop régénère une boucle depuis son identifiant et la rend dans l'une des
+// deux représentations : GPX si le chemin porte le suffixe .gpx, JSON sinon.
+// Le mux de net/http ne sait pas router sur un suffixe — un joker occupe un
+// segment entier — d'où ce branchement ici plutôt que deux routes.
+//
+// Aucun état n'est conservé entre le POST qui a produit l'identifiant et cet
+// appel : la génération étant déterministe, rejouer la demande encodée redonne
+// exactement les mêmes boucles.
+func (a *api) getLoop(w http.ResponseWriter, r *http.Request) {
+	brut := r.PathValue("id")
+	enGPX := strings.HasSuffix(brut, ".gpx")
+	id := strings.TrimSuffix(brut, ".gpx")
 
 	req, index, err := decodeID(id)
 	if err != nil {
@@ -262,6 +285,21 @@ func (a *api) getGPX(w http.ResponseWriter, r *http.Request) {
 	loops, err := a.gen.Generate(ctx, req.toDomain())
 	if err != nil || index >= len(loops) {
 		a.fail(w, http.StatusNotFound, "boucle introuvable")
+		return
+	}
+
+	if !enGPX {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Cache-Control", "public, max-age=86400")
+		json.NewEncoder(w).Encode(loopResponse{
+			Loop: loopDTO{
+				ID:       encodeID(req, index),
+				Score:    scoreDTOOf(domain.NewScore(loops[index], req.DistanceM)),
+				Geometry: geometryOf(loops[index]),
+			},
+			Request:     req,
+			Attribution: attribution,
+		})
 		return
 	}
 
