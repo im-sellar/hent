@@ -1,6 +1,16 @@
+/**
+ * Le point d'assemblage de l'application : il relie les implémentations
+ * concrètes d'`infra` aux ports que `domaine` et `app` consomment. C'est le
+ * rôle que joue `cmd/routed/main.go` côté back, délibérément situé hors de
+ * `internal/` pour la même raison — un point d'assemblage doit pouvoir
+ * connaître toutes les couches, ce qu'aucune couche gardée ne peut se
+ * permettre. Ce fichier vit donc à la racine de `lib/`, hors de `domaine/`,
+ * `app/`, `infra/` et `ui/` : `architecture.test.ts` ne le couvre pas, comme
+ * `architecture_test.go` ne couvre pas `cmd/`.
+ */
 import type { Depart } from '$lib/domaine/depart';
 import { REGLAGES_PAR_DEFAUT, borner, type Reglages } from '$lib/domaine/reglages';
-import { creerResultats } from './generation/resultats.svelte';
+import { creerResultats } from './app/generation/resultats.svelte';
 import { creerMoteurHTTP } from '$lib/infra/hent-api';
 import { creerPreferences } from '$lib/infra/stockage';
 
@@ -52,15 +62,3 @@ function creerEtat() {
 }
 
 export const appEtat = creerEtat();
-
-/**
- * Libellé de l'écart à la demande, tel que l'écran de détail l'affiche à côté de
- * la distance obtenue. Rendu vide quand il n'apprendrait rien : demande inconnue,
- * ou distance obtenue égale à la demande arrondie.
- */
-export function formatEcartCible(demandeM: number, obtenueM: number): string {
-  if (!Number.isFinite(demandeM) || demandeM <= 0) return '';
-  const demandeKm = Math.round(demandeM / 1000);
-  if (demandeKm === Math.round(obtenueM / 1000) && Math.abs(demandeM - obtenueM) < 500) return '';
-  return `tu en demandais ${demandeKm}`;
-}

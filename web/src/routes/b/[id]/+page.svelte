@@ -1,8 +1,8 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { appEtat, formatEcartCible } from '$lib/app/etat.svelte';
+  import { appEtat } from '$lib/assemblage.svelte';
   import { dureeMinutes, type Boucle, type Demande } from '$lib/domaine/boucle';
-  import { formatDistance, formatDuree, formatPourcent } from '$lib/domaine/format';
+  import { formatDistance, formatDuree, formatEcartCible, formatPourcent } from '$lib/domaine/format';
   import type { ErreurMoteur } from '$lib/app/ports';
   import Bouton from '$lib/ui/Bouton.svelte';
   import EtatEcran from '$lib/ui/EtatEcran.svelte';

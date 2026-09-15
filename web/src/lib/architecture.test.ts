@@ -12,28 +12,15 @@ const interdits: Record<string, string[]> = {
   ui: ['infra']
 };
 
-/**
- * `etat.svelte.ts` est le point d'assemblage de l'application : il relie les
- * implémentations concrètes d'`infra` aux ports que le reste de la couche
- * `app` consomme. C'est le même rôle que joue `cmd/routed/main.go` côté back,
- * délibérément situé hors de `internal/` pour la même raison. Rien de tel
- * n'existe ici hors de `lib/` : le lui interdire forcerait un point
- * d'assemblage séparé, pour un bénéfice nul — cette règle continue de garantir
- * que rien d'autre dans `app` ne dépend d'`infra`.
- */
-const exceptions: Record<string, string[]> = {
-  app: ['etat.svelte.ts']
-};
-
 const racine = new URL('.', import.meta.url).pathname;
 
-function fichiersSources(dossier: string, exclus: string[] = []): string[] {
+function fichiersSources(dossier: string): string[] {
   let trouves: string[] = [];
   for (const entree of readdirSync(dossier)) {
     const chemin = join(dossier, entree);
     if (statSync(chemin).isDirectory()) {
-      trouves = trouves.concat(fichiersSources(chemin, exclus));
-    } else if (/\.(ts|svelte)$/.test(entree) && !entree.endsWith('.test.ts') && !exclus.includes(entree)) {
+      trouves = trouves.concat(fichiersSources(chemin));
+    } else if (/\.(ts|svelte)$/.test(entree) && !entree.endsWith('.test.ts')) {
       trouves.push(chemin);
     }
   }
@@ -57,7 +44,7 @@ describe('règles de dépendance entre couches', () => {
   for (const [couche, bannies] of Object.entries(interdits)) {
     it(`${couche} n'importe pas ${bannies.join(', ')}`, () => {
       const dossier = join(racine, couche);
-      const fichiers = fichiersSources(dossier, exceptions[couche] ?? []);
+      const fichiers = fichiersSources(dossier);
 
       // Sans cette garde, une couche vide ou un chemin faux rendrait le test
       // vert sans avoir rien inspecté.

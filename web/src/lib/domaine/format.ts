@@ -30,3 +30,15 @@ export function formatPourcent(part: number): string {
   if (pourcent > 0 && pourcent < 1) return `${pourcent.toFixed(1).replace('.', ',')} %`;
   return `${Math.round(pourcent)} %`;
 }
+
+/**
+ * Libellé de l'écart à la demande, tel que l'écran de détail l'affiche à côté de
+ * la distance obtenue. Rendu vide quand il n'apprendrait rien : demande inconnue,
+ * ou distance obtenue égale à la demande arrondie.
+ */
+export function formatEcartCible(demandeM: number, obtenueM: number): string {
+  if (!Number.isFinite(demandeM) || demandeM <= 0) return '';
+  const demandeKm = Math.round(demandeM / 1000);
+  if (demandeKm === Math.round(obtenueM / 1000) && Math.abs(demandeM - obtenueM) < 500) return '';
+  return `tu en demandais ${demandeKm}`;
+}

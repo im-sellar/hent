@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appEtat } from '$lib/app/etat.svelte';
+  import { appEtat } from '$lib/assemblage.svelte';
   import { dureeMinutes } from '$lib/domaine/boucle';
   import { formatDistance, formatDuree, formatPourcent } from '$lib/domaine/format';
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { appEtat } from '$lib/app/etat.svelte';
+  import { appEtat } from '$lib/assemblage.svelte';
   import { DISTANCE_MAX_M, DISTANCE_MIN_M } from '$lib/domaine/reglages';
   import { estCoordValide } from '$lib/domaine/depart';
   import { formatDistance } from '$lib/domaine/format';
