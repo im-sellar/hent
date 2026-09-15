@@ -342,7 +342,8 @@ POST /v1/loops
 ```
 
 ```
-GET  /v1/loops/{id}.gpx      export
+GET  /v1/loops/{id}          une boucle en JSON, avec la demande d'origine
+GET  /v1/loops/{id}.gpx      la même, exportée en GPX
 GET  /v1/regions             couverture et millésime des données
 GET  /healthz  /metrics
 ```

@@ -73,9 +73,12 @@ Le garde-fou d'architecture a été vérifié comme mordant réellement : import
   départ, une distance et des préférences. Chaque boucle porte un score :
   `distance_m`, `part_non_bitume`, `part_trafic`, `part_retracee`,
   `ecart_cible` ;
-- `GET /v1/loops/{id}.gpx` — régénère et exporte une boucle précise en GPX,
-  sans état côté serveur : c'est le déterminisme de la génération qui le
-  permet ;
+- `GET /v1/loops/{id}` — régénère une boucle précise et la rend en JSON, avec
+  la demande d'origine et l'attribution. L'identifiant encode la demande, donc
+  un lien vers une boucle se partage sans qu'aucun état ne soit conservé — c'est
+  le déterminisme de la génération qui le permet ;
+- `GET /v1/loops/{id}.gpx` — la même boucle, exportée en GPX. Le suffixe est ce
+  qui distingue les deux représentations ;
 - `GET /v1/regions` — bbox couverte et provenance des données (nom de source,
   SHA256, `config_hash`), pour honorer l'obligation ODbL de reconstructibilité ;
 - `GET /healthz`, `GET /metrics`.
@@ -359,12 +362,6 @@ système de design conforme RGAA AA, styles de carte générés. La pile est arr
 (plus haut). Ce qui manque est la spec d'implémentation, puis le code. C'est le
 chantier qui donne au projet son premier usage réel.
 
-**Une variante JSON de `GET /v1/loops/{id}`.** La route existe mais ne rend que
-du GPX. Afficher une boucle depuis un lien partagé demande le même contenu en
-JSON — une vingtaine de lignes et ses tests, dans l'adaptateur HTTP. Sans elle,
-le front devrait décoder l'identifiant lui-même et dupliquerait une logique qui
-appartient au serveur.
-
 **Le déploiement**, §12 de `docs/design.md` : unité systemd, `Caddyfile`
 d'exemple, cible de build reproductible, `/healthz` distinguant « prêt » de
 « graphe chargé mais incohérent », sémaphore de générations concurrentes,
@@ -493,9 +490,6 @@ Relevés en revue, non bloquants, à balayer avant de passer aux étapes suivant
   bibliothèque standard ne peut pas produire de `NaN`. Elle protège les
   appelants non-HTTP. Signalé comme tel dans le commentaire du code plutôt
   que déguisé en sécurité vérifiée.
-- `internal/adapter/httpapi/handler.go` — `GET /v1/loops/{id}` sans le
-  suffixe `.gpx` rend aussi du GPX ; inoffensif, mais hors du contrat
-  documenté.
 - `internal/adapter/httpapi/handler.go` — `/metrics` agrège toutes les
   erreurs sous un seul compteur (pas de p95, 429 non comptés) : pas assez fin
   pour répondre aux questions de suivi du §12.
