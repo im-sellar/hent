@@ -451,9 +451,12 @@ latence — 738 ms médian contre 500 visés.
 
 | Quoi | Où | Suit-il la machine ? |
 |---|---|---|
-| Conception | `docs/design.md` | oui, dans le dépôt |
+| Conception du moteur | `docs/design.md` | oui, dans le dépôt |
+| Conception du front | `docs/front-web.md` | oui, dans le dépôt |
 | Cet état des lieux | `docs/etat-des-lieux.md` | oui, dans le dépôt |
-| Plan d'implémentation | `docs/plan-etape-1.md` | oui, dans le dépôt |
+| Plan d'implémentation, étape 1 | `docs/plan-etape-1.md` | oui, dans le dépôt |
+| Plan du socle front | `docs/plan-front-socle.md` | oui, dans le dépôt |
+| Durcissement de l'architecture | `docs/clean-archi-back.md` | oui, dans le dépôt |
 | Journal d'exécution et décisions | `docs/journal-execution.md` | oui, dans le dépôt |
 | Revue finale de branche | `docs/revue-finale.md` | oui, dans le dépôt |
 | Briefs, rapports, revues détaillés | `.superpowers/sdd/` | **non**, ignoré par git |
