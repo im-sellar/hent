@@ -77,6 +77,7 @@ export function creerResultats(moteur: MoteurDeBoucles) {
 
     /** Pose des résultats déjà connus — au retour d'un détail, par exemple. */
     poser(boucles: Boucle[], demande: Demande): void {
+      enCours?.abort();
       generation += 1;
       etat = { statut: 'ok', boucles: trier(boucles), demande };
     },

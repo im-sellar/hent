@@ -121,6 +121,33 @@ describe('creerResultats', () => {
     expect(etat.boucles.map((b) => b.id)).toEqual(['rapide']);
   });
 
+  it('ignore l’échec d’un lancement remplacé par un autre déjà abouti', async () => {
+    // Le premier lancement traîne puis échoue, après que le second, plus
+    // rapide, a déjà écrit son résultat : l'échec tardif ne doit pas écraser
+    // un état « ok » valide par un écran d'erreur.
+    const rapide = { ...uneBoucle, id: 'rapide' };
+    let numero = 0;
+    const r = creerResultats(
+      moteurQui(async () => {
+        numero += 1;
+        if (numero === 1) {
+          await new Promise((res) => setTimeout(res, 20));
+          throw new ErreurAPI('Serveur', 'erreur tardive');
+        }
+        return [rapide];
+      })
+    );
+
+    const premier = r.lancer(demande);
+    const second = r.lancer(demande);
+    await Promise.all([premier, second]);
+
+    const etat = r.etat();
+    expect(etat.statut).toBe('ok');
+    if (etat.statut !== 'ok') throw new Error('état inattendu');
+    expect(etat.boucles.map((b) => b.id)).toEqual(['rapide']);
+  });
+
   it('pose des résultats déjà connus sans appeler le moteur', () => {
     const generer = vi.fn();
     const r = creerResultats({ ...moteurQui(async () => []), generer } as MoteurDeBoucles);
