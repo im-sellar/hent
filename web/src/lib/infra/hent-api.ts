@@ -74,7 +74,9 @@ const parStatut: Record<number, GenreErreur> = {
 };
 
 async function erreurDe(reponse: Response): Promise<ErreurAPI> {
-  const genre = parStatut[reponse.status] ?? 'Reseau';
+  // Cette réponse vient du serveur : `Reseau` — réservé à ce qui ne l'atteint
+  // jamais — n'a rien à faire ici, même pour un statut imprévu.
+  const genre = parStatut[reponse.status] ?? 'Serveur';
   let message = `statut ${reponse.status}`;
   try {
     const corps = (await reponse.json()) as { error?: string };

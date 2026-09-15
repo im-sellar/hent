@@ -2,14 +2,22 @@ import type { Boucle, Demande } from '$lib/domaine/boucle';
 import type { Reglages } from '$lib/domaine/reglages';
 
 /**
- * Les cinq façons dont une recherche peut échouer. Quatre viennent du serveur,
- * la cinquième de ce qui ne l'atteint jamais.
+ * Les six façons dont une recherche peut échouer. Cinq viennent du serveur,
+ * la sixième de ce qui ne l'atteint jamais.
  *
  * Elles sont nommées plutôt que réduites à un message, parce que chaque écran
  * d'erreur propose une sortie différente : déplacer le départ, assouplir un
- * réglage, ou seulement attendre.
+ * réglage, ou seulement attendre. `Serveur` couvre les statuts d'erreur
+ * serveur (5xx) non répertoriés individuellement — la requête a été reçue et
+ * a échoué côté serveur, ce n'est donc pas une panne réseau.
  */
-export type GenreErreur = 'HorsZone' | 'AucuneBoucle' | 'TropDeDemandes' | 'DelaiDepasse' | 'Reseau';
+export type GenreErreur =
+  | 'HorsZone'
+  | 'AucuneBoucle'
+  | 'TropDeDemandes'
+  | 'DelaiDepasse'
+  | 'Serveur'
+  | 'Reseau';
 
 export type ErreurMoteur = {
   genre: GenreErreur;

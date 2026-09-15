@@ -31,10 +31,10 @@ describe('generer', () => {
           id: 'abc',
           score: {
             distance_m: 3924.32,
-            part_non_bitume: 1,
-            part_trafic: 0,
-            part_retracee: 0,
-            ecart_cible: -0.0189
+            part_non_bitume: 0.81,
+            part_trafic: 0.12,
+            part_retracee: 0.03,
+            ecart_cible: -0.19
           },
           geometry: [
             [-1.628, 48.135],
@@ -49,8 +49,16 @@ describe('generer', () => {
 
     expect(boucles).toHaveLength(1);
     expect(boucles[0]!.id).toBe('abc');
-    expect(boucles[0]!.score.distanceM).toBe(3924.32);
-    expect(boucles[0]!.score.ecartCible).toBeCloseTo(-0.0189, 4);
+    // Comparaison complète et valeurs deux à deux distinctes : une
+    // interversion entre deux champs du même type (partNonBitume/partTrafic,
+    // par exemple) doit faire échouer le test, pas passer inaperçue.
+    expect(boucles[0]!.score).toEqual({
+      distanceM: 3924.32,
+      partNonBitume: 0.81,
+      partTrafic: 0.12,
+      partRetracee: 0.03,
+      ecartCible: -0.19
+    });
     expect(boucles[0]!.geometrie[0]).toEqual([-1.628, 48.135]);
   });
 
@@ -91,6 +99,13 @@ describe('generer', () => {
   it('traduit un 504 en DelaiDepasse', async () => {
     const { impl } = fauxFetch(504, { error: 'délai dépassé' });
     await expect(creerMoteurHTTP(impl).generer(demande)).rejects.toMatchObject({ genre: 'DelaiDepasse' });
+  });
+
+  it('traduit un 500 en Serveur plutôt qu’en Reseau', async () => {
+    // La requête a atteint le serveur et y a échoué : ce n'est pas une panne
+    // réseau, même si ce statut précis n'est pas répertorié.
+    const { impl } = fauxFetch(500, { error: 'erreur interne' });
+    await expect(creerMoteurHTTP(impl).generer(demande)).rejects.toMatchObject({ genre: 'Serveur' });
   });
 
   it('traduit un échec de transport en Reseau', async () => {
@@ -144,10 +159,15 @@ describe('ouvrir', () => {
     expect(appels[0]!.url).toContain('/v1/loops/0.abc');
     expect(boucle.score.partRetracee).toBeCloseTo(0.004, 4);
     // La demande d'origine est ce qui permet d'afficher « tu en demandais 18 » :
-    // elle ne se déduit pas de la boucle.
-    expect(dem.distanceM).toBe(18_000);
-    expect(dem.eviterBitume).toBe(0.8);
-    expect(dem.variante).toBe(2);
+    // elle ne se déduit pas de la boucle. Comparaison complète, latitude et
+    // longitude non confondables, pour qu'une interversion lat/lon échoue.
+    expect(dem).toEqual({
+      depart: { lat: 48.135, lon: -1.628 },
+      distanceM: 18_000,
+      eviterBitume: 0.8,
+      maxResultats: 5,
+      variante: 2
+    });
   });
 
   it('encode l’identifiant dans l’URL', async () => {
