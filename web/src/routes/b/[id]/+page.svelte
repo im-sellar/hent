@@ -200,6 +200,10 @@
     letter-spacing: 0.04em;
   }
   .retour {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    width: fit-content;
     color: var(--accent);
     font-size: 0.875rem;
     text-underline-offset: 3px;

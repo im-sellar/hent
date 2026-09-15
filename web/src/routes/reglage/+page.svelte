@@ -8,9 +8,9 @@
   import Curseur from '$lib/ui/Curseur.svelte';
   import EtatEcran from '$lib/ui/EtatEcran.svelte';
 
-  // Saisie provisoire du départ : le plan 2 la remplace par la carte et la
-  // recherche d'adresse. Elle existe pour que la chaîne soit utilisable de bout
-  // en bout dès maintenant.
+  // Saisie provisoire du départ, en attendant la carte et la recherche
+  // d'adresse : elle existe pour que la chaîne soit utilisable de bout en bout
+  // dès maintenant.
   let lat = $state(48.117);
   let lon = $state(-1.677);
 
