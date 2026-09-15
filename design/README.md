@@ -15,7 +15,7 @@ n'emploient que des `var(--jeton)`, jamais une valeur. Tout le reste en découle
 | `_themes.json` | **La source.** Vingt jetons, deux jeux de valeurs. |
 | `Main`, `Depart`, `DepartRecherche`, `Generateur`, `Boucles`, `Detail` `.dc.html` | Les six écrans, en jetons. Le bloc `:root` y est posé par le script. |
 | `Symbole`, `Fondations`, `Composants`, `Themes`, `Etats` `.dc.html` | Les planches de documentation. |
-| `*Clair.dc.html`, `Themes.dc.html`, `carte/*.json` | **Générés.** Ne pas les modifier à la main : la prochaine génération les écrase. |
+| `*Clair.dc.html`, `Themes.dc.html`, `carte/*.json`, `web/src/styles/jetons.css` | **Générés.** Ne pas les modifier à la main : la prochaine génération les écrase. |
 | `canvas.json` | Disposition, pages, vue de lancement. |
 | `hent-directions.html` | Le canevas assemblé. Non versionné — il pèse 2,7 Mo et se reconstruit. |
 
@@ -27,6 +27,7 @@ Après toute modification d'une maquette ou de `_themes.json`, dans cet ordre :
 python3 appliquer-theme.py        # pose les jetons, dérive les variantes claires
 python3 generer-planche-themes.py # réécrit la planche Thèmes, ratios recalculés
 python3 generer-style-carte.py    # réécrit les styles MapLibre des deux thèmes
+python3 generer-css.py            # réécrit les variables CSS du front
 ```
 
 Sauter la première étape fait diverger les variantes claires en silence.
