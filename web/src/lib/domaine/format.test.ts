@@ -63,10 +63,28 @@ describe('formatEcartCible', () => {
   });
 
   it('arrondit la demande au kilomètre', () => {
-    expect(formatEcartCible(18_400, 17_000)).toBe('tu en demandais 18');
+    // 18 600 arrondit à 19, pas à 18 : un test qui s'arrêterait à 18 400
+    // (que l'arrondi et la troncature rendent identiquement) ne prouverait
+    // rien de l'arrondi.
+    expect(formatEcartCible(18_600, 17_000)).toBe('tu en demandais 19');
   });
 
   it('ne dit rien quand la demande est inconnue', () => {
     expect(formatEcartCible(0, 17_400)).toBe('');
+  });
+
+  it('ne dit rien quand la demande n’est pas un nombre', () => {
+    expect(formatEcartCible(Number.NaN, 17_400)).toBe('');
+  });
+
+  it('tait un écart réellement dans le seuil des 500 m', () => {
+    expect(formatEcartCible(18_000, 18_400)).toBe('');
+  });
+
+  it('ne tait pas un écart de 500 m ou plus, même arrondi au même kilomètre', () => {
+    // 17 600 et 18 400 arrondissent tous deux à 18 km, mais les séparent
+    // 800 m : le seuil ne doit pas confondre un même arrondi avec un même
+    // point.
+    expect(formatEcartCible(17_600, 18_400)).toBe('tu en demandais 18');
   });
 });
