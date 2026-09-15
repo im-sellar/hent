@@ -13,6 +13,11 @@
      * par l'écran de départ lui-même : un composant d'état ne sait pas quelle
      * page le rend, et proposer un lien vers celle où l'on se trouve déjà est
      * un cul-de-sac.
+     *
+     * Sans destination, un point hors zone n'offre aucune action — pas même
+     * `onreessayer`, qui renverrait les mêmes coordonnées au même refus. Le
+     * panneau dit alors ce qu'il faut corriger, et c'est le formulaire qui
+     * offre la sortie.
      */
     hrefAutreDepart?: string;
     /**
@@ -96,8 +101,10 @@
     <div class="actions" aria-live="off">
       {#if erreur.genre === 'AucuneBoucle' && onassouplir}
         <Bouton onclick={onassouplir}>Accepter plus de bitume</Bouton>
-      {:else if erreur.genre === 'HorsZone' && hrefAutreDepart}
-        <Bouton href={hrefAutreDepart}>Choisir un autre départ</Bouton>
+      {:else if erreur.genre === 'HorsZone'}
+        {#if hrefAutreDepart}
+          <Bouton href={hrefAutreDepart}>Choisir un autre départ</Bouton>
+        {/if}
       {:else if onreessayer}
         {#if restantS > 0}
           <p class="decompte">Réessayer dans {restantS} s</p>

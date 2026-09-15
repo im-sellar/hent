@@ -79,6 +79,17 @@ describe('écran de détail', () => {
     expect(await screen.findByRole('heading', { level: 1, name: '3,9 km' })).toBeDefined();
   });
 
+  it('offre l’écran de départ quand la boucle est hors zone', async () => {
+    // Ici, contrairement à l'écran de réglage, il y a bien où aller : sans
+    // cette destination le panneau n'offrirait plus rien du tout.
+    faux.ouvrir.mockRejectedValue(new ErreurAPI('HorsZone', 'hors du graphe'));
+
+    render(Detail);
+
+    const lien = await screen.findByRole('link', { name: 'Choisir un autre départ' });
+    expect(lien.getAttribute('href')).toBe('/reglage');
+  });
+
   it('reprend le focus quand le réessai détruit le bouton activé', async () => {
     faux.ouvrir.mockRejectedValueOnce(new ErreurAPI('Serveur', 'boum'));
     faux.ouvrir.mockReturnValue(new Promise(() => {}));

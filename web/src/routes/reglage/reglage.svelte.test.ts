@@ -48,7 +48,26 @@ describe('écran de réglage', () => {
 
     await fireEvent.input(screen.getByLabelText('Latitude'), { target: { value: '48.2' } });
 
-    expect(await screen.findByRole('button', { name: 'Tracer ma boucle' })).toBeDefined();
+    // Le bouton ne doit pas seulement revenir : il doit repartir, avec le
+    // départ corrigé.
+    (await screen.findByRole('button', { name: 'Tracer ma boucle' })).click();
+
+    expect(faux.generer).toHaveBeenLastCalledWith(
+      expect.objectContaining({ depart: { lat: 48.2, lon: -1.677 } }),
+      expect.anything()
+    );
+  });
+
+  it('n’offre aucune action quand le départ est hors zone', async () => {
+    faux.generer.mockRejectedValue(new ErreurAPI('HorsZone', 'hors du graphe'));
+
+    render(Reglage);
+    screen.getByRole('button', { name: 'Tracer ma boucle' }).click();
+    const panneau = (await screen.findByText('Ce point est en dehors de la Bretagne.')).closest(
+      '[role="alert"]'
+    );
+
+    expect(panneau?.querySelectorAll('button, a')).toHaveLength(0);
   });
 
   it('reprend le focus quand l’état remplace le bouton activé', async () => {

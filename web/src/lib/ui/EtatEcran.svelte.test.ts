@@ -53,6 +53,19 @@ describe('EtatEcran', () => {
     expect(reessayer).toHaveBeenCalledOnce();
   });
 
+  it('n’offre aucune action pour un point hors zone sans destination', () => {
+    // Rendu par l'écran de départ lui-même, il n'a nulle part où envoyer. Un
+    // « Réessayer » y renverrait les mêmes coordonnées au même serveur, pour le
+    // même refus : la sortie est de corriger la saisie, juste au-dessus.
+    render(EtatEcran, {
+      erreur: { genre: 'HorsZone', message: 'hors du graphe' },
+      onreessayer: () => {}
+    });
+
+    expect(screen.getByRole('alert').querySelectorAll('button, a')).toHaveLength(0);
+    expect(screen.getByText('Ce point est en dehors de la Bretagne.')).toBeDefined();
+  });
+
   it('offre le réessai tout de suite quand aucun délai n’est annoncé', () => {
     render(EtatEcran, { erreur: { genre: 'Serveur', message: 'boum' }, onreessayer: () => {} });
 
