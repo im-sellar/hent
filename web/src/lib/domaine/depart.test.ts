@@ -1,5 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { estCoordValide } from './depart';
+import { estCoordValide, estLatValide, estLonValide } from './depart';
+
+describe('estLatValide et estLonValide', () => {
+  it('n’ont pas les mêmes bornes', () => {
+    // 150 est une longitude valide et une latitude impossible : c'est ce qui
+    // permet au formulaire de désigner le champ fautif plutôt que la paire.
+    expect(estLatValide(150)).toBe(false);
+    expect(estLonValide(150)).toBe(true);
+  });
+
+  it('acceptent leurs bornes', () => {
+    expect(estLatValide(90)).toBe(true);
+    expect(estLatValide(-90)).toBe(true);
+    expect(estLonValide(180)).toBe(true);
+    expect(estLonValide(-180)).toBe(true);
+  });
+
+  it('refusent juste au-delà', () => {
+    expect(estLatValide(90.0001)).toBe(false);
+    expect(estLonValide(180.0001)).toBe(false);
+  });
+});
 
 describe('estCoordValide', () => {
   it('accepte un point en Bretagne', () => {

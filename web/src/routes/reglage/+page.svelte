@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation';
   import { appEtat } from '$lib/assemblage.svelte';
   import { DISTANCE_MAX_M, DISTANCE_MIN_M } from '$lib/domaine/reglages';
-  import { estCoordValide } from '$lib/domaine/depart';
+  import { estCoordValide, estLatValide, estLonValide } from '$lib/domaine/depart';
   import { formatDistance } from '$lib/domaine/format';
   import Bouton from '$lib/ui/Bouton.svelte';
   import Curseur from '$lib/ui/Curseur.svelte';
@@ -14,15 +14,31 @@
   let lat = $state(48.117);
   let lon = $state(-1.677);
 
+  let champLat: HTMLInputElement | null = $state(null);
+  let champLon: HTMLInputElement | null = $state(null);
+
   const etat = $derived(appEtat.resultats.etat());
   const coordValide = $derived(estCoordValide({ lat, lon }));
+  const latValide = $derived(estLatValide(lat));
+  const lonValide = $derived(estLonValide(lon));
 
   const motsBitume = ['jamais', 'un peu', 'moyennement', 'beaucoup', 'autant que possible'];
   const motBitume = $derived(
     motsBitume[Math.min(motsBitume.length - 1, Math.floor(appEtat.reglages.eviterBitume * motsBitume.length))]!
   );
 
+  /**
+   * Lance la recherche, ou refuse et renvoie au champ fautif.
+   *
+   * Le bouton reste actif plutôt que désactivé : un bouton désactivé n'est pas
+   * focusable et n'annonce pas pourquoi il l'est. Le refus déplace le focus sur
+   * le champ hors bornes, que son `aria-invalid` et sa description signalent.
+   */
   async function tracer() {
+    if (!coordValide) {
+      (latValide ? champLon : champLat)?.focus();
+      return;
+    }
     appEtat.poserDepart({ coord: { lat, lon }, libelle: `${lat.toFixed(4)}, ${lon.toFixed(4)}` });
     await appEtat.resultats.lancer({
       depart: { lat, lon },
@@ -83,15 +99,31 @@
     <p class="provisoire">Saisie temporaire : la carte et la recherche d’adresse arrivent ensuite.</p>
     <label>
       Latitude
-      <input type="number" step="0.0001" bind:value={lat} oninput={departModifie} />
+      <input
+        type="number"
+        step="0.0001"
+        bind:value={lat}
+        bind:this={champLat}
+        aria-invalid={!latValide}
+        aria-describedby="depart-invalide"
+        oninput={departModifie}
+      />
     </label>
     <label>
       Longitude
-      <input type="number" step="0.0001" bind:value={lon} oninput={departModifie} />
+      <input
+        type="number"
+        step="0.0001"
+        bind:value={lon}
+        bind:this={champLon}
+        aria-invalid={!lonValide}
+        aria-describedby="depart-invalide"
+        oninput={departModifie}
+      />
     </label>
-    {#if !coordValide}
-      <p class="invalide">Ces coordonnées ne sont pas valides.</p>
-    {/if}
+    <!-- La région naît vide et reste montée : une région live créée en même
+         temps que son texte n'est pas annoncée par les lecteurs d'écran. -->
+    <p class="invalide" id="depart-invalide" role="alert">{coordValide ? '' : 'Ces coordonnées ne sont pas valides.'}</p>
   </fieldset>
 
   {#if etat.statut === 'calcul'}

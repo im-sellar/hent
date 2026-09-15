@@ -51,6 +51,51 @@ describe('écran de réglage', () => {
     expect(await screen.findByRole('button', { name: 'Tracer ma boucle' })).toBeDefined();
   });
 
+  it('refuse de partir sur un départ invalide', async () => {
+    render(Reglage);
+    await fireEvent.input(screen.getByLabelText('Latitude'), { target: { value: '500' } });
+
+    screen.getByRole('button', { name: 'Tracer ma boucle' }).click();
+
+    expect(faux.generer).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Tracer ma boucle' })).toBeDefined();
+  });
+
+  it('désigne le champ fautif et le décrit', async () => {
+    render(Reglage);
+    const champLat = screen.getByLabelText('Latitude');
+    const champLon = screen.getByLabelText('Longitude');
+
+    await fireEvent.input(champLat, { target: { value: '500' } });
+
+    expect(champLat.getAttribute('aria-invalid')).toBe('true');
+    expect(champLon.getAttribute('aria-invalid')).toBe('false');
+    const decrivant = champLat.getAttribute('aria-describedby');
+    expect(decrivant).toBeTruthy();
+    expect(document.getElementById(decrivant!)?.textContent).toContain('ne sont pas valides');
+  });
+
+  it('donne le focus au champ fautif quand il refuse', async () => {
+    render(Reglage);
+    const champLon = screen.getByLabelText('Longitude');
+    await fireEvent.input(champLon, { target: { value: '500' } });
+
+    screen.getByRole('button', { name: 'Tracer ma boucle' }).click();
+
+    expect(document.activeElement).toBe(champLon);
+  });
+
+  it('tient la région du message de départ prête avant l’erreur', () => {
+    // Une région live créée en même temps que son texte n'est pas annoncée :
+    // elle doit préexister à la mutation.
+    render(Reglage);
+
+    const champLat = screen.getByLabelText('Latitude');
+    const region = document.getElementById(champLat.getAttribute('aria-describedby')!);
+    expect(region?.getAttribute('role')).toBe('alert');
+    expect(region?.textContent).toBe('');
+  });
+
   it('n’offre pas de lien vers l’écran qui l’affiche', async () => {
     faux.generer.mockRejectedValue(new ErreurAPI('HorsZone', 'hors du graphe'));
 
