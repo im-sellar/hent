@@ -5,10 +5,11 @@ export type Coord = { lat: number; lon: number };
 export type Depart = { coord: Coord; libelle: string };
 
 /**
- * Valide une coordonnée. Les valeurs non finies sont écartées en premier :
- * `NaN` traverse toute comparaison de bornes sans jamais la faire échouer.
+ * Valide une coordonnée. Aucune garde explicite sur les valeurs non finies
+ * n'est nécessaire : toute comparaison impliquant `NaN` rend `false`, et un
+ * infini sort toujours des bornes — les comparaisons ci-dessous les écartent
+ * donc d'elles-mêmes.
  */
 export function estCoordValide(c: Coord): boolean {
-  if (!Number.isFinite(c.lat) || !Number.isFinite(c.lon)) return false;
   return c.lat >= -90 && c.lat <= 90 && c.lon >= -180 && c.lon <= 180;
 }

@@ -16,8 +16,8 @@ describe('estCoordValide', () => {
   });
 
   it('refuse une valeur non finie', () => {
-    // Même motif que pour les réglages : sans test explicite, NaN passerait
-    // les comparaisons de bornes sans en faire échouer aucune.
+    // Contrairement aux réglages, aucune garde n'est requise ici : NaN rend
+    // toute comparaison fausse, et un infini sort des bornes par construction.
     expect(estCoordValide({ lat: Number.NaN, lon: 0 })).toBe(false);
     expect(estCoordValide({ lat: 0, lon: Number.POSITIVE_INFINITY })).toBe(false);
   });
