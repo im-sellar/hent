@@ -34,7 +34,10 @@ export function formatPourcent(part: number): string {
 /**
  * Libellé de l'écart à la demande, tel que l'écran de détail l'affiche à côté de
  * la distance obtenue. Rendu vide quand il n'apprendrait rien : demande inconnue,
- * ou distance obtenue égale à la demande arrondie.
+ * ou distance obtenue à la fois arrondie au même kilomètre que la demande et
+ * distante d'elle de moins de 500 m. Les deux conditions sont nécessaires : deux
+ * distances qui partagent leur arrondi peuvent être séparées de presque un
+ * kilomètre.
  */
 export function formatEcartCible(demandeM: number, obtenueM: number): string {
   if (!Number.isFinite(demandeM) || demandeM <= 0) return '';

@@ -18,6 +18,11 @@ describe('formatDistance', () => {
   it('rend zéro sans unité fantaisiste', () => {
     expect(formatDistance(0)).toBe('0 m');
   });
+
+  it('bascule au kilomètre pile, pas un mètre après', () => {
+    expect(formatDistance(999)).toBe('999 m');
+    expect(formatDistance(1000)).toBe('1,0 km');
+  });
 });
 
 describe('formatDuree', () => {
@@ -32,6 +37,11 @@ describe('formatDuree', () => {
 
   it('omet les heures en dessous de soixante minutes', () => {
     expect(formatDuree(45)).toBe('45 min');
+  });
+
+  it('bascule à l’heure pile, pas une minute après', () => {
+    expect(formatDuree(59)).toBe('59 min');
+    expect(formatDuree(60)).toBe('1 h 00');
   });
 });
 
@@ -86,6 +96,13 @@ describe('formatEcartCible', () => {
     // 800 m : le seuil ne doit pas confondre un même arrondi avec un même
     // point.
     expect(formatEcartCible(17_600, 18_400)).toBe('tu en demandais 18');
+  });
+
+  it('place le seuil des 500 m sur la borne, pas à côté', () => {
+    // Les deux paires arrondissent au même kilomètre : seul l'écart les
+    // sépare, et il vaut 499 m d'un côté, 500 m de l'autre.
+    expect(formatEcartCible(18_400, 17_901)).toBe('');
+    expect(formatEcartCible(18_400, 17_900)).toBe('tu en demandais 18');
   });
 
   it('arrondit aussi la distance obtenue, pas seulement la demande', () => {

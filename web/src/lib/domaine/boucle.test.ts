@@ -15,4 +15,12 @@ describe('dureeMinutes', () => {
     // le formatage sans qu'aucune assertion ne bronche.
     expect(dureeMinutes(10_000, 0)).toBe(0);
   });
+
+  it('rend zéro pour une distance absente ou absurde', () => {
+    // Sans garde, un NaN ressortirait NaN et une distance négative une durée
+    // négative — « -12 min » est un affichage que rien n'arrêterait ensuite.
+    expect(dureeMinutes(Number.NaN, 8)).toBe(0);
+    expect(dureeMinutes(Number.POSITIVE_INFINITY, 8)).toBe(0);
+    expect(dureeMinutes(-10_000, 8)).toBe(0);
+  });
 });
