@@ -355,7 +355,7 @@ jamais. Ils sont ici pour ne pas être redécouverts comme des défauts.
 ### Par où commencer
 
 L'étape 1 est **complète et revue**, et l'architecture a été durcie depuis (voir
-plus haut). Trois chantiers restent ouverts.
+plus haut). Deux chantiers restent ouverts.
 
 **Le front, premier jet.** Le socle est livré : trois couches gardées par un
 test d'imports, le client de l'API avec ses six variantes d'erreur, les
