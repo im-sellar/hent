@@ -79,6 +79,21 @@ describe('écran de détail', () => {
     expect(await screen.findByRole('heading', { level: 1, name: '3,9 km' })).toBeDefined();
   });
 
+  it('reprend le focus quand le réessai détruit le bouton activé', async () => {
+    faux.ouvrir.mockRejectedValueOnce(new ErreurAPI('Serveur', 'boum'));
+    faux.ouvrir.mockReturnValue(new Promise(() => {}));
+
+    render(Detail);
+    (await screen.findByRole('button', { name: 'Réessayer' })).click();
+
+    expect(await screen.findByText('Je parcours les chemins.')).toBeDefined();
+    // Comparer le seul textContent laisserait passer `document.body`, qui
+    // contient le texte de toute la page.
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement?.getAttribute('role')).toBe('status');
+    expect(document.activeElement?.textContent).toContain('Je parcours les chemins.');
+  });
+
   it('transporte le délai de réessai annoncé par le serveur', async () => {
     // Le 429 porte un Retry-After ; l'écran de détail convertissait l'erreur à
     // la main et perdait ce délai en route.
@@ -86,6 +101,6 @@ describe('écran de détail', () => {
 
     render(Detail);
 
-    expect(await screen.findByRole('button', { name: 'Réessayer dans 3 s' })).toBeDefined();
+    expect(await screen.findByText('Réessayer dans 3 s')).toBeDefined();
   });
 });

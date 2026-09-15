@@ -16,6 +16,9 @@
 
   let champLat: HTMLInputElement | null = $state(null);
   let champLon: HTMLInputElement | null = $state(null);
+  // Le bouton qui vient d'être activé est remplacé par l'état de recherche :
+  // sans reprise, le focus retombe sur le document.
+  let focusApresAction = $state(false);
 
   const etat = $derived(appEtat.resultats.etat());
   const coordValide = $derived(estCoordValide({ lat, lon }));
@@ -39,6 +42,7 @@
       (latValide ? champLon : champLat)?.focus();
       return;
     }
+    focusApresAction = true;
     appEtat.poserDepart({ coord: { lat, lon }, libelle: `${lat.toFixed(4)}, ${lon.toFixed(4)}` });
     await appEtat.resultats.lancer({
       depart: { lat, lon },
@@ -126,11 +130,15 @@
     <p class="invalide" id="depart-invalide" role="alert">{coordValide ? '' : 'Ces coordonnées ne sont pas valides.'}</p>
   </fieldset>
 
-  {#if etat.statut === 'calcul'}
-    <EtatEcran enAttente onannuler={() => appEtat.resultats.annuler()} />
-  {:else if etat.statut === 'erreur'}
-    <EtatEcran erreur={etat.erreur} onreessayer={tracer} onassouplir={assouplir} />
-  {:else}
+  <EtatEcran
+    enAttente={etat.statut === 'calcul'}
+    erreur={etat.statut === 'erreur' ? etat.erreur : undefined}
+    onannuler={() => appEtat.resultats.annuler()}
+    onreessayer={tracer}
+    onassouplir={assouplir}
+    prendLeFocus={focusApresAction}
+  />
+  {#if etat.statut !== 'calcul' && etat.statut !== 'erreur'}
     <Bouton onclick={tracer}>Tracer ma boucle</Bouton>
   {/if}
 </main>

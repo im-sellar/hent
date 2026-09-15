@@ -51,6 +51,20 @@ describe('écran de réglage', () => {
     expect(await screen.findByRole('button', { name: 'Tracer ma boucle' })).toBeDefined();
   });
 
+  it('reprend le focus quand l’état remplace le bouton activé', async () => {
+    faux.generer.mockRejectedValue(new ErreurAPI('Serveur', 'boum'));
+
+    render(Reglage);
+    screen.getByRole('button', { name: 'Tracer ma boucle' }).click();
+    await screen.findByText('Le service a rencontré un problème.');
+
+    // Comparer le seul textContent laisserait passer `document.body`, qui
+    // contient le texte de toute la page.
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement?.getAttribute('role')).toBe('alert');
+    expect(document.activeElement?.textContent).toContain('Le service a rencontré un problème.');
+  });
+
   it('refuse de partir sur un départ invalide', async () => {
     render(Reglage);
     await fireEvent.input(screen.getByLabelText('Latitude'), { target: { value: '500' } });

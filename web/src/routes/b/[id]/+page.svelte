@@ -17,6 +17,7 @@
   let erreur = $state<ErreurMoteur | null>(null);
   let chargement = $state(false);
   let tentative = $state(0);
+  let focusApresAction = $state(false);
 
   // Deux chemins d'entrée : on arrive de la liste, ou par un lien partagé. Le
   // second impose un appel, puisque rien n'est en mémoire.
@@ -81,6 +82,9 @@
   });
 
   function reessayer() {
+    // Le bouton disparaît avec l'écran d'erreur : sans reprise, le focus
+    // retombe sur le document.
+    focusApresAction = true;
     erreur = null;
     tentative += 1;
   }
@@ -93,13 +97,7 @@
 <main>
   <a class="retour" href="/boucles">← Les boucles</a>
 
-  {#if chargement}
-    <h1 class="cache-visuellement">Une boucle</h1>
-    <EtatEcran enAttente />
-  {:else if erreur}
-    <h1 class="cache-visuellement">Une boucle</h1>
-    <EtatEcran {erreur} onreessayer={reessayer} hrefAutreDepart="/reglage" />
-  {:else if boucle}
+  {#if !chargement && !erreur && boucle}
     <div class="titre">
       <h1 class="distance">{formatDistance(boucle.score.distanceM)}</h1>
       {#if ecart}<span class="ecart">{ecart}</span>{/if}
@@ -126,7 +124,17 @@
     <p class="partage">
       Le lien de cette page contient ton point de départ : ne le partage qu’en connaissance de cause.
     </p>
+  {:else}
+    <h1 class="cache-visuellement">Une boucle</h1>
   {/if}
+
+  <EtatEcran
+    enAttente={chargement}
+    erreur={erreur ?? undefined}
+    onreessayer={reessayer}
+    hrefAutreDepart="/reglage"
+    prendLeFocus={focusApresAction}
+  />
 </main>
 
 <style>
