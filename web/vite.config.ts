@@ -1,5 +1,8 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
+// vitest/config réexporte le defineConfig de Vite en élargissant son type à
+// la clé `test` : importer depuis 'vite' fait échouer la vérification des
+// types sur cette config, sans toucher au comportement à l'exécution.
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [sveltekit()],
