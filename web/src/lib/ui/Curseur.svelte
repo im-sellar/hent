@@ -1,5 +1,7 @@
 <script lang="ts">
   type Props = {
+    /** Identifiant HTML du curseur, distinct du texte affiché : lie le label sans dépendre de son contenu. */
+    id: string;
     etiquette: string;
     valeur: number;
     min: number;
@@ -9,16 +11,16 @@
     texteValeur: string;
     onchange: (v: number) => void;
   };
-  let { etiquette, valeur, min, max, pas = 1, texteValeur, onchange }: Props = $props();
+  let { id, etiquette, valeur, min, max, pas = 1, texteValeur, onchange }: Props = $props();
 </script>
 
 <div class="reglage">
   <div class="ligne">
-    <label for={etiquette}>{etiquette}</label>
+    <label for={id}>{etiquette}</label>
     <span class="valeur">{texteValeur}</span>
   </div>
   <input
-    id={etiquette}
+    {id}
     type="range"
     {min}
     {max}
@@ -47,6 +49,7 @@
   }
   input[type='range'] {
     width: 100%;
+    min-height: 44px;
     accent-color: var(--accent-vif);
   }
   input:focus-visible {

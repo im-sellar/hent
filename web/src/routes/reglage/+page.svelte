@@ -46,6 +46,7 @@
   <h1>Ta boucle</h1>
 
   <Curseur
+    id="distance"
     etiquette="Distance"
     valeur={appEtat.reglages.distanceM}
     min={DISTANCE_MIN_M}
@@ -56,6 +57,7 @@
   />
 
   <Curseur
+    id="eviter-bitume"
     etiquette="Éviter le bitume"
     valeur={appEtat.reglages.eviterBitume}
     min={0}
