@@ -369,13 +369,13 @@ Se bâtit par `make web`, se sert en copiant `web/build/` vers `/srv/hent/web`.
 `deploy/Caddyfile` donne la configuration : l'API en proxy sur `/v1/*`, le reste
 en repli vers `200.html` — sans quoi recharger `/b/<id>` donnerait un 404.
 
-**Le déploiement**, §12 de `docs/design.md` : unité systemd, `Caddyfile`
-d'exemple, cible de build reproductible, `/healthz` distinguant « prêt » de
-« graphe chargé mais incohérent », sémaphore de générations concurrentes,
-`recover()` autour de la génération, `IdleTimeout`, et un lien vers le dépôt
-dans `/v1/regions` et le README pour clore l'engagement ODbL. Le budget mémoire
-qui figurait ici est désormais mesuré : 593 Mo de RSS, 15,2 s de démarrage, donc
-un VPS de 2 Go au minimum. Reste la latence — 738 ms médian contre 500 visés.
+**Le déploiement**, §12 de `docs/design.md` : unité systemd, `/healthz`
+distinguant « prêt » de « graphe chargé mais incohérent », sémaphore de
+générations concurrentes, `recover()` autour de la génération, `IdleTimeout`,
+et un lien vers le dépôt dans `/v1/regions` et le README pour clore
+l'engagement ODbL. Le budget mémoire qui figurait ici est désormais mesuré :
+593 Mo de RSS, 15,2 s de démarrage, donc un VPS de 2 Go au minimum. Reste la
+latence — 738 ms médian contre 500 visés.
 
 ### Où vivent les documents
 
