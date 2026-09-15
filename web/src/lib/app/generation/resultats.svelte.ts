@@ -16,7 +16,16 @@ function estAnnulation(e: unknown): boolean {
   return e instanceof DOMException && e.name === 'AbortError';
 }
 
-function versErreurMoteur(e: unknown): ErreurMoteur {
+/**
+ * Convertit ce qu'un moteur a rejeté en erreur affichable. Tout objet portant
+ * un `genre` est repris tel quel, délai de réessai compris ; le reste — une
+ * panne de transport, une valeur inattendue — devient `Reseau`.
+ *
+ * Exportée parce que l'écran de détail appelle le moteur directement, sans
+ * passer par `lancer` : deux conversions divergentes valaient à un 429 d'y
+ * perdre son `reessayerDansS`.
+ */
+export function versErreurMoteur(e: unknown): ErreurMoteur {
   if (e && typeof e === 'object' && 'genre' in e) {
     const erreur = e as { genre: ErreurMoteur['genre']; message?: string; reessayerDansS?: number };
     return {

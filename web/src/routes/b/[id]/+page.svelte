@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { page } from '$app/state';
   import { appEtat } from '$lib/assemblage.svelte';
+  import { versErreurMoteur } from '$lib/app/generation/resultats.svelte';
   import { dureeMinutes, type Boucle, type Demande } from '$lib/domaine/boucle';
   import { formatDistance, formatDuree, formatEcartCible, formatPourcent } from '$lib/domaine/format';
   import type { ErreurMoteur } from '$lib/app/ports';
@@ -18,22 +20,34 @@
 
   // Deux chemins d'entrée : on arrive de la liste, ou par un lien partagé. Le
   // second impose un appel, puisque rien n'est en mémoire.
+  //
+  // L'effet ne dépend que de `id` et de `tentative`. Tout ce qu'il écrit — dont
+  // l'état partagé des résultats, que `poser()` alimente — est lu sous
+  // `untrack` : un effet qui dépend de ce qu'il écrit se réordonnance pendant
+  // son propre `.then`, son teardown pose `annulee` avant que le `.finally`
+  // chaîné ne soit dépilé, et `chargement` ne redescend plus jamais.
   $effect(() => {
+    const idVoulu = id;
     // Dépendance de lecture sans usage : c'est elle que reessayer() incrémente
     // pour relancer l'effet après une erreur, l'id restant inchangé.
     tentative;
 
-    const etat = appEtat.resultats.etat();
-    if (etat.statut === 'ok') {
-      const connue = etat.boucles.find((b) => b.id === id);
-      if (connue) {
-        boucle = connue;
-        demande = etat.demande;
-        erreur = null;
-        return;
-      }
+    const connue = untrack(() => {
+      const etat = appEtat.resultats.etat();
+      if (etat.statut !== 'ok') return null;
+      const trouvee = etat.boucles.find((b) => b.id === idVoulu);
+      return trouvee ? { boucle: trouvee, demande: etat.demande } : null;
+    });
+
+    if (connue) {
+      boucle = connue.boucle;
+      demande = connue.demande;
+      erreur = null;
+      chargement = false;
+      return;
     }
-    if (!id || boucle?.id === id) return;
+
+    if (!idVoulu) return;
 
     // Le contrôleur protège contre deux navigations rapides d'un détail à un
     // autre : `annulee` ignore toute réponse qui arriverait après que l'effet
@@ -44,7 +58,7 @@
     chargement = true;
     erreur = null;
     appEtat.moteur
-      .ouvrir(id, controleur.signal)
+      .ouvrir(idVoulu, controleur.signal)
       .then((r) => {
         if (annulee) return;
         boucle = r.boucle;
@@ -53,10 +67,7 @@
       })
       .catch((e: unknown) => {
         if (annulee) return;
-        const g = e && typeof e === 'object' && 'genre' in e ? e : null;
-        erreur = g
-          ? { genre: (g as ErreurMoteur).genre, message: (g as ErreurMoteur).message }
-          : { genre: 'Reseau', message: String(e) };
+        erreur = versErreurMoteur(e);
       })
       .finally(() => {
         if (annulee) return;
