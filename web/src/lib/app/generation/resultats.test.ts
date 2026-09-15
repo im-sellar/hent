@@ -157,4 +157,72 @@ describe('creerResultats', () => {
     expect(generer).not.toHaveBeenCalled();
     expect(r.etat().statut).toBe('ok');
   });
+
+  it('abandonne l’appel en cours quand on pose des résultats connus', () => {
+    // L'écran de détail pose la boucle qu'il vient d'obtenir alors qu'une
+    // recherche peut encore être en vol : la laisser courir la ferait aboutir
+    // dans le vide, et consommerait le service pour rien.
+    let signalVu: AbortSignal | undefined;
+    const r = creerResultats(
+      moteurQui((_demande, signal) => {
+        signalVu = signal;
+        return new Promise<Boucle[]>(() => {});
+      })
+    );
+
+    void r.lancer(demande);
+    r.poser([uneBoucle], demande);
+
+    expect(signalVu?.aborted).toBe(true);
+  });
+
+  it('ignore une recherche déjà partie quand des résultats connus sont posés', async () => {
+    // Le moteur ici ne regarde pas le signal : seule la génération peut écarter
+    // sa réponse, qui arrive après la pose.
+    const tardive = { ...uneBoucle, id: 'tardive' };
+    const connue = { ...uneBoucle, id: 'connue' };
+    let debloquer!: (b: Boucle[]) => void;
+    const attente = new Promise<Boucle[]>((res) => (debloquer = res));
+    const r = creerResultats(moteurQui(() => attente));
+
+    const fini = r.lancer(demande);
+    r.poser([connue], demande);
+    debloquer([tardive]);
+    await fini;
+
+    const etat = r.etat();
+    if (etat.statut !== 'ok') throw new Error('état inattendu');
+    expect(etat.boucles.map((b) => b.id)).toEqual(['connue']);
+  });
+
+  it('n’annule plus rien une fois la recherche terminée', async () => {
+    let signalVu: AbortSignal | undefined;
+    const r = creerResultats(
+      moteurQui(async (_demande, signal) => {
+        signalVu = signal;
+        return [uneBoucle];
+      })
+    );
+
+    await r.lancer(demande);
+    r.annuler();
+
+    expect(signalVu?.aborted).toBe(false);
+  });
+
+  it('range sans toucher à la liste reçue', () => {
+    // L'appelant garde sa liste : `poser` la range pour son propre état, il ne
+    // réordonne pas celle d'en face.
+    const moins = { ...uneBoucle, id: 'moins', score: { ...uneBoucle.score, partNonBitume: 0.4 } };
+    const plus = { ...uneBoucle, id: 'plus', score: { ...uneBoucle.score, partNonBitume: 0.9 } };
+    const recue = [moins, plus];
+    const r = creerResultats(moteurQui(async () => []));
+
+    r.poser(recue, demande);
+
+    expect(recue.map((b) => b.id)).toEqual(['moins', 'plus']);
+    const etat = r.etat();
+    if (etat.statut !== 'ok') throw new Error('état inattendu');
+    expect(etat.boucles.map((b) => b.id)).toEqual(['plus', 'moins']);
+  });
 });
