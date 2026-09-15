@@ -357,10 +357,17 @@ jamais. Ils sont ici pour ne pas être redécouverts comme des défauts.
 L'étape 1 est **complète et revue**, et l'architecture a été durcie depuis (voir
 plus haut). Trois chantiers restent ouverts.
 
-**Le front**, dont la conception est faite : six écrans dessinés en deux thèmes,
-système de design conforme RGAA AA, styles de carte générés. La pile est arrêtée
-(plus haut). Ce qui manque est la spec d'implémentation, puis le code. C'est le
-chantier qui donne au projet son premier usage réel.
+**Le front, premier jet.** Le socle est livré : trois couches gardées par un
+test d'imports, le client de l'API avec ses six variantes d'erreur, les
+préférences persistées, et la machine à états de la recherche. Quatre écrans
+fonctionnent — accueil, réglage, résultats, détail — et la chaîne va jusqu'au
+téléchargement du GPX. Le point de départ se saisit encore en coordonnées
+brutes : la carte, la géolocalisation et la recherche d'adresse font l'objet du
+plan suivant, et le champ provisoire le dit à l'écran.
+
+Se bâtit par `make web`, se sert en copiant `web/build/` vers `/srv/hent/web`.
+`deploy/Caddyfile` donne la configuration : l'API en proxy sur `/v1/*`, le reste
+en repli vers `200.html` — sans quoi recharger `/b/<id>` donnerait un 404.
 
 **Le déploiement**, §12 de `docs/design.md` : unité systemd, `Caddyfile`
 d'exemple, cible de build reproductible, `/healthz` distinguant « prêt » de

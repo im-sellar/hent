@@ -1,0 +1,27 @@
+# hent — le front est du statique, l'API un service local.
+#
+# Séparer les deux permet de déployer une correction d'interface sans toucher
+# au service : routed met une quinzaine de secondes à répondre après un
+# redémarrage, le temps de charger les 294 Mo de graphe.
+
+hent.example.org {
+	encode zstd gzip
+
+	# L'API d'abord : ce préfixe ne doit jamais tomber dans le repli SPA.
+	handle /v1/* {
+		reverse_proxy localhost:8080
+	}
+
+	handle /healthz {
+		reverse_proxy localhost:8080
+	}
+
+	handle {
+		root * /srv/hent/web
+		# Les routes du front sont rendues côté navigateur : tout ce qui n'est pas
+		# un fichier réel retombe sur la coquille 200.html — jamais sur
+		# index.html, qui est l'accueil prérendu et porte son propre contenu.
+		try_files {path} {path}/ /200.html
+		file_server
+	}
+}

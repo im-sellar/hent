@@ -12,7 +12,7 @@ n'emploient que des `var(--jeton)`, jamais une valeur. Tout le reste en découle
 
 | Fichier | Rôle |
 |---|---|
-| `_themes.json` | **La source.** Vingt jetons, deux jeux de valeurs. |
+| `_themes.json` | **La source.** Vingt-deux jetons, deux jeux de valeurs. |
 | `Main`, `Depart`, `DepartRecherche`, `Generateur`, `Boucles`, `Detail` `.dc.html` | Les six écrans, en jetons. Le bloc `:root` y est posé par le script. |
 | `Symbole`, `Fondations`, `Composants`, `Themes`, `Etats` `.dc.html` | Les planches de documentation. |
 | `*Clair.dc.html`, `Themes.dc.html`, `carte/*.json`, `web/src/styles/jetons.css` | **Générés.** Ne pas les modifier à la main : la prochaine génération les écrase. |
