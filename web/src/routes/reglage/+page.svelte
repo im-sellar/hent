@@ -34,6 +34,17 @@
     if (appEtat.resultats.etat().statut === 'ok') await goto('/boucles');
   }
 
+  /**
+   * Efface une erreur de recherche dès que le départ change.
+   *
+   * L'état des résultats est partagé par toute l'application : sans cela, un
+   * départ hors zone y laisse une erreur que rien sur cet écran ne lève, et le
+   * bouton « Tracer ma boucle » ne revient qu'au rechargement de la page.
+   */
+  function departModifie() {
+    if (appEtat.resultats.etat().statut === 'erreur') appEtat.resultats.reinitialiser();
+  }
+
   function assouplir() {
     appEtat.regler({ ...appEtat.reglages, eviterBitume: Math.max(0, appEtat.reglages.eviterBitume - 0.3) });
     void tracer();
@@ -70,8 +81,14 @@
   <fieldset>
     <legend>Départ</legend>
     <p class="provisoire">Saisie temporaire : la carte et la recherche d’adresse arrivent ensuite.</p>
-    <label>Latitude <input type="number" step="0.0001" bind:value={lat} /></label>
-    <label>Longitude <input type="number" step="0.0001" bind:value={lon} /></label>
+    <label>
+      Latitude
+      <input type="number" step="0.0001" bind:value={lat} oninput={departModifie} />
+    </label>
+    <label>
+      Longitude
+      <input type="number" step="0.0001" bind:value={lon} oninput={departModifie} />
+    </label>
     {#if !coordValide}
       <p class="invalide">Ces coordonnées ne sont pas valides.</p>
     {/if}

@@ -8,8 +8,22 @@
     onannuler?: () => void;
     onreessayer?: () => void;
     onassouplir?: () => void;
+    /**
+     * Où envoyer quelqu'un dont le départ sort de la zone couverte. Laissé vide
+     * par l'écran de départ lui-même : un composant d'état ne sait pas quelle
+     * page le rend, et proposer un lien vers celle où l'on se trouve déjà est
+     * un cul-de-sac.
+     */
+    hrefAutreDepart?: string;
   };
-  let { erreur, enAttente = false, onannuler, onreessayer, onassouplir }: Props = $props();
+  let {
+    erreur,
+    enAttente = false,
+    onannuler,
+    onreessayer,
+    onassouplir,
+    hrefAutreDepart
+  }: Props = $props();
 
   const titres: Record<ErreurMoteur['genre'], string> = {
     HorsZone: 'Ce point est en dehors de la Bretagne.',
@@ -44,8 +58,8 @@
     <p>{details[erreur.genre]}</p>
     {#if erreur.genre === 'AucuneBoucle' && onassouplir}
       <Bouton onclick={onassouplir}>Accepter plus de bitume</Bouton>
-    {:else if erreur.genre === 'HorsZone'}
-      <Bouton href="/reglage">Choisir un autre départ</Bouton>
+    {:else if erreur.genre === 'HorsZone' && hrefAutreDepart}
+      <Bouton href={hrefAutreDepart}>Choisir un autre départ</Bouton>
     {:else if onreessayer}
       <Bouton variante="secondaire" onclick={onreessayer}>
         {erreur.reessayerDansS ? `Réessayer dans ${erreur.reessayerDansS} s` : 'Réessayer'}

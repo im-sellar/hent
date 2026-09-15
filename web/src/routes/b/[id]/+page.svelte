@@ -98,7 +98,7 @@
     <EtatEcran enAttente />
   {:else if erreur}
     <h1 class="cache-visuellement">Une boucle</h1>
-    <EtatEcran {erreur} onreessayer={reessayer} />
+    <EtatEcran {erreur} onreessayer={reessayer} hrefAutreDepart="/reglage" />
   {:else if boucle}
     <div class="titre">
       <h1 class="distance">{formatDistance(boucle.score.distanceM)}</h1>
