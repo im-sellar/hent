@@ -14,10 +14,15 @@
   let demande = $state<Demande | null>(null);
   let erreur = $state<ErreurMoteur | null>(null);
   let chargement = $state(false);
+  let tentative = $state(0);
 
   // Deux chemins d'entrée : on arrive de la liste, ou par un lien partagé. Le
   // second impose un appel, puisque rien n'est en mémoire.
   $effect(() => {
+    // Dépendance de lecture sans usage : c'est elle que reessayer() incrémente
+    // pour relancer l'effet après une erreur, l'id restant inchangé.
+    tentative;
+
     const etat = appEtat.resultats.etat();
     if (etat.statut === 'ok') {
       const connue = etat.boucles.find((b) => b.id === id);
@@ -30,24 +35,44 @@
     }
     if (!id || boucle?.id === id) return;
 
+    // Le contrôleur protège contre deux navigations rapides d'un détail à un
+    // autre : `annulee` ignore toute réponse qui arriverait après que l'effet
+    // a déjà repris, qu'elle soit tardive ou provoquée par l'abandon lui-même.
+    let annulee = false;
+    const controleur = new AbortController();
+
     chargement = true;
     erreur = null;
     appEtat.moteur
-      .ouvrir(id)
+      .ouvrir(id, controleur.signal)
       .then((r) => {
+        if (annulee) return;
         boucle = r.boucle;
         demande = r.demande;
+        appEtat.resultats.poser([r.boucle], r.demande);
       })
       .catch((e: unknown) => {
+        if (annulee) return;
         const g = e && typeof e === 'object' && 'genre' in e ? e : null;
         erreur = g
           ? { genre: (g as ErreurMoteur).genre, message: (g as ErreurMoteur).message }
           : { genre: 'Reseau', message: String(e) };
       })
       .finally(() => {
+        if (annulee) return;
         chargement = false;
       });
+
+    return () => {
+      annulee = true;
+      controleur.abort();
+    };
   });
+
+  function reessayer() {
+    erreur = null;
+    tentative += 1;
+  }
 
   const ecart = $derived(boucle && demande ? formatEcartCible(demande.distanceM, boucle.score.distanceM) : '');
 </script>
@@ -58,12 +83,14 @@
   <a class="retour" href="/boucles">← Les boucles</a>
 
   {#if chargement}
+    <h1 class="cache-visuellement">Une boucle</h1>
     <EtatEcran enAttente />
   {:else if erreur}
-    <EtatEcran erreur={erreur} />
+    <h1 class="cache-visuellement">Une boucle</h1>
+    <EtatEcran {erreur} onreessayer={reessayer} />
   {:else if boucle}
     <div class="titre">
-      <span class="distance">{formatDistance(boucle.score.distanceM)}</span>
+      <h1 class="distance">{formatDistance(boucle.score.distanceM)}</h1>
       {#if ecart}<span class="ecart">{ecart}</span>{/if}
     </div>
 
@@ -109,9 +136,22 @@
     justify-content: space-between;
   }
   .distance {
+    margin: 0;
     font-family: Spectral, Georgia, serif;
     font-size: 2.25rem;
+    font-weight: 600;
     line-height: 1;
+  }
+  .cache-visuellement {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
   .ecart,
   .partage {

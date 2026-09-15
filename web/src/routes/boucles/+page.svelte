@@ -28,6 +28,7 @@
       {/each}
     </ul>
   {:else}
+    <h1>Les boucles</h1>
     <p class="vide">Aucune recherche en cours. <a href="/reglage">Régler une boucle</a></p>
   {/if}
 </main>
