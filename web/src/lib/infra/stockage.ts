@@ -11,7 +11,9 @@ const CLE = 'hent.reglages';
  * ces cas ne doit empêcher l'application de démarrer, donc `lire` rend `null` et
  * `ecrire` ne fait rien plutôt que de lever.
  *
- * Ce qui est relu est borné : aucune valeur ne traverse l'application sans validation.
+ * Ce qui est relu est borné : une valeur écrite par une version antérieure de
+ * l'application, ou modifiée à la main dans les outils du navigateur, ne traverse
+ * l'application telle quelle. Elle subit un contrôle de plage.
  */
 export function creerPreferences(
   stockage: Storage | null = typeof localStorage === 'undefined' ? null : localStorage
@@ -23,6 +25,8 @@ export function creerPreferences(
       try {
         brut = stockage.getItem(CLE);
       } catch {
+        // Stockage refusé (navigation privée, politique de site, quota) : démarrer
+        // sur les valeurs par défaut plutôt que de planter.
         return null;
       }
       if (!brut) return null;
@@ -31,6 +35,8 @@ export function creerPreferences(
         if (typeof lu?.distanceM !== 'number' || typeof lu?.eviterBitume !== 'number') return null;
         return borner({ distanceM: lu.distanceM, eviterBitume: lu.eviterBitume });
       } catch {
+        // JSON malformé ou structure invalide : valeur corrompue dans le stockage,
+        // on repart sur les valeurs par défaut.
         return null;
       }
     },
