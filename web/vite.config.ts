@@ -11,5 +11,32 @@ export default defineConfig({
     // donc aucune configuration de CORS, comme en production derrière Caddy.
     proxy: { '/v1': 'http://localhost:8080' }
   },
-  test: { environment: 'node', include: ['src/**/*.test.ts'] }
+  test: {
+    // Deux projets, parce que Svelte compile différemment selon la cible. En
+    // environnement `node`, tout `.svelte.ts` est compilé pour le serveur, où
+    // `$effect` ne s'exécute jamais : un composant y est inobservable. Le
+    // projet `client` monte donc les tests d'interface sous jsdom, avec la
+    // condition de résolution `browser` qui donne le runtime client de Svelte.
+    projects: [
+      {
+        extends: './vite.config.ts',
+        resolve: { conditions: ['browser'] },
+        test: {
+          name: 'client',
+          environment: 'jsdom',
+          include: ['src/**/*.svelte.test.ts'],
+          setupFiles: ['./vitest-client.ts']
+        }
+      },
+      {
+        extends: './vite.config.ts',
+        test: {
+          name: 'serveur',
+          environment: 'node',
+          include: ['src/**/*.test.ts'],
+          exclude: ['src/**/*.svelte.test.ts']
+        }
+      }
+    ]
+  }
 });
