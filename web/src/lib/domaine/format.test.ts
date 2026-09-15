@@ -87,4 +87,10 @@ describe('formatEcartCible', () => {
     // point.
     expect(formatEcartCible(17_600, 18_400)).toBe('tu en demandais 18');
   });
+
+  it('arrondit aussi la distance obtenue, pas seulement la demande', () => {
+    // 17 600 arrondit à 18, pas à 17 : un test qui tronquerait la distance
+    // obtenue au lieu de l'arrondir la confondrait avec la demande à tort.
+    expect(formatEcartCible(18_000, 17_600)).toBe('');
+  });
 });
