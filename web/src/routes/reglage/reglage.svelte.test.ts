@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import { goto } from '$app/navigation';
 import type { MoteurDeBoucles } from '$lib/app/ports';
 import { ErreurAPI } from '$lib/infra/hent-api';
 
@@ -32,6 +33,7 @@ const Reglage = (await import('./+page.svelte')).default;
 
 beforeEach(() => {
   faux.generer.mockReset();
+  vi.mocked(goto).mockClear();
   appEtat.resultats.reinitialiser();
 });
 
@@ -68,6 +70,19 @@ describe('écran de réglage', () => {
     );
 
     expect(panneau?.querySelectorAll('button, a')).toHaveLength(0);
+    // Hors du panneau non plus : « Tracer ma boucle » renverrait les mêmes
+    // coordonnées au même refus.
+    expect(screen.queryByRole('button', { name: 'Tracer ma boucle' })).toBeNull();
+    expect(goto).not.toHaveBeenCalled();
+  });
+
+  it('mène aux boucles quand la recherche aboutit', async () => {
+    faux.generer.mockResolvedValue([]);
+
+    render(Reglage);
+    screen.getByRole('button', { name: 'Tracer ma boucle' }).click();
+
+    await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/boucles'));
   });
 
   it('reprend le focus quand l’état remplace le bouton activé', async () => {
