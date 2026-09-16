@@ -433,9 +433,10 @@ La branche a été revue dans son ensemble et les deux blocages trouvés sont
 corrigés (voir la revue finale du front, plus haut). Une re-revue du
 16 septembre 2026 a refait les mutations sur le code corrigé : verdict
 fusionnable, aucun blocage, aucun point important. Elle a relevé neuf constats
-mineurs — de la couverture manquante sur du code que la correction avait rendu
-vivant, et deux phrases de documentation devenues fausses —, corrigés dans la
-foulée. La branche `worktree-front-socle` n'est pas fusionnée.
+mineurs — sept trous de couverture, dont les deux protections de
+`reinitialiser()`, devenu vivant avec la correction de l'écran de réglage, et
+trois phrases de documentation fausses réparties sur deux fichiers —, corrigés
+dans la foulée. La branche `worktree-front-socle` n'est pas fusionnée.
 
 Se bâtit par `make web`, se sert en copiant `web/build/` vers `/srv/hent/web`.
 `deploy/Caddyfile` donne la configuration : l'API en proxy sur `/v1/*`, le reste
