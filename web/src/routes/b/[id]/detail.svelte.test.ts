@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import type { Boucle, Demande } from '$lib/domaine/boucle';
 import type { MoteurDeBoucles } from '$lib/app/ports';
 import { ErreurAPI } from '$lib/infra/hent-api';
@@ -18,12 +19,11 @@ const uneBoucle: Boucle = {
   geometrie: [[-1.628, 48.135]]
 };
 
-const faux = vi.hoisted(() => ({
-  id: 'abc',
-  ouvrir: vi.fn()
-}));
+const faux = vi.hoisted(() => ({ ouvrir: vi.fn() }));
 
-vi.mock('$app/state', () => ({ page: { get params() { return { id: faux.id }; } } }));
+let idAffiche = $state('abc');
+
+vi.mock('$app/state', () => ({ page: { get params() { return { id: idAffiche }; } } }));
 
 vi.mock('$lib/assemblage.svelte', async () => {
   const { creerResultats } = await import('$lib/app/generation/resultats.svelte');
@@ -38,8 +38,12 @@ vi.mock('$lib/assemblage.svelte', async () => {
 const { appEtat } = await import('$lib/assemblage.svelte');
 const Detail = (await import('./+page.svelte')).default;
 
+/** Laisse se dépiler les chaînes de promesses déjà engagées avant d'observer. */
+const microtaches = () => new Promise((res) => setTimeout(res, 0));
+
 beforeEach(() => {
-  faux.id = 'abc';
+  vi.restoreAllMocks();
+  idAffiche = 'abc';
   faux.ouvrir.mockReset();
   appEtat.resultats.reinitialiser();
 });
@@ -56,6 +60,61 @@ describe('écran de détail', () => {
     expect(await screen.findByRole('heading', { level: 1, name: '3,9 km' })).toBeDefined();
     expect(screen.queryByText('Je parcours les chemins.')).toBeNull();
     expect(screen.getByRole('link', { name: 'Télécharger le GPX' })).toBeDefined();
+
+    // La boucle obtenue rejoint l'état partagé : c'est ce que la liste montrera
+    // au retour, sans relancer de recherche.
+    const etat = appEtat.resultats.etat();
+    if (etat.statut !== 'ok') throw new Error('état inattendu');
+    expect(etat.boucles.map((b) => b.id)).toEqual(['abc']);
+    expect(etat.demande.distanceM).toBe(4000);
+  });
+
+  it('ne relit pas l’état des résultats qu’il vient d’y poser', async () => {
+    // L'effet écrit dans l'état partagé. S'il le lit en dépendance, il
+    // s'invalide lui-même dès que la réponse arrive et repart pour un tour.
+    faux.ouvrir.mockResolvedValue({ boucle: uneBoucle, demande });
+    const lectures = vi.spyOn(appEtat.resultats, 'etat');
+
+    render(Detail);
+    await screen.findByRole('heading', { level: 1, name: '3,9 km' });
+    await microtaches();
+
+    expect(lectures).toHaveBeenCalledOnce();
+  });
+
+  it('abandonne l’appel du détail que l’on quitte', async () => {
+    const signaux: (AbortSignal | undefined)[] = [];
+    faux.ouvrir.mockImplementation((_id: string, signal?: AbortSignal) => {
+      signaux.push(signal);
+      return new Promise(() => {});
+    });
+
+    render(Detail);
+    await tick();
+    idAffiche = 'def';
+    await tick();
+
+    expect(signaux).toHaveLength(2);
+    expect(signaux[0]?.aborted).toBe(true);
+    expect(signaux[1]?.aborted).toBe(false);
+  });
+
+  it('n’écrase pas le détail suivant par la réponse du précédent', async () => {
+    const autre: Boucle = { ...uneBoucle, id: 'def', score: { ...uneBoucle.score, distanceM: 8420 } };
+    let repondrePremier!: (r: { boucle: Boucle; demande: Demande }) => void;
+    faux.ouvrir.mockImplementationOnce(() => new Promise((res) => (repondrePremier = res)));
+    faux.ouvrir.mockResolvedValue({ boucle: autre, demande });
+
+    render(Detail);
+    await tick();
+    idAffiche = 'def';
+    expect(await screen.findByRole('heading', { level: 1, name: '8,4 km' })).toBeDefined();
+
+    repondrePremier({ boucle: uneBoucle, demande });
+    await microtaches();
+    await tick();
+
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('8,4 km');
   });
 
   it('affiche la boucle déjà connue sans rappeler le moteur', async () => {

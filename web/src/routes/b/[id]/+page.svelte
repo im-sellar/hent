@@ -22,11 +22,13 @@
   // Deux chemins d'entrée : on arrive de la liste, ou par un lien partagé. Le
   // second impose un appel, puisque rien n'est en mémoire.
   //
-  // L'effet ne dépend que de `id` et de `tentative`. Tout ce qu'il écrit — dont
-  // l'état partagé des résultats, que `poser()` alimente — est lu sous
+  // L'effet ne dépend que de `id` et de `tentative`. L'état partagé des
+  // résultats, qu'il alimente lui-même par `poser()`, est donc lu sous
   // `untrack` : un effet qui dépend de ce qu'il écrit se réordonnance pendant
   // son propre `.then`, son teardown pose `annulee` avant que le `.finally`
-  // chaîné ne soit dépilé, et `chargement` ne redescend plus jamais.
+  // chaîné ne soit dépilé, et `chargement` ne redescend plus jamais. La branche
+  // « connue » le redescend elle aussi explicitement, pour rester juste quelle
+  // que soit la relance qui l'amène là.
   $effect(() => {
     const idVoulu = id;
     // Dépendance de lecture sans usage : c'est elle que reessayer() incrémente
