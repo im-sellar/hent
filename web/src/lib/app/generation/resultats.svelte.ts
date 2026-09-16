@@ -91,6 +91,10 @@ export function creerResultats(moteur: MoteurDeBoucles) {
       etat = { statut: 'ok', boucles: trier(boucles), demande };
     },
 
+    /**
+     * Ramène l'état à vide et abandonne ce qui est en vol : la réponse d'une
+     * recherche déjà partie n'écrira plus rien.
+     */
     reinitialiser(): void {
       enCours?.abort();
       generation += 1;

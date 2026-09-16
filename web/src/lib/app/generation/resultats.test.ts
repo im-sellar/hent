@@ -210,6 +210,38 @@ describe('creerResultats', () => {
     expect(signalVu?.aborted).toBe(false);
   });
 
+  it('abandonne l’appel en cours quand on réinitialise', () => {
+    // Corriger le départ réinitialise l'état pendant qu'une recherche peut
+    // encore être en vol : la laisser courir consommerait le service pour rien.
+    let signalVu: AbortSignal | undefined;
+    const r = creerResultats(
+      moteurQui((_demande, signal) => {
+        signalVu = signal;
+        return new Promise<Boucle[]>(() => {});
+      })
+    );
+
+    void r.lancer(demande);
+    r.reinitialiser();
+
+    expect(signalVu?.aborted).toBe(true);
+  });
+
+  it('ignore une recherche déjà partie quand on réinitialise', async () => {
+    // Le moteur ici ne regarde pas le signal : seule la génération peut écarter
+    // sa réponse, qui arrive après la réinitialisation.
+    let debloquer!: (b: Boucle[]) => void;
+    const attente = new Promise<Boucle[]>((res) => (debloquer = res));
+    const r = creerResultats(moteurQui(() => attente));
+
+    const fini = r.lancer(demande);
+    r.reinitialiser();
+    debloquer([uneBoucle]);
+    await fini;
+
+    expect(r.etat().statut).toBe('vide');
+  });
+
   it('range sans toucher à la liste reçue', () => {
     // L'appelant garde sa liste : `poser` la range pour son propre état, il ne
     // réordonne pas celle d'en face.

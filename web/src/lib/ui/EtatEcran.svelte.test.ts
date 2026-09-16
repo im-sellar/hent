@@ -53,6 +53,21 @@ describe('EtatEcran', () => {
     expect(reessayer).toHaveBeenCalledOnce();
   });
 
+  it('arrête le décompte au démontage', () => {
+    // Un intervalle survivant à sa page décrémenterait un état détaché, et
+    // chaque visite d'un écran en 429 en laisserait un de plus derrière elle.
+    vi.useFakeTimers();
+    const { unmount } = render(EtatEcran, {
+      erreur: { genre: 'TropDeDemandes', message: 'trop vite', reessayerDansS: 2 },
+      onreessayer: () => {}
+    });
+    expect(vi.getTimerCount()).toBe(1);
+
+    unmount();
+
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it('n’offre aucune action pour un point hors zone sans destination', () => {
     // Rendu par l'écran de départ lui-même, il n'a nulle part où envoyer. Un
     // « Réessayer » y renverrait les mêmes coordonnées au même serveur, pour le
