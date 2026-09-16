@@ -38,8 +38,12 @@ vi.mock('$lib/assemblage.svelte', async () => {
 const { appEtat } = await import('$lib/assemblage.svelte');
 const Detail = (await import('./+page.svelte')).default;
 
-/** Laisse se dépiler les chaînes de promesses déjà engagées avant d'observer. */
-const microtaches = () => new Promise((res) => setTimeout(res, 0));
+/**
+ * Rend la main jusqu'au prochain tour de la boucle d'événements, ce qui draine
+ * les microtâches en attente. `tick()` n'en dépile qu'un cran : trop peu pour
+ * voir le bout d'une chaîne `.then` → `.catch` → `.finally`.
+ */
+const prochainTour = () => new Promise((res) => setTimeout(res, 0));
 
 beforeEach(() => {
   vi.restoreAllMocks();
@@ -72,14 +76,21 @@ describe('écran de détail', () => {
   it('ne relit pas l’état des résultats qu’il vient d’y poser', async () => {
     // L'effet écrit dans l'état partagé. S'il le lit en dépendance, il
     // s'invalide lui-même dès que la réponse arrive et repart pour un tour.
-    faux.ouvrir.mockResolvedValue({ boucle: uneBoucle, demande });
+    // Seul compte le delta autour de la pose : ce que lit le rendu initial le
+    // regarde.
+    let repondre!: (r: { boucle: Boucle; demande: Demande }) => void;
+    faux.ouvrir.mockImplementationOnce(() => new Promise((res) => (repondre = res)));
     const lectures = vi.spyOn(appEtat.resultats, 'etat');
 
     render(Detail);
-    await screen.findByRole('heading', { level: 1, name: '3,9 km' });
-    await microtaches();
+    await tick();
+    const avantLaPose = lectures.mock.calls.length;
 
-    expect(lectures).toHaveBeenCalledOnce();
+    repondre({ boucle: uneBoucle, demande });
+    await screen.findByRole('heading', { level: 1, name: '3,9 km' });
+    await tick();
+
+    expect(lectures.mock.calls.length).toBe(avantLaPose);
   });
 
   it('abandonne l’appel du détail que l’on quitte', async () => {
@@ -111,10 +122,44 @@ describe('écran de détail', () => {
     expect(await screen.findByRole('heading', { level: 1, name: '8,4 km' })).toBeDefined();
 
     repondrePremier({ boucle: uneBoucle, demande });
-    await microtaches();
     await tick();
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('8,4 km');
+  });
+
+  it('n’affiche pas sur le détail suivant l’échec du précédent', async () => {
+    const autre: Boucle = { ...uneBoucle, id: 'def', score: { ...uneBoucle.score, distanceM: 8420 } };
+    let echouerPremier!: (e: unknown) => void;
+    faux.ouvrir.mockImplementationOnce(() => new Promise((_res, rej) => (echouerPremier = rej)));
+    faux.ouvrir.mockResolvedValue({ boucle: autre, demande });
+
+    render(Detail);
+    await tick();
+    idAffiche = 'def';
+    expect(await screen.findByRole('heading', { level: 1, name: '8,4 km' })).toBeDefined();
+
+    echouerPremier(new ErreurAPI('Serveur', 'boum'));
+    await tick();
+
+    expect(screen.queryByText('Le service a rencontré un problème.')).toBeNull();
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('8,4 km');
+  });
+
+  it('ne lève pas l’attente du détail suivant quand le précédent retombe', async () => {
+    let echouerPremier!: (e: unknown) => void;
+    faux.ouvrir.mockImplementationOnce(() => new Promise((_res, rej) => (echouerPremier = rej)));
+    faux.ouvrir.mockImplementationOnce(() => new Promise(() => {}));
+
+    render(Detail);
+    await tick();
+    idAffiche = 'def';
+    await tick();
+
+    echouerPremier(new ErreurAPI('Serveur', 'boum'));
+    await prochainTour();
+    await tick();
+
+    expect(screen.getByText('Je parcours les chemins.')).toBeDefined();
   });
 
   it('affiche la boucle déjà connue sans rappeler le moteur', async () => {
