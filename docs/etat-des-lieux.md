@@ -420,20 +420,22 @@ jamais. Ils sont ici pour ne pas être redécouverts comme des défauts.
 L'étape 1 est **complète et revue**, et l'architecture a été durcie depuis (voir
 plus haut). Deux chantiers restent ouverts.
 
-**Le front, premier jet.** Le socle est livré : trois couches gardées par un
-test d'imports, le client de l'API avec ses six variantes d'erreur, les
-préférences persistées, et la machine à états de la recherche. Quatre écrans
+**Le front, premier jet.** Le socle est livré : quatre dossiers gardés par un
+test d'imports — `domaine`, `app`, `ui` et les écrans de `routes/` —, le client
+de l'API avec ses six variantes d'erreur, les préférences persistées, et la
+machine à états de la recherche. Quatre écrans
 fonctionnent — accueil, réglage, résultats, détail — et la chaîne va jusqu'au
 téléchargement du GPX. Le point de départ se saisit encore en coordonnées
 brutes : la carte, la géolocalisation et la recherche d'adresse font l'objet du
 plan suivant, et le champ provisoire le dit à l'écran.
 
 La branche a été revue dans son ensemble et les deux blocages trouvés sont
-corrigés (voir la revue finale du front, plus haut). **Une re-revue de ces
-corrections reste à faire** : elle doit refaire les mutations, vérifier que le
-test de régression de C1 tombe bien sur le code d'avant, et chercher ce que les
-corrections auraient pu introduire. La branche `worktree-front-socle` n'est donc
-pas fusionnée.
+corrigés (voir la revue finale du front, plus haut). Une re-revue du
+16 septembre 2026 a refait les mutations sur le code corrigé : verdict
+fusionnable, aucun blocage, aucun point important. Elle a relevé neuf constats
+mineurs — de la couverture manquante sur du code que la correction avait rendu
+vivant, et deux phrases de documentation devenues fausses —, corrigés dans la
+foulée. La branche `worktree-front-socle` n'est pas fusionnée.
 
 Se bâtit par `make web`, se sert en copiant `web/build/` vers `/srv/hent/web`.
 `deploy/Caddyfile` donne la configuration : l'API en proxy sur `/v1/*`, le reste
@@ -593,7 +595,6 @@ Relevés en revue, non bloquants, à balayer avant de passer aux étapes suivant
   lecteurs d'écran. Ne se mesure qu'avec un vrai lecteur d'écran.
 - Le `<h1>` des états d'attente et d'erreur de `/b/<id>` n'a jamais été vu dans
   un navigateur : il dépend d'un `$effect` qui ne s'exécute qu'après hydratation,
-  invisible en rendu serveur. Et au tout premier rendu client, avant l'exécution
-  de l'effet initial, aucune branche ne correspond : fenêtre sans `<h1>`.
+  invisible en rendu serveur.
 - `deploy/Caddyfile` n'a jamais été validé par Caddy lui-même — il n'est pas
   installé sur la machine de développement.

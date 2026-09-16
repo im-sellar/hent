@@ -56,7 +56,9 @@ web/src/lib/
 └── ui/               composants Svelte — n'importe que app/ et domaine/
 ```
 
-`src/routes/` assemble, et ne connaît que `ui/` et `app/`.
+`src/routes/` porte les écrans, et tombe sous la même règle que `ui/` : il lit
+`domaine/`, `app/` et `ui/`, jamais `infra/`. Seul `lib/assemblage.svelte.ts`,
+le point de câblage, connaît les implémentations et les distribue.
 
 ### Quatre ports, et la règle qui les borne
 
