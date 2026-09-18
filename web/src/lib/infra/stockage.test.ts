@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { creerPreferences } from './stockage';
 import { REGLAGES_PAR_DEFAUT } from '$lib/domaine/reglages';
@@ -94,5 +95,15 @@ describe('thème', () => {
 
   it('n’échoue pas quand l’écriture est refusée', () => {
     expect(() => creerPreferences(stockageQuiLeve()).ecrireTheme('clair')).not.toThrow();
+  });
+});
+
+describe('app.html', () => {
+  it('pose le thème retenu avant le premier rendu, avec la même clé que le stockage', () => {
+    const html = readFileSync(new URL('../../app.html', import.meta.url), 'utf8');
+    expect(html).toContain("localStorage.getItem('hent.theme')");
+    expect(html).toContain("'sombre'");
+    expect(html).toContain("'clair'");
+    expect(html.indexOf('hent.theme')).toBeLessThan(html.indexOf('%sveltekit.head%'));
   });
 });
