@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { estCoordValide, estLatValide, estLonValide } from './depart';
+import { estCoordValide, estLatValide, estLonValide, libelleParDefaut } from './depart';
 
 describe('estLatValide et estLonValide', () => {
   it('n’ont pas les mêmes bornes', () => {
@@ -47,5 +47,15 @@ describe('estCoordValide', () => {
     // Zéro est une coordonnée valide ; la refuser par un test de véracité
     // serait le bogue classique.
     expect(estCoordValide({ lat: 0, lon: 0 })).toBe(true);
+  });
+});
+
+describe('libelleParDefaut', () => {
+  it('écrit les coordonnées à quatre décimales, virgule décimale', () => {
+    expect(libelleParDefaut({ lat: 48.117, lon: -1.677 })).toBe('48,1170, -1,6770');
+  });
+
+  it('arrondit plutôt que tronquer', () => {
+    expect(libelleParDefaut({ lat: 48.11705, lon: 0 })).toBe('48,1171, 0,0000');
   });
 });

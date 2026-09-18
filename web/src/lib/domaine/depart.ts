@@ -26,3 +26,23 @@ export function estLonValide(lon: number): boolean {
 export function estCoordValide(c: Coord): boolean {
   return estLatValide(c.lat) && estLonValide(c.lon);
 }
+
+/** Un résultat de recherche d'adresse : ce qu'on affiche, où c'est, et à quelle distance de la personne. */
+export type Lieu = {
+  libelle: string;
+  complement: string;
+  coord: Coord;
+  distanceM?: number;
+};
+
+/**
+ * Nom d'un point dont on n'a pas d'adresse : ses coordonnées, lisibles.
+ * Sert de repli quand le géocodage inverse ne rend rien.
+ */
+export function libelleParDefaut(c: Coord): string {
+  const virgule = (n: number) => {
+    const arrondi = Math.floor(n * 10000 + 0.5) / 10000;
+    return arrondi.toFixed(4).replace('.', ',');
+  };
+  return `${virgule(c.lat)}, ${virgule(c.lon)}`;
+}

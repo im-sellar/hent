@@ -45,3 +45,13 @@ export function formatEcartCible(demandeM: number, obtenueM: number): string {
   if (demandeKm === Math.round(obtenueM / 1000) && Math.abs(demandeM - obtenueM) < 500) return '';
   return `tu en demandais ${demandeKm}`;
 }
+
+/**
+ * Distance demandee, au kilometre entier : « 18 km au depart de Bruz ». Une
+ * demande se fait en kilometres ronds ; la decimale de `formatDistance` n'y
+ * apporterait rien.
+ */
+export function formatKilometres(metres: number): string {
+  if (!Number.isFinite(metres)) return '— km';
+  return `${Math.round(metres / 1000)} km`;
+}
