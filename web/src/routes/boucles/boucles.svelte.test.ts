@@ -102,4 +102,13 @@ describe('écran des boucles', () => {
     render(Boucles);
     expect(screen.getByRole('link', { name: /17,4 km/ })).toBeDefined();
   });
+
+  it('oublie une sélection qui n’est plus dans la liste', async () => {
+    appEtat.resultats.poser([grise, verte], demande);
+    render(Boucles);
+    await fireEvent.mouseEnter(screen.getByRole('link', { name: /18,1 km/ }));
+    appEtat.resultats.poser([verte], demande);
+    await tick();
+    expect(faux.carte!.afficherBoucles).toHaveBeenLastCalledWith([verte], 'verte');
+  });
 });
