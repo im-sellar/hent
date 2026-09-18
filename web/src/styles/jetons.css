@@ -1,0 +1,80 @@
+/* Généré par design/generer-css.py — ne pas modifier à la main.
+   Les valeurs vivent dans design/_themes.json, avec les maquettes. */
+
+:root {
+  color-scheme: dark light;
+  --fond: #14190f;
+  --feuille: #191f13;
+  --tuile: #212a19;
+  --carte: #1d2418;
+  --voile: rgba(20,25,15,.9);
+  --trait: #2f3d24;
+  --trait-vif: #607a4a;
+  --rail: #607a4a;
+  --voie: #4d5f3e;
+  --grille: #36422c;
+  --texte: #e9ead9;
+  --texte-doux: #a9b096;
+  --texte-gris: #8d9678;
+  --accent: #a8c98a;
+  --sur-accent: #14190f;
+  --accent-vif: #c5e0a8;
+  --alerte: #c9a35e;
+  --ombre-feuille: 0 -16px 32px rgba(0,0,0,.45);
+  --ombre-poignee: 0 2px 8px rgba(0,0,0,.5);
+  --trace-fond: rgba(168,201,138,.12);
+  --carte-vegetation: #1f2a17;
+  --carte-eau: #1a2430;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='sombre']) {
+    --fond: #f1efe7;
+    --feuille: #fbfaf6;
+    --tuile: #e7e4d9;
+    --carte: #eae7dc;
+    --voile: rgba(251,250,246,.92);
+    --trait: #d9d5c6;
+    --trait-vif: #74845d;
+    --rail: #828d6d;
+    --voie: #bfc6ae;
+    --grille: #dcd9cb;
+    --texte: #1c2116;
+    --texte-doux: #474e3c;
+    --texte-gris: #5e6650;
+    --accent: #45662c;
+    --sur-accent: #f6f8f2;
+    --accent-vif: #2c401d;
+    --alerte: #7d520c;
+    --ombre-feuille: 0 -16px 32px rgba(28,33,22,.16);
+    --ombre-poignee: 0 2px 8px rgba(28,33,22,.28);
+    --trace-fond: rgba(69,102,44,.14);
+    --carte-vegetation: #e3e8d3;
+    --carte-eau: #dce4ea;
+  }
+}
+
+:root[data-theme='clair'] {
+  --fond: #f1efe7;
+  --feuille: #fbfaf6;
+  --tuile: #e7e4d9;
+  --carte: #eae7dc;
+  --voile: rgba(251,250,246,.92);
+  --trait: #d9d5c6;
+  --trait-vif: #74845d;
+  --rail: #828d6d;
+  --voie: #bfc6ae;
+  --grille: #dcd9cb;
+  --texte: #1c2116;
+  --texte-doux: #474e3c;
+  --texte-gris: #5e6650;
+  --accent: #45662c;
+  --sur-accent: #f6f8f2;
+  --accent-vif: #2c401d;
+  --alerte: #7d520c;
+  --ombre-feuille: 0 -16px 32px rgba(28,33,22,.16);
+  --ombre-poignee: 0 2px 8px rgba(28,33,22,.28);
+  --trace-fond: rgba(69,102,44,.14);
+  --carte-vegetation: #e3e8d3;
+  --carte-eau: #dce4ea;
+}

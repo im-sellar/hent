@@ -140,6 +140,69 @@ principale par nœud) : la version de format passe à **2**. Un artefact
 construit avant cette revue est refusé au démarrage plutôt que mal
 interprété — il faut relancer `graphbuild`.
 
+## Revue finale de branche du front (15 septembre 2026)
+
+Le socle du front a été bâti en huit tâches, chacune relue séparément. Une revue
+finale a ensuite porté sur les 23 commits d'un coup, et a trouvé deux blocages
+fonctionnels complets qu'aucune revue unitaire ne pouvait voir : ils naissent de
+la rencontre entre deux tâches justes séparément. Le verdict complet et le
+rapport de correction vivent dans
+`.superpowers/sdd/2026-09-15-front-socle-plan/` (locaux, non versionnés).
+
+**C1 (Critical) — l'écran de détail ne s'affichait jamais par lien partagé.**
+L'effet de `/b/<id>` lisait l'état de la recherche en tête et l'écrivait par
+`poser()` dans son `.then` : il s'invalidait lui-même, Svelte planifiait le
+flush avant que le `.finally` chaîné ne soit dépilé, et le teardown posait
+`annulee = true` à temps pour que la garde avale le `chargement = false`. La
+ré-exécution sortait par la branche « boucle connue » sans jamais retoucher
+`chargement`, et le template affiche `{#if chargement}` en premier : la boucle,
+ses jauges et le bouton GPX ne s'affichaient jamais. Le chemin liste → détail
+n'était pas touché, ce qui rendait le défaut invisible en usage nominal et
+systématique sur tout rechargement — c'est-à-dire exactement ce que le repli
+`200.html` et le `try_files` du Caddyfile servent à permettre. Corrigé en
+sortant la lecture de l'état du graphe de dépendances : un effet ne dépend pas
+de ce qu'il écrit.
+
+**C2 (Critical) — « hors zone » sur l'écran de réglage était un cul-de-sac.**
+Un départ hors Bretagne rend un 400, traduit en `HorsZone`. L'écran remplaçait
+alors son bouton par un panneau dont la seule issue était un lien vers la page
+où l'on se trouvait déjà, et l'état de la recherche étant un singleton de
+module, le bouton « Tracer ma boucle » ne revenait jamais : seul un rechargement
+complet débloquait. Corrigé côté écran plutôt que côté panneau — modifier une
+coordonnée efface l'erreur et rend l'écran utilisable, ce qui est le modèle
+mental réel. Un point hors zone n'offre désormais aucun bouton quand il n'y a
+nulle part où aller : « Réessayer » y renverrait les mêmes coordonnées au même
+serveur.
+
+**I4 (Important) — la cause systémique : aucun test ne pouvait couvrir un
+`$effect`.** `environment: 'node'` faisait compiler tout `.svelte.ts` en mode
+serveur, où `$effect` est un no-op. Les cinquante lignes les plus denses de la
+branche n'avaient aucune couverture possible, et c'est par là que C1 est passé
+sous huit revues. `$state` seul fonctionnant en mode serveur, les tests de la
+machine à états étaient verts et rassurants. Corrigé par deux projets Vitest,
+client (jsdom) et serveur, ce qui a permis d'écrire le test de régression de C1.
+
+**I1 et I5 — la validation du départ était décorative et muette.** `tracer()`
+ne consultait pas `estCoordValide`, testée cinq fois pour un résultat que
+personne ne lisait ; une latitude à 500 partait au serveur. Le message d'erreur
+était un `<p>` nu, sans région live ni `aria-invalid`. Le bouton reste actif et
+refuse en annonçant la raison : un bouton désactivé n'est pas focusable et
+n'annonce pas pourquoi il l'est.
+
+**I2 et I3 — des gardes que rien ne tenait.** Quatre mutations survivaient dans
+la machine à états, dont les deux lignes qui étaient tout le contenu du commit
+censé les poser. Et le gardien d'architecture ne couvrait pas `src/routes/` —
+512 des 737 lignes d'interface — pendant qu'il gardait les 225 lignes de
+`lib/ui/` ; ses imports à effet de bord et dynamiques lui échappaient aussi.
+Les écrans sont désormais gardés sous la même règle que les composants.
+
+**Ce que la revue a cherché sans le trouver**, et qui vaut d'être noté : aucune
+incohérence de contrat entre le front et l'API Go — noms de champs, formes
+imbriquées, ordre `[lon, lat]`, bornes — aucune interversion de champs de même
+type dans le client HTTP, où les six mutations injectées sont toutes attrapées,
+aucun `outline: none` nulle part, et la palette tient le RGAA AA sur douze
+paires mesurées sur treize.
+
 ## Performance mesurée
 
 Boucle de 18 km depuis Rennes (`48.1173 / -1.6778`), `avoid_paved` 0.8 :
@@ -355,28 +418,48 @@ jamais. Ils sont ici pour ne pas être redécouverts comme des défauts.
 ### Par où commencer
 
 L'étape 1 est **complète et revue**, et l'architecture a été durcie depuis (voir
-plus haut). Trois chantiers restent ouverts.
+plus haut). Deux chantiers restent ouverts.
 
-**Le front**, dont la conception est faite : six écrans dessinés en deux thèmes,
-système de design conforme RGAA AA, styles de carte générés. La pile est arrêtée
-(plus haut). Ce qui manque est la spec d'implémentation, puis le code. C'est le
-chantier qui donne au projet son premier usage réel.
+**Le front, premier jet.** Le socle est livré : quatre dossiers gardés par un
+test d'imports — `domaine`, `app`, `ui` et les écrans de `routes/` —, le client
+de l'API avec ses six variantes d'erreur, les préférences persistées, et la
+machine à états de la recherche. Quatre écrans
+fonctionnent — accueil, réglage, résultats, détail — et la chaîne va jusqu'au
+téléchargement du GPX. Le point de départ se saisit encore en coordonnées
+brutes : la carte, la géolocalisation et la recherche d'adresse font l'objet du
+plan suivant, et le champ provisoire le dit à l'écran.
 
-**Le déploiement**, §12 de `docs/design.md` : unité systemd, `Caddyfile`
-d'exemple, cible de build reproductible, `/healthz` distinguant « prêt » de
-« graphe chargé mais incohérent », sémaphore de générations concurrentes,
-`recover()` autour de la génération, `IdleTimeout`, et un lien vers le dépôt
-dans `/v1/regions` et le README pour clore l'engagement ODbL. Le budget mémoire
-qui figurait ici est désormais mesuré : 593 Mo de RSS, 15,2 s de démarrage, donc
-un VPS de 2 Go au minimum. Reste la latence — 738 ms médian contre 500 visés.
+La branche a été revue dans son ensemble et les deux blocages trouvés sont
+corrigés (voir la revue finale du front, plus haut). Une re-revue du
+16 septembre 2026 a refait les mutations sur le code corrigé : verdict
+fusionnable, aucun blocage, aucun point important. Elle a relevé neuf constats
+mineurs — sept trous de couverture, dont les deux protections de
+`reinitialiser()`, devenu vivant avec la correction de l'écran de réglage, et
+trois phrases de documentation fausses réparties sur deux fichiers —, corrigés
+dans la foulée. La branche `worktree-front-socle` n'est pas fusionnée.
+
+Se bâtit par `make web`, se sert en copiant `web/build/` vers `/srv/hent/web`.
+`deploy/Caddyfile` donne la configuration : l'API en proxy sur `/v1/*`, le reste
+en repli vers `200.html` — sans quoi recharger `/b/<id>` donnerait un 404.
+
+**Le déploiement**, §12 de `docs/design.md` : unité systemd, `/healthz`
+distinguant « prêt » de « graphe chargé mais incohérent », sémaphore de
+générations concurrentes, `recover()` autour de la génération, `IdleTimeout`,
+et un lien vers le dépôt dans `/v1/regions` et le README pour clore
+l'engagement ODbL. Le budget mémoire qui figurait ici est désormais mesuré :
+593 Mo de RSS, 15,2 s de démarrage, donc un VPS de 2 Go au minimum. Reste la
+latence — 738 ms médian contre 500 visés.
 
 ### Où vivent les documents
 
 | Quoi | Où | Suit-il la machine ? |
 |---|---|---|
-| Conception | `docs/design.md` | oui, dans le dépôt |
+| Conception du moteur | `docs/design.md` | oui, dans le dépôt |
+| Conception du front | `docs/front-web.md` | oui, dans le dépôt |
 | Cet état des lieux | `docs/etat-des-lieux.md` | oui, dans le dépôt |
-| Plan d'implémentation | `docs/plan-etape-1.md` | oui, dans le dépôt |
+| Plan d'implémentation, étape 1 | `docs/plan-etape-1.md` | oui, dans le dépôt |
+| Plan du socle front | `docs/plan-front-socle.md` | oui, dans le dépôt |
+| Durcissement de l'architecture | `docs/clean-archi-back.md` | oui, dans le dépôt |
 | Journal d'exécution et décisions | `docs/journal-execution.md` | oui, dans le dépôt |
 | Revue finale de branche | `docs/revue-finale.md` | oui, dans le dépôt |
 | Briefs, rapports, revues détaillés | `.superpowers/sdd/` | **non**, ignoré par git |
@@ -496,3 +579,23 @@ Relevés en revue, non bloquants, à balayer avant de passer aux étapes suivant
 - `cmd/routed/main.go` — ni `ReadTimeout` ni `IdleTimeout` ; le chargement du
   graphe Bretagne prend une vingtaine de secondes avant que le port n'écoute,
   à documenter pour la procédure de mise à jour par `rsync` + redémarrage.
+- `internal/adapter/httpapi/handler.go` — le 400 est rendu pour six causes
+  distinctes, que le front ne peut pas distinguer et traduit toutes en « hors
+  zone ». Un identifiant de boucle tronqué affiche donc « ce point est en dehors
+  de la Bretagne ». Le défaut est dans la taxonomie d'erreurs de l'API, pas dans
+  le front.
+- `web/src/lib/ui/Jauge.svelte` — la piste de la jauge est à 1,54:1 sur le fond
+  en sombre et 1,28:1 en clair, pour un seuil RGAA de 3:1. La valeur est aussi
+  donnée en texte juste au-dessus, ce qui rend l'application stricte du critère
+  discutable : c'est un arbitrage de design à trancher, pas une correction.
+- `web/src/lib/assemblage.svelte.ts` — `changerTheme` et `theme` n'ont aucun
+  appelant : le sélecteur de thème est du plan suivant, alors que `jetons.css`
+  gère déjà les trois états.
+- `web/src/routes/reglage/+page.svelte` — la reprise de focus après une erreur
+  vise une région live, ce qui peut provoquer une double annonce chez certains
+  lecteurs d'écran. Ne se mesure qu'avec un vrai lecteur d'écran.
+- Le `<h1>` des états d'attente et d'erreur de `/b/<id>` n'a jamais été vu dans
+  un navigateur : il dépend d'un `$effect` qui ne s'exécute qu'après hydratation,
+  invisible en rendu serveur.
+- `deploy/Caddyfile` n'a jamais été validé par Caddy lui-même — il n'est pas
+  installé sur la machine de développement.

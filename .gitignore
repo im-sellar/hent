@@ -13,3 +13,8 @@ data/
 
 # Canevas assemblé : 2,7 Mo de moteur d'édition, reconstruit par seed-canvas.mjs
 design/hent-directions.html
+
+# Dépendances et sorties de build du front
+web/node_modules/
+web/build/
+web/.svelte-kit/
