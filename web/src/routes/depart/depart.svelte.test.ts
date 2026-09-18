@@ -14,18 +14,7 @@ const faux = vi.hoisted(() => ({
   nommer: vi.fn(),
   obtenir: vi.fn(),
   poserDepart: vi.fn(),
-  depart: null as { coord: Coord; libelle: string } | null,
-  carte: null as null | {
-    centrer: ReturnType<typeof vi.fn>;
-    afficherBoucles: ReturnType<typeof vi.fn>;
-    marquerDepart: ReturnType<typeof vi.fn>;
-    montrerZone: ReturnType<typeof vi.fn>;
-    surDeplacement: ReturnType<typeof vi.fn>;
-    changerStyle: ReturnType<typeof vi.fn>;
-    redimensionner: ReturnType<typeof vi.fn>;
-    detruire: ReturnType<typeof vi.fn>;
-    deplacer: (c: Coord) => void;
-  }
+  depart: null as { coord: Coord; libelle: string } | null
 }));
 
 /** Une carte doublée dont le test déclenche lui-même les fins de déplacement. */
@@ -48,6 +37,12 @@ function fausseCarte() {
     deplacer: (c: Coord) => rappel?.(c)
   };
 }
+
+/**
+ * La carte de l'assemblage doublé, réactive : l'écran s'y câble par un effet,
+ * donc les tests doivent pouvoir la faire apparaître après le rendu.
+ */
+let carteDouble = $state<ReturnType<typeof fausseCarte> | null>(null);
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 
@@ -73,7 +68,7 @@ vi.mock('$lib/assemblage.svelte', async () => {
       resultats: creerResultats(moteur),
       zone: () => moteur.zone(),
       get carte() {
-        return faux.carte as unknown as Carte | null;
+        return carteDouble as unknown as Carte | null;
       },
       get depart() {
         return faux.depart;
@@ -99,7 +94,7 @@ beforeEach(() => {
   faux.obtenir.mockReset();
   faux.poserDepart.mockReset();
   faux.depart = null;
-  faux.carte = fausseCarte();
+  carteDouble = fausseCarte();
   vi.mocked(goto).mockClear();
   appEtat.recherche.effacer();
   appEtat.resultats.reinitialiser();
@@ -111,15 +106,35 @@ describe('écran de départ', () => {
   it('centre la carte sur la Bretagne sans départ connu, sur le départ sinon', async () => {
     render(Depart);
     await retomber();
-    expect(faux.carte!.centrer).toHaveBeenCalledWith({ lat: 48.2, lon: -2.9 }, 7);
+    expect(carteDouble!.centrer).toHaveBeenCalledWith({ lat: 48.2, lon: -2.9 }, 7);
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Partir d’où ?');
 
-    faux.carte = fausseCarte();
+    carteDouble = fausseCarte();
     faux.depart = { coord: { lat: 48.117, lon: -1.677 }, libelle: 'Rennes' };
     render(Depart);
     await retomber();
-    expect(faux.carte!.centrer).toHaveBeenCalledWith({ lat: 48.117, lon: -1.677 }, 14);
+    expect(carteDouble!.centrer).toHaveBeenCalledWith({ lat: 48.117, lon: -1.677 }, 14);
     expect(screen.getByText('Rennes')).toBeDefined();
+  });
+
+  it('câble la carte quand elle apparaît après le montage', async () => {
+    carteDouble = null;
+    render(Depart);
+    await retomber();
+
+    const carte = fausseCarte();
+    carteDouble = carte;
+    await tick();
+
+    expect(carte.centrer).toHaveBeenCalledWith({ lat: 48.2, lon: -2.9 }, 7);
+    expect(carte.surDeplacement).toHaveBeenCalledOnce();
+  });
+
+  it('efface les tracés d’une recherche précédente à l’arrivée', async () => {
+    render(Depart);
+    await retomber();
+
+    expect(carteDouble!.afficherBoucles).toHaveBeenCalledWith([], null);
   });
 
   it('nomme le centre à la fin d’un déplacement, jamais pendant la frappe', async () => {
@@ -127,7 +142,7 @@ describe('écran de départ', () => {
     await retomber();
     faux.nommer.mockClear();
 
-    faux.carte!.deplacer({ lat: 48.117, lon: -1.677 });
+    carteDouble!.deplacer({ lat: 48.117, lon: -1.677 });
     await retomber();
 
     expect(faux.nommer).toHaveBeenCalledWith({ lat: 48.117, lon: -1.677 }, expect.anything());
@@ -142,8 +157,8 @@ describe('écran de départ', () => {
     render(Depart);
     await retomber();
 
-    faux.carte!.deplacer({ lat: 48.1, lon: -1.7 });
-    faux.carte!.deplacer({ lat: 48.03, lon: -1.75 });
+    carteDouble!.deplacer({ lat: 48.1, lon: -1.7 });
+    carteDouble!.deplacer({ lat: 48.03, lon: -1.75 });
     await retomber();
     repondreLent('Ailleurs');
     await retomber();
@@ -179,11 +194,11 @@ describe('écran de départ', () => {
     await fireEvent.click(screen.getByRole('button', { name: /Bruz/ }));
     await retomber();
 
-    expect(faux.carte!.centrer).toHaveBeenLastCalledWith(bruz.coord, 14);
+    expect(carteDouble!.centrer).toHaveBeenLastCalledWith(bruz.coord, 14);
     expect(screen.getByRole('status').textContent).toContain('Bruz');
     expect(screen.queryByRole('button', { name: /Bruz/ })).toBeNull();
 
-    faux.carte!.deplacer(bruz.coord);
+    carteDouble!.deplacer(bruz.coord);
     await retomber();
     expect(faux.nommer).not.toHaveBeenCalled();
   });
@@ -212,7 +227,7 @@ describe('écran de départ', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Autour de moi' }));
     await retomber();
 
-    expect(faux.carte!.centrer).toHaveBeenLastCalledWith({ lat: 48.117, lon: -1.677 }, 14);
+    expect(carteDouble!.centrer).toHaveBeenLastCalledWith({ lat: 48.117, lon: -1.677 }, 14);
     expect(faux.nommer).toHaveBeenCalledWith({ lat: 48.117, lon: -1.677 }, expect.anything());
   });
 
@@ -248,7 +263,7 @@ describe('écran de départ', () => {
     render(Depart);
     await retomber();
     appEtat.resultats.poser([], { depart: { lat: 48, lon: -2 }, distanceM: 1, eviterBitume: 0, maxResultats: 1, variante: 0 });
-    faux.carte!.deplacer({ lat: 48.117, lon: -1.677 });
+    carteDouble!.deplacer({ lat: 48.117, lon: -1.677 });
     await retomber();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Partir d’ici' }));
@@ -262,10 +277,10 @@ describe('écran de départ', () => {
     render(Depart);
     await retomber();
 
-    faux.carte!.deplacer({ lat: 49.5, lon: 2.3 });
+    carteDouble!.deplacer({ lat: 49.5, lon: 2.3 });
     await retomber();
 
-    expect(faux.carte!.montrerZone).toHaveBeenLastCalledWith(bretagne);
+    expect(carteDouble!.montrerZone).toHaveBeenLastCalledWith(bretagne);
     await fireEvent.click(screen.getByRole('button', { name: 'Partir d’ici' }));
     expect(faux.poserDepart).not.toHaveBeenCalled();
     expect(goto).not.toHaveBeenCalled();
@@ -273,9 +288,9 @@ describe('écran de départ', () => {
     expect(avertissement.getAttribute('role')).toBe('alert');
     expect(document.activeElement).toBe(avertissement);
 
-    faux.carte!.deplacer({ lat: 48.117, lon: -1.677 });
+    carteDouble!.deplacer({ lat: 48.117, lon: -1.677 });
     await retomber();
-    expect(faux.carte!.montrerZone).toHaveBeenLastCalledWith(null);
+    expect(carteDouble!.montrerZone).toHaveBeenLastCalledWith(null);
   });
 
   it('nomme le centre par ses coordonnées quand le géocodage inverse ne rend rien', async () => {
@@ -283,14 +298,14 @@ describe('écran de départ', () => {
     render(Depart);
     await retomber();
 
-    faux.carte!.deplacer({ lat: 48.117, lon: -1.677 });
+    carteDouble!.deplacer({ lat: 48.117, lon: -1.677 });
     await retomber();
 
     expect(screen.getByRole('status').textContent).toContain('48,1170, -1,6770');
   });
 
   it('sans carte, l’écran reste utilisable par la recherche et la position', async () => {
-    faux.carte = null;
+    carteDouble = null;
     faux.obtenir.mockResolvedValue({ statut: 'ok', coord: { lat: 48.117, lon: -1.677 } });
     render(Depart);
     await retomber();
@@ -303,22 +318,34 @@ describe('écran de départ', () => {
     expect(faux.poserDepart).toHaveBeenCalledWith({ coord: { lat: 48.117, lon: -1.677 }, libelle: '2 Rue Lesage 35000 Rennes' });
   });
 
+  it('retire la zone couverte quand on quitte l’écran', async () => {
+    const { unmount } = render(Depart);
+    await retomber();
+    carteDouble!.deplacer({ lat: 49.5, lon: 2.3 });
+    await retomber();
+    expect(carteDouble!.montrerZone).toHaveBeenLastCalledWith(bretagne);
+
+    unmount();
+
+    expect(carteDouble!.montrerZone).toHaveBeenLastCalledWith(null);
+  });
+
   it('se désabonne de la carte et abandonne le nommage en vol au démontage', async () => {
     faux.nommer.mockImplementation((_c: Coord, signal?: AbortSignal) => new Promise<string>((_r, rej) => signal?.addEventListener('abort', () => rej(new DOMException('annulé', 'AbortError')))));
     const { unmount } = render(Depart);
     await retomber();
-    faux.carte!.deplacer({ lat: 48.117, lon: -1.677 });
+    carteDouble!.deplacer({ lat: 48.117, lon: -1.677 });
     const signal = faux.nommer.mock.calls[0]![1] as AbortSignal;
 
     unmount();
 
     expect(signal.aborted).toBe(true);
-    faux.carte!.deplacer({ lat: 48.2, lon: -1.6 });
+    carteDouble!.deplacer({ lat: 48.2, lon: -1.6 });
     expect(faux.nommer).toHaveBeenCalledTimes(1);
   });
 
   it('abandonne aussi le nommage en vol au démontage quand il n’y a pas de carte', async () => {
-    faux.carte = null;
+    carteDouble = null;
     faux.obtenir.mockResolvedValue({ statut: 'ok', coord: { lat: 48.117, lon: -1.677 } });
     faux.nommer.mockImplementation((_c: Coord, signal?: AbortSignal) => new Promise<string>((_r, rej) => signal?.addEventListener('abort', () => rej(new DOMException('annulé', 'AbortError')))));
     const { unmount } = render(Depart);

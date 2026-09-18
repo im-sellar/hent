@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { onMount, tick, untrack } from 'svelte';
   import { goto } from '$app/navigation';
   import { appEtat } from '$lib/assemblage.svelte';
   import { nommerPoint } from '$lib/app/depart/poser';
@@ -61,23 +61,28 @@
   onMount(() => {
     appEtat.zone().then((z) => (zone = z)).catch(() => undefined);
     if (!libelle) libelle = libelleParDefaut(centre);
+    return () => nommageEnCours?.abort();
+  });
 
+  // Le layout crée la carte dans son propre onMount, qui s'exécute après celui
+  // de cette page : le câblage doit donc attendre qu'elle existe, et se refaire
+  // si elle apparaît plus tard.
+  $effect(() => {
     const carte = appEtat.carte;
-    let arreter: (() => void) | null = null;
-    if (carte) {
-      carte.marquerDepart(null);
-      aller(centre, appEtat.depart ? 14 : 7);
-      arreter = carte.surDeplacement((c) => {
-        const commandee = commande !== null && memePoint(c, commande);
-        commande = null;
-        if (commandee) return;
-        centre = c;
-        void nommer(c);
-      });
-    }
+    if (!carte) return;
+    carte.afficherBoucles([], null);
+    carte.marquerDepart(null);
+    untrack(() => aller(centre, appEtat.depart ? 14 : 7));
+    const arreter = carte.surDeplacement((c) => {
+      const commandee = commande !== null && memePoint(c, commande);
+      commande = null;
+      if (commandee) return;
+      centre = c;
+      void nommer(c);
+    });
     return () => {
-      arreter?.();
-      nommageEnCours?.abort();
+      arreter();
+      carte.montrerZone(null);
     };
   });
 
