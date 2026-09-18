@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDistance, formatDuree, formatEcartCible, formatPourcent } from './format';
+import { formatDistance, formatDuree, formatEcartCible, formatKilometres, formatPourcent } from './format';
 
 describe('formatDistance', () => {
   it('rend des kilomètres avec une décimale et une virgule', () => {
@@ -109,5 +109,17 @@ describe('formatEcartCible', () => {
     // 17 600 arrondit à 18, pas à 17 : un test qui tronquerait la distance
     // obtenue au lieu de l'arrondir la confondrait avec la demande à tort.
     expect(formatEcartCible(18_000, 17_600)).toBe('');
+  });
+});
+
+describe('formatKilometres', () => {
+  it('arrondit au kilomètre entier', () => {
+    expect(formatKilometres(18_000)).toBe('18 km');
+    expect(formatKilometres(17_400)).toBe('17 km');
+    expect(formatKilometres(17_500)).toBe('18 km');
+  });
+
+  it('rend un tiret pour une valeur non finie plutôt qu’un « NaN km »', () => {
+    expect(formatKilometres(NaN)).toBe('— km');
   });
 });

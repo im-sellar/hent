@@ -7,7 +7,8 @@ distincte de `routier_route` — la distinction même que fait hent. Le style ne
 dessine donc pas une carte générique assombrie : il hiérarchise le chemin
 au-dessus de la route, à l'inverse d'un fond routier ordinaire.
 
-Sortie : carte/hent-<theme>.json. Le tracé de la boucle n'est pas ici — il est
+Sortie : carte/hent-<theme>.json, et la même chose dans web/static/carte/
+pour que le front la serve. Le tracé de la boucle n'est pas ici — il est
 ajouté par l'application comme source GeoJSON par-dessus ce fond.
 """
 from __future__ import annotations
@@ -20,6 +21,10 @@ GLYPHES = f"{BASE}/annexes/ressources/vectorTiles/fonts/{{fontstack}}/{{range}}.
 METADONNEES = f"{BASE}/tms/1.0.0/PLAN.IGN/metadata.json"
 ATTRIBUTION = '<a href="https://geoservices.ign.fr/">© IGN</a>'
 POLICE = ["Open Sans Regular"]
+SORTIES = [
+    pathlib.Path(__file__).parent / "carte",
+    pathlib.Path(__file__).parent.parent / "web" / "static" / "carte",
+]
 
 
 def palier(*couples):
@@ -96,15 +101,16 @@ def main() -> int:
     themes = json.loads(pathlib.Path("_themes.json").read_text())
     servies = couches_servies()
     manquantes: set[str] = set()
-    dossier = pathlib.Path("carte"); dossier.mkdir(exist_ok=True)
 
     for nom, t in themes.items():
         s = style(nom, t)
         if servies is not None:
             manquantes |= {c["source-layer"] for c in s["layers"] if "source-layer" in c} - servies
-        chemin = dossier / f"hent-{nom}.json"
-        chemin.write_text(json.dumps(s, ensure_ascii=False, indent=2) + "\n")
-        print(f"  {chemin} — {len(s['layers'])} couches")
+        texte = json.dumps(s, ensure_ascii=False, indent=2) + "\n"
+        for dossier in SORTIES:
+            dossier.mkdir(parents=True, exist_ok=True)
+            (dossier / f"hent-{nom}.json").write_text(texte)
+        print(f"  hent-{nom}.json — {len(s['layers'])} couches, écrit dans {len(SORTIES)} dossiers")
 
     if manquantes:
         print(f"ERREUR : couches absentes du jeu de tuiles : {sorted(manquantes)}", file=sys.stderr)

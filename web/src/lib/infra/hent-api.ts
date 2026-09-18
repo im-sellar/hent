@@ -1,5 +1,6 @@
 import type { Boucle, Demande, Score } from '$lib/domaine/boucle';
 import type { GenreErreur, MoteurDeBoucles } from '$lib/app/ports';
+import type { Zone } from '$lib/domaine/zone';
 
 /** Erreur du moteur, portant le genre qui décide de l'écran à montrer. */
 export class ErreurAPI extends Error {
@@ -23,6 +24,8 @@ type ScoreJSON = {
 };
 
 type BoucleJSON = { id: string; score: ScoreJSON; geometry: [number, number][] };
+
+type RegionsJSON = { bbox: { min_lat: number; min_lon: number; max_lat: number; max_lon: number } };
 
 type DemandeJSON = {
   start: { lat: number; lon: number };
@@ -136,6 +139,12 @@ export function creerMoteurHTTP(fetchImpl: typeof fetch = globalThis.fetch): Mot
 
     urlGPX(id) {
       return `/v1/loops/${encodeURIComponent(id)}.gpx`;
+    },
+
+    async zone(signal) {
+      const reponse = await appeler(fetchImpl, '/v1/regions', { signal });
+      const { bbox } = (await reponse.json()) as RegionsJSON;
+      return { minLat: bbox.min_lat, minLon: bbox.min_lon, maxLat: bbox.max_lat, maxLon: bbox.max_lon };
     }
   };
 }

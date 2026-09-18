@@ -2,67 +2,40 @@
   import { goto } from '$app/navigation';
   import { appEtat } from '$lib/assemblage.svelte';
   import { DISTANCE_MAX_M, DISTANCE_MIN_M } from '$lib/domaine/reglages';
-  import { estCoordValide, estLatValide, estLonValide } from '$lib/domaine/depart';
   import { formatDistance } from '$lib/domaine/format';
   import Bouton from '$lib/ui/Bouton.svelte';
   import Curseur from '$lib/ui/Curseur.svelte';
   import EtatEcran from '$lib/ui/EtatEcran.svelte';
+  import SelecteurTheme from '$lib/ui/SelecteurTheme.svelte';
 
-  // Saisie provisoire du départ, en attendant la carte et la recherche
-  // d'adresse : elle existe pour que la chaîne soit utilisable de bout en bout
-  // dès maintenant.
-  let lat = $state(48.117);
-  let lon = $state(-1.677);
-
-  let champLat: HTMLInputElement | null = $state(null);
-  let champLon: HTMLInputElement | null = $state(null);
   // Le bouton qui vient d'être activé est remplacé par l'état de recherche :
   // sans reprise, le focus retombe sur le document.
   let focusApresAction = $state(false);
 
   const etat = $derived(appEtat.resultats.etat());
-  const coordValide = $derived(estCoordValide({ lat, lon }));
-  const latValide = $derived(estLatValide(lat));
-  const lonValide = $derived(estLonValide(lon));
 
   const motsBitume = ['jamais', 'un peu', 'moyennement', 'beaucoup', 'autant que possible'];
   const motBitume = $derived(
     motsBitume[Math.min(motsBitume.length - 1, Math.floor(appEtat.reglages.eviterBitume * motsBitume.length))]!
   );
 
-  /**
-   * Lance la recherche, ou refuse et renvoie au champ fautif.
-   *
-   * Le bouton reste actif plutôt que désactivé : un bouton désactivé n'est pas
-   * focusable et n'annonce pas pourquoi il l'est. Le refus déplace le focus sur
-   * le champ hors bornes, que son `aria-invalid` et sa description signalent.
-   */
+  // Régler sans départ n'a pas de sens : la personne est renvoyée là où il se pose.
+  $effect(() => {
+    if (!appEtat.depart) void goto('/depart');
+  });
+
   async function tracer() {
-    if (!coordValide) {
-      (latValide ? champLon : champLat)?.focus();
-      return;
-    }
+    const depart = appEtat.depart;
+    if (!depart) return;
     focusApresAction = true;
-    appEtat.poserDepart({ coord: { lat, lon }, libelle: `${lat.toFixed(4)}, ${lon.toFixed(4)}` });
     await appEtat.resultats.lancer({
-      depart: { lat, lon },
+      depart: depart.coord,
       distanceM: appEtat.reglages.distanceM,
       eviterBitume: appEtat.reglages.eviterBitume,
       maxResultats: 5,
       variante: 0
     });
     if (appEtat.resultats.etat().statut === 'ok') await goto('/boucles');
-  }
-
-  /**
-   * Efface une erreur de recherche dès que le départ change.
-   *
-   * L'état des résultats est partagé par toute l'application : sans cela, un
-   * départ hors zone y laisse une erreur que rien sur cet écran ne lève, et le
-   * bouton « Tracer ma boucle » ne revient qu'au rechargement de la page.
-   */
-  function departModifie() {
-    if (appEtat.resultats.etat().statut === 'erreur') appEtat.resultats.reinitialiser();
   }
 
   function assouplir() {
@@ -75,6 +48,12 @@
 
 <main>
   <h1>Ta boucle</h1>
+
+  <section class="depart" aria-labelledby="depart-titre">
+    <h2 id="depart-titre">Départ</h2>
+    <p class="libelle">{appEtat.depart?.libelle ?? ''}</p>
+    <a class="changer" href="/depart">Changer</a>
+  </section>
 
   <Curseur
     id="distance"
@@ -98,49 +77,20 @@
     onchange={(v) => appEtat.regler({ ...appEtat.reglages, eviterBitume: v })}
   />
 
-  <fieldset>
-    <legend>Départ</legend>
-    <p class="provisoire">Saisie temporaire : la carte et la recherche d’adresse arrivent ensuite.</p>
-    <label>
-      Latitude
-      <input
-        type="number"
-        step="0.0001"
-        bind:value={lat}
-        bind:this={champLat}
-        aria-invalid={!latValide}
-        aria-describedby="depart-invalide"
-        oninput={departModifie}
-      />
-    </label>
-    <label>
-      Longitude
-      <input
-        type="number"
-        step="0.0001"
-        bind:value={lon}
-        bind:this={champLon}
-        aria-invalid={!lonValide}
-        aria-describedby="depart-invalide"
-        oninput={departModifie}
-      />
-    </label>
-    <!-- La région naît vide et reste montée : une région live créée en même
-         temps que son texte n'est pas annoncée par les lecteurs d'écran. -->
-    <p class="invalide" id="depart-invalide" role="alert">{coordValide ? '' : 'Ces coordonnées ne sont pas valides.'}</p>
-  </fieldset>
-
   <EtatEcran
     enAttente={etat.statut === 'calcul'}
     erreur={etat.statut === 'erreur' ? etat.erreur : undefined}
     onannuler={() => appEtat.resultats.annuler()}
     onreessayer={tracer}
     onassouplir={assouplir}
+    hrefAutreDepart="/depart"
     prendLeFocus={focusApresAction}
   />
   {#if etat.statut !== 'calcul' && etat.statut !== 'erreur'}
     <Bouton onclick={tracer}>Tracer ma boucle</Bouton>
   {/if}
+
+  <SelecteurTheme valeur={appEtat.theme} onchange={(t) => appEtat.changerTheme(t)} />
 </main>
 
 <style>
@@ -153,7 +103,7 @@
     gap: 22px;
     background: var(--fond);
     color: var(--texte);
-    min-height: 100vh;
+    min-height: 100dvh;
   }
   h1 {
     font-family: Spectral, Georgia, serif;
@@ -161,42 +111,36 @@
     font-weight: 600;
     margin: 0;
   }
-  fieldset {
+  .depart {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 12px;
+    padding: 13px;
     border: 1px solid var(--trait);
     border-radius: 4px;
-    padding: 13px;
   }
-  legend {
+  .depart h2 {
+    grid-column: 1 / -1;
+    margin: 0;
     font-size: 0.875rem;
+    font-weight: 400;
     color: var(--texte-gris);
   }
-  label {
-    display: block;
-    margin-top: 9px;
-    font-size: 0.875rem;
-    color: var(--texte-doux);
+  .libelle {
+    margin: 0;
+    font-family: Spectral, Georgia, serif;
+    font-size: 1.1875rem;
   }
-  input[type='number'] {
-    width: 100%;
+  .changer {
+    display: inline-flex;
+    align-items: center;
     min-height: 44px;
-    padding: 0 11px;
-    background: var(--tuile);
-    color: var(--texte);
-    border: 1px solid var(--trait-vif);
-    border-radius: 4px;
-    font: inherit;
+    color: var(--accent);
+    font-size: 0.875rem;
+    text-underline-offset: 3px;
   }
-  input:focus-visible {
+  .changer:focus-visible {
     outline: 2px solid var(--accent-vif);
     outline-offset: 2px;
-  }
-  .provisoire,
-  .invalide {
-    margin: 0;
-    font-size: 0.8125rem;
-    color: var(--texte-gris);
-  }
-  .invalide {
-    color: var(--alerte);
   }
 </style>

@@ -16,7 +16,7 @@
     Dis où tu pars et combien de kilomètres. <em>hent</em> te rend une boucle qui fuit le bitume et
     revient à ton point de départ.
   </p>
-  <Bouton href="/reglage">Tracer ma boucle</Bouton>
+  <Bouton href="/depart">Tracer ma boucle</Bouton>
 
   <section>
     <h2>Ce que fait hent</h2>

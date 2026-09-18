@@ -15,7 +15,7 @@ n'emploient que des `var(--jeton)`, jamais une valeur. Tout le reste en découle
 | `_themes.json` | **La source.** Vingt-deux jetons, deux jeux de valeurs. |
 | `Main`, `Depart`, `DepartRecherche`, `Generateur`, `Boucles`, `Detail` `.dc.html` | Les six écrans, en jetons. Le bloc `:root` y est posé par le script. |
 | `Symbole`, `Fondations`, `Composants`, `Themes`, `Etats` `.dc.html` | Les planches de documentation. |
-| `*Clair.dc.html`, `Themes.dc.html`, `carte/*.json`, `web/src/styles/jetons.css` | **Générés.** Ne pas les modifier à la main : la prochaine génération les écrase. |
+| `*Clair.dc.html`, `Themes.dc.html`, `carte/*.json`, `web/static/carte/*.json`, `web/src/styles/jetons.css` | **Générés.** Ne pas les modifier à la main : la prochaine génération les écrase. |
 | `canvas.json` | Disposition, pages, vue de lancement. |
 | `hent-directions.html` | Le canevas assemblé. Non versionné — il pèse 2,7 Mo et se reconstruit. |
 
@@ -47,7 +47,9 @@ adresse. Version en ligne :
 ## Le fond de carte
 
 `carte/hent-sombre.json` et `carte/hent-clair.json` sont des styles MapLibre GL
-prêts à l'emploi. Ils s'appuient sur les tuiles vectorielles `PLAN.IGN` de la
+prêts à l'emploi. Le générateur en écrit une copie dans `web/static/carte/`,
+servie par le front à `/carte/hent-<theme>.json` ; un test garde les deux
+copies identiques. Ils s'appuient sur les tuiles vectorielles `PLAN.IGN` de la
 Géoplateforme — sans clé ni quota — et posent le chemin **au-dessus** de la
 route, plus épais qu'elle : c'est l'inverse d'un fond routier, et c'est ce que
 trie hent. Le tracé de la boucle n'y figure pas : l'application l'ajoute en

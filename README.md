@@ -16,6 +16,9 @@ make dev     # le front, qui relaie /v1 vers l'API — dans un second terminal
 make test    # la suite Go, puis celle du front
 ```
 
+La carte et la recherche d'adresse appellent `data.geopf.fr` et
+`api-adresse.data.gouv.fr` : `make dev` a besoin du réseau, `make test` non.
+
 ## Licence des données
 
 Données © les contributeurs OpenStreetMap, sous licence

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { creerPreferences } from './stockage';
 import { REGLAGES_PAR_DEFAUT } from '$lib/domaine/reglages';
@@ -67,5 +68,42 @@ describe('creerPreferences', () => {
     // Le rendu côté serveur n'a pas de localStorage : `lire` doit y répondre
     // comme à un stockage vide.
     expect(creerPreferences(null).lire()).toBeNull();
+  });
+});
+
+describe('thème', () => {
+  it('relit le thème écrit', () => {
+    const prefs = creerPreferences(stockageMemoire());
+    prefs.ecrireTheme('clair');
+    expect(prefs.lireTheme()).toBe('clair');
+  });
+
+  it('rend null sans thème, sur une valeur inconnue et sur un stockage qui lève', () => {
+    expect(creerPreferences(stockageMemoire()).lireTheme()).toBeNull();
+    expect(creerPreferences(stockageMemoire({ 'hent.theme': 'nuit' })).lireTheme()).toBeNull();
+    expect(creerPreferences(stockageQuiLeve()).lireTheme()).toBeNull();
+  });
+
+  it('range le thème à part des réglages', () => {
+    const stockage = stockageMemoire();
+    const prefs = creerPreferences(stockage);
+    prefs.ecrireTheme('sombre');
+    prefs.ecrire(REGLAGES_PAR_DEFAUT);
+    expect(prefs.lireTheme()).toBe('sombre');
+    expect(prefs.lire()).toEqual(REGLAGES_PAR_DEFAUT);
+  });
+
+  it('n’échoue pas quand l’écriture est refusée', () => {
+    expect(() => creerPreferences(stockageQuiLeve()).ecrireTheme('clair')).not.toThrow();
+  });
+});
+
+describe('app.html', () => {
+  it('pose le thème retenu avant le premier rendu, avec la même clé que le stockage', () => {
+    const html = readFileSync(new URL('../../app.html', import.meta.url), 'utf8');
+    expect(html).toContain("localStorage.getItem('hent.theme')");
+    expect(html).toContain("'sombre'");
+    expect(html).toContain("'clair'");
+    expect(html.indexOf('hent.theme')).toBeLessThan(html.indexOf('%sveltekit.head%'));
   });
 });

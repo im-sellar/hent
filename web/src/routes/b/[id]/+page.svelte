@@ -8,6 +8,7 @@
   import type { ErreurMoteur } from '$lib/app/ports';
   import Bouton from '$lib/ui/Bouton.svelte';
   import EtatEcran from '$lib/ui/EtatEcran.svelte';
+  import Feuille from '$lib/ui/Feuille.svelte';
   import Jauge from '$lib/ui/Jauge.svelte';
 
   const id = $derived(page.params.id ?? '');
@@ -92,11 +93,18 @@
   }
 
   const ecart = $derived(boucle && demande ? formatEcartCible(demande.distanceM, boucle.score.distanceM) : '');
+
+  $effect(() => {
+    const carte = appEtat.carte;
+    if (!carte || !boucle) return;
+    carte.afficherBoucles([boucle], boucle.id);
+    carte.marquerDepart(demande?.depart ?? null);
+  });
 </script>
 
 <svelte:head><title>Une boucle — hent</title></svelte:head>
 
-<main>
+<Feuille>
   <a class="retour" href="/boucles">← Les boucles</a>
 
   {#if !chargement && !erreur && boucle}
@@ -137,20 +145,9 @@
     hrefAutreDepart="/reglage"
     prendLeFocus={focusApresAction}
   />
-</main>
+</Feuille>
 
 <style>
-  main {
-    max-width: 390px;
-    margin: 0 auto;
-    padding: 24px 20px 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    background: var(--fond);
-    color: var(--texte);
-    min-height: 100vh;
-  }
   .titre {
     display: flex;
     align-items: baseline;

@@ -418,16 +418,18 @@ jamais. Ils sont ici pour ne pas être redécouverts comme des défauts.
 ### Par où commencer
 
 L'étape 1 est **complète et revue**, et l'architecture a été durcie depuis (voir
-plus haut). Deux chantiers restent ouverts.
+plus haut). Un chantier reste ouvert : le déploiement.
 
-**Le front, premier jet.** Le socle est livré : quatre dossiers gardés par un
-test d'imports — `domaine`, `app`, `ui` et les écrans de `routes/` —, le client
-de l'API avec ses six variantes d'erreur, les préférences persistées, et la
-machine à états de la recherche. Quatre écrans
-fonctionnent — accueil, réglage, résultats, détail — et la chaîne va jusqu'au
-téléchargement du GPX. Le point de départ se saisit encore en coordonnées
-brutes : la carte, la géolocalisation et la recherche d'adresse font l'objet du
-plan suivant, et le champ provisoire le dit à l'écran.
+**Le front.** Le plan 2 est livré au-dessus du socle : une carte MapLibre sur
+fond IGN dans les trois écrans qui l'emploient, un écran de départ à trois
+moyens — recherche d'adresse anti-rebond, géolocalisation, déplacement de la
+carte —, et un thème choisi depuis `/reglage`, retenu dans `localStorage` et
+suivant le système quand il est automatique. Le point de départ ne se saisit
+plus en coordonnées brutes ; le champ provisoire du socle a disparu avec elles.
+La suite compte 212 tests dans 24 fichiers, sous deux projets Vitest — la
+logique sous Node, les composants et les écrans sous jsdom. Le morceau qui
+embarque MapLibre pèse **276,57 Ko compressé** au premier chargement, mesuré au
+build (`npm run build`) : proche de l'estimation de 250 Ko de la conception.
 
 La branche a été revue dans son ensemble et les deux blocages trouvés sont
 corrigés (voir la revue finale du front, plus haut). Une re-revue du
@@ -436,7 +438,9 @@ fusionnable, aucun blocage, aucun point important. Elle a relevé neuf constats
 mineurs — sept trous de couverture, dont les deux protections de
 `reinitialiser()`, devenu vivant avec la correction de l'écran de réglage, et
 trois phrases de documentation fausses réparties sur deux fichiers —, corrigés
-dans la foulée. La branche `worktree-front-socle` n'est pas fusionnée.
+dans la foulée. `worktree-front-socle` a depuis été fusionnée dans `main`
+(`d18175a`) ; le plan 2 s'est construit par-dessus, sur `worktree-front-carte`,
+qui n'est pas encore fusionnée.
 
 Se bâtit par `make web`, se sert en copiant `web/build/` vers `/srv/hent/web`.
 `deploy/Caddyfile` donne la configuration : l'API en proxy sur `/v1/*`, le reste
@@ -588,9 +592,6 @@ Relevés en revue, non bloquants, à balayer avant de passer aux étapes suivant
   en sombre et 1,28:1 en clair, pour un seuil RGAA de 3:1. La valeur est aussi
   donnée en texte juste au-dessus, ce qui rend l'application stricte du critère
   discutable : c'est un arbitrage de design à trancher, pas une correction.
-- `web/src/lib/assemblage.svelte.ts` — `changerTheme` et `theme` n'ont aucun
-  appelant : le sélecteur de thème est du plan suivant, alors que `jetons.css`
-  gère déjà les trois états.
 - `web/src/routes/reglage/+page.svelte` — la reprise de focus après une erreur
   vise une région live, ce qui peut provoquer une double annonce chez certains
   lecteurs d'écran. Ne se mesure qu'avec un vrai lecteur d'écran.
@@ -599,3 +600,11 @@ Relevés en revue, non bloquants, à balayer avant de passer aux étapes suivant
   invisible en rendu serveur.
 - `deploy/Caddyfile` n'a jamais été validé par Caddy lui-même — il n'est pas
   installé sur la machine de développement.
+
+Dettes de vérification laissées par le plan 2, faute de navigateur et
+d'appareil réel dans cet environnement :
+
+- la carte n'a jamais été vue avec le vrai moteur ni sur un téléphone ;
+- le repli sans WebGL est testé sous jsdom, pas constaté sur un appareil qui en
+  manque ;
+- le poids au premier chargement en 4G médiocre n'est pas mesuré.

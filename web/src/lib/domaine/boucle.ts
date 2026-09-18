@@ -36,3 +36,22 @@ export function dureeMinutes(distanceM: number, allureKmH: number): number {
   if (!Number.isFinite(distanceM) || distanceM <= 0) return 0;
   return (distanceM / 1000 / allureKmH) * 60;
 }
+
+/**
+ * Emprise de plusieurs boucles, au format que MapLibre attend pour cadrer :
+ * `[[minLon, minLat], [maxLon, maxLat]]`. `null` s'il n'y a aucun point — un
+ * cadrage sur rien n'a pas de sens, et la carte ne doit pas bouger.
+ */
+export function bornesDe(boucles: Boucle[]): [[number, number], [number, number]] | null {
+  let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
+  for (const b of boucles) {
+    for (const [lon, lat] of b.geometrie) {
+      if (lon < minLon) minLon = lon;
+      if (lat < minLat) minLat = lat;
+      if (lon > maxLon) maxLon = lon;
+      if (lat > maxLat) maxLat = lat;
+    }
+  }
+  if (minLon === Infinity) return null;
+  return [[minLon, minLat], [maxLon, maxLat]];
+}
