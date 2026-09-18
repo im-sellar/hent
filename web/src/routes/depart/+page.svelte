@@ -159,7 +159,7 @@
 
   {#if lieux.statut === 'ok' && lieux.lieux.length > 0}
     <ul class="lieux">
-      {#each lieux.lieux as lieu (lieu.libelle + lieu.coord.lat + lieu.coord.lon)}
+      {#each lieux.lieux as lieu (`${lieu.coord.lat},${lieu.coord.lon}|${lieu.libelle}`)}
         <li>
           <button type="button" onclick={() => choisir(lieu)}>
             <span class="nom">{lieu.libelle}</span>

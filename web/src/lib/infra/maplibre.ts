@@ -45,6 +45,13 @@ export type MapLike = {
   getCenter(): { lng: number; lat: number };
 };
 
+/**
+ * Traduit des boucles en tracés GeoJSON, en marquant celle qui est choisie.
+ *
+ * `selectionnee` est un booléen strict : les filtres de couches
+ * `['get', 'selectionnee']` et `['!', ['get', 'selectionnee']]` en dépendent,
+ * et une valeur non booléenne ferait disparaître le trait des deux côtés.
+ */
 export function versCollection(
   boucles: Boucle[],
   selectionnee: string | null

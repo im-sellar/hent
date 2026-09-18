@@ -8,9 +8,8 @@
   let conteneur = $state<HTMLDivElement | null>(null);
 
   const ROUTES_AVEC_CARTE = ['/depart', '/boucles', '/b/[id]'];
-  const ROUTE_RETICULE: string = '/depart';
   const avecCarte = $derived(ROUTES_AVEC_CARTE.includes(page.route.id ?? ''));
-  const avecReticule = $derived(page.route.id === ROUTE_RETICULE);
+  const avecReticule = $derived(page.route.id === '/depart');
 
   onMount(() => {
     appEtat.appliquerTheme();
