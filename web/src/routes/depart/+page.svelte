@@ -63,18 +63,20 @@
     if (!libelle) libelle = libelleParDefaut(centre);
 
     const carte = appEtat.carte;
-    if (!carte) return;
-    carte.marquerDepart(null);
-    aller(centre, appEtat.depart ? 14 : 7);
-    const arreter = carte.surDeplacement((c) => {
-      const commandee = commande !== null && memePoint(c, commande);
-      commande = null;
-      if (commandee) return;
-      centre = c;
-      void nommer(c);
-    });
+    let arreter: (() => void) | null = null;
+    if (carte) {
+      carte.marquerDepart(null);
+      aller(centre, appEtat.depart ? 14 : 7);
+      arreter = carte.surDeplacement((c) => {
+        const commandee = commande !== null && memePoint(c, commande);
+        commande = null;
+        if (commandee) return;
+        centre = c;
+        void nommer(c);
+      });
+    }
     return () => {
-      arreter();
+      arreter?.();
       nommageEnCours?.abort();
     };
   });
@@ -131,6 +133,7 @@
 <svelte:head><title>Partir d’où ? — hent</title></svelte:head>
 
 <Feuille>
+  <h1 class="cache-visuellement">Partir d’où ?</h1>
   <div class="barre">
     <a class="retour" href="/" aria-label="Retour à l’accueil">←</a>
     <label class="champ">

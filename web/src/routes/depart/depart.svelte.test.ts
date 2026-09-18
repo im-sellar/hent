@@ -112,6 +112,7 @@ describe('écran de départ', () => {
     render(Depart);
     await retomber();
     expect(faux.carte!.centrer).toHaveBeenCalledWith({ lat: 48.2, lon: -2.9 }, 7);
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Partir d’où ?');
 
     faux.carte = fausseCarte();
     faux.depart = { coord: { lat: 48.117, lon: -1.677 }, libelle: 'Rennes' };
@@ -314,5 +315,20 @@ describe('écran de départ', () => {
     expect(signal.aborted).toBe(true);
     faux.carte!.deplacer({ lat: 48.2, lon: -1.6 });
     expect(faux.nommer).toHaveBeenCalledTimes(1);
+  });
+
+  it('abandonne aussi le nommage en vol au démontage quand il n’y a pas de carte', async () => {
+    faux.carte = null;
+    faux.obtenir.mockResolvedValue({ statut: 'ok', coord: { lat: 48.117, lon: -1.677 } });
+    faux.nommer.mockImplementation((_c: Coord, signal?: AbortSignal) => new Promise<string>((_r, rej) => signal?.addEventListener('abort', () => rej(new DOMException('annulé', 'AbortError')))));
+    const { unmount } = render(Depart);
+    await retomber();
+    await fireEvent.click(screen.getByRole('button', { name: 'Autour de moi' }));
+    await retomber();
+    const signal = faux.nommer.mock.calls[0]![1] as AbortSignal;
+
+    unmount();
+
+    expect(signal.aborted).toBe(true);
   });
 });
