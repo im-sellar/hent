@@ -36,7 +36,7 @@
 </script>
 
 <div class="ecran">
-  <div class="carte" hidden={!avecCarte} aria-hidden="true">
+  <div class="carte" hidden={!avecCarte}>
     <div class="toile" bind:this={conteneur}></div>
     {#if avecReticule}
       <div class="reticule"></div>

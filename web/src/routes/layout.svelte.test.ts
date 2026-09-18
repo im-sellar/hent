@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 
@@ -44,6 +44,8 @@ beforeEach(() => {
   faux.demonterCarte.mockClear();
 });
 
+afterEach(() => vi.restoreAllMocks());
+
 describe('layout', () => {
   it('applique le thème puis monte la carte dans son conteneur, une fois', async () => {
     const { container } = render(Layout);
@@ -64,7 +66,7 @@ describe('layout', () => {
       const carte = container.querySelector('.carte') as HTMLElement;
       expect(carte, route).not.toBeNull();
       expect(carte.hidden, route).toBe(!visible);
-      expect(carte.getAttribute('aria-hidden'), route).toBe('true');
+      expect(carte.hasAttribute('aria-hidden'), route).toBe(false);
       unmount();
     }
   });
@@ -119,7 +121,6 @@ describe('layout', () => {
     faux.theme = 'sombre';
     ecouteurs.forEach((fn) => fn({}));
     expect(faux.appliquerTheme).toHaveBeenCalledOnce();
-    vi.restoreAllMocks();
   });
 
   it('détruit la carte au démontage', async () => {

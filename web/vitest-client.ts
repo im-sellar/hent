@@ -6,9 +6,9 @@ import { cleanup } from '@testing-library/svelte';
 // par texte en trouvent deux.
 afterEach(cleanup);
 
-// jsdom n'implémente pas matchMedia ; le layout et l'adaptateur de carte le
-// consultent pour le thème et le mouvement réduit. Une doublure inerte suffit :
-// les tests qui en dépendent la remplacent explicitement.
+// jsdom n'implémente pas matchMedia ; le layout le consulte pour suivre le
+// thème du système. Une doublure inerte suffit : les tests qui en dépendent la
+// remplacent explicitement.
 if (typeof window.matchMedia !== 'function') {
   window.matchMedia = (requete: string) =>
     ({
