@@ -57,6 +57,12 @@ web/src/lib/
 │   ├── maplibre.ts       Carte, adaptée contre un sous-ensemble typé de MapLibre
 │   └── stockage.ts       Preferences, par localStorage
 └── ui/               composants Svelte — n'importe que app/ et domaine/
+    ├── Bouton.svelte         bouton ou lien, variante primaire ou secondaire
+    ├── Curseur.svelte        role="slider", valeur lue à voix haute
+    ├── EtatEcran.svelte      attente et erreur, une sortie propre à chaque genre
+    ├── Feuille.svelte        le <main> des écrans qui partagent l'écran avec la carte
+    ├── Jauge.svelte          une part en barre, avec seuil d'alerte
+    └── SelecteurTheme.svelte trois radios — auto, sombre, clair
 ```
 
 `web/static/carte/hent-sombre.json` et `hent-clair.json` — **générés**, pas
