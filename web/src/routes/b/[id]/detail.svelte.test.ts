@@ -19,7 +19,10 @@ const uneBoucle: Boucle = {
   geometrie: [[-1.628, 48.135]]
 };
 
-const faux = vi.hoisted(() => ({ ouvrir: vi.fn() }));
+const faux = vi.hoisted(() => ({
+  ouvrir: vi.fn(),
+  carte: { afficherBoucles: vi.fn(), marquerDepart: vi.fn(), montrerZone: vi.fn() } as Record<string, ReturnType<typeof vi.fn>> | null
+}));
 
 let idAffiche = $state('abc');
 
@@ -33,7 +36,15 @@ vi.mock('$lib/assemblage.svelte', async () => {
     urlGPX: (id) => `/v1/loops/${id}.gpx`,
     zone: async () => ({ minLat: 47.2, minLon: -5.2, maxLat: 48.95, maxLon: -0.95 })
   };
-  return { appEtat: { moteur, resultats: creerResultats(moteur) } };
+  return {
+    appEtat: {
+      moteur,
+      resultats: creerResultats(moteur),
+      get carte() {
+        return faux.carte;
+      }
+    }
+  };
 });
 
 const { appEtat } = await import('$lib/assemblage.svelte');
@@ -50,6 +61,7 @@ beforeEach(() => {
   vi.restoreAllMocks();
   idAffiche = 'abc';
   faux.ouvrir.mockReset();
+  faux.carte = { afficherBoucles: vi.fn(), marquerDepart: vi.fn(), montrerZone: vi.fn() };
   appEtat.resultats.reinitialiser();
 });
 
@@ -218,5 +230,23 @@ describe('écran de détail', () => {
     render(Detail);
 
     expect(await screen.findByText('Réessayer dans 3 s')).toBeDefined();
+  });
+
+  it('montre sa boucle sur la carte, sélectionnée, avec le départ de la demande', async () => {
+    faux.ouvrir.mockResolvedValue({ boucle: uneBoucle, demande });
+    render(Detail);
+    await screen.findByRole('heading', { level: 1, name: '3,9 km' });
+    await tick();
+
+    expect(faux.carte!.afficherBoucles).toHaveBeenLastCalledWith([uneBoucle], 'abc');
+    expect(faux.carte!.marquerDepart).toHaveBeenLastCalledWith(demande.depart);
+  });
+
+  it('ne donne aucun ordre à la carte tant que la boucle n’est pas là', async () => {
+    faux.ouvrir.mockImplementation(() => new Promise(() => {}));
+    render(Detail);
+    await tick();
+
+    expect(faux.carte!.afficherBoucles).not.toHaveBeenCalled();
   });
 });
