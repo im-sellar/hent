@@ -1,4 +1,5 @@
 import type { Boucle, Demande } from '$lib/domaine/boucle';
+import type { Coord, Lieu } from '$lib/domaine/depart';
 import type { Reglages } from '$lib/domaine/reglages';
 
 /**
@@ -43,4 +44,18 @@ export interface MoteurDeBoucles {
 export interface Preferences {
   lire(): Reglages | null;
   ecrire(r: Reglages): void;
+}
+
+/**
+ * Le géocodage, vu par l'application : trouver des lieux depuis un texte, et
+ * nommer un point.
+ *
+ * `chercher` pondère par `autour` quand on connaît la position — on cherche
+ * presque toujours près de soi. `nommer` rend `null` plutôt que de lever : un
+ * point sans adresse reste un point de départ valable, et l'écran lui donnera
+ * ses coordonnées pour nom.
+ */
+export interface Geocodeur {
+  chercher(texte: string, autour?: Coord, signal?: AbortSignal): Promise<Lieu[]>;
+  nommer(point: Coord, signal?: AbortSignal): Promise<string | null>;
 }
