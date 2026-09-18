@@ -5,6 +5,27 @@ import type { Theme } from '$lib/domaine/theme';
 import type { Zone } from '$lib/domaine/zone';
 
 /**
+ * La carte, vue par l'application : une façade à ordres, pas un état.
+ * MapLibre est impératif ; le rendre déclaratif reviendrait à se battre
+ * contre lui.
+ *
+ * `surDeplacement` rend sa fonction de désabonnement : un abonnement qu'on ne
+ * peut pas rompre fuit à chaque navigation. `changerStyle` recharge toutes les
+ * couches, l'adaptateur repose ce qu'il affichait. `redimensionner` est à
+ * appeler quand le conteneur redevient visible.
+ */
+export interface Carte {
+  centrer(point: Coord, zoom?: number): void;
+  afficherBoucles(boucles: Boucle[], selectionnee: string | null): void;
+  marquerDepart(point: Coord | null): void;
+  montrerZone(zone: Zone | null): void;
+  surDeplacement(rappel: (centre: Coord) => void): () => void;
+  changerStyle(url: string): void;
+  redimensionner(): void;
+  detruire(): void;
+}
+
+/**
  * Les six façons dont une recherche peut échouer. Cinq viennent du serveur,
  * la sixième de ce qui ne l'atteint jamais.
  *
