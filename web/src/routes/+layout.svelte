@@ -14,7 +14,7 @@
 
   onMount(() => {
     appEtat.appliquerTheme();
-    if (conteneur) appEtat.monterCarte(conteneur);
+    if (conteneur) void appEtat.monterCarte(conteneur);
 
     const systeme = matchMedia('(prefers-color-scheme: light)');
     const suivre = () => {

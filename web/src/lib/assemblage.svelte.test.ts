@@ -19,11 +19,12 @@ const faux = vi.hoisted(() => ({
   }
 }));
 
-vi.mock('$lib/infra/maplibre', () => ({
+vi.mock('$lib/infra/styles-carte', () => ({
   urlStyle: (t: ThemeEffectif) => `/carte/hent-${t}.json`,
-  webglDisponible: () => faux.webgl,
-  creerCarte: faux.creerCarte
+  webglDisponible: () => faux.webgl
 }));
+
+vi.mock('$lib/infra/maplibre', () => ({ creerCarte: faux.creerCarte }));
 
 vi.mock('$lib/infra/stockage', () => ({
   creerPreferences: () => ({
@@ -55,6 +56,14 @@ async function chargerAssemblage() {
 
 const emprise: Zone = { minLat: 47.2, minLon: -5.2, maxLat: 48.95, maxLon: -0.95 };
 
+/**
+ * Un conteneur attaché au document : `monterCarte` charge l'adaptateur à la
+ * demande et abandonne si le conteneur a quitté la page entre-temps.
+ */
+function conteneur(): HTMLElement {
+  return document.body.appendChild(document.createElement('div'));
+}
+
 beforeEach(() => {
   faux.webgl = true;
   faux.themeStocke = null;
@@ -64,24 +73,45 @@ beforeEach(() => {
   faux.carte.changerStyle.mockClear();
   faux.carte.detruire.mockClear();
   document.documentElement.removeAttribute('data-theme');
+  document.body.replaceChildren();
 });
 
 describe('assemblage', () => {
   it('ne crée qu’une carte, même monté deux fois', async () => {
     const appEtat = await chargerAssemblage();
 
-    appEtat.monterCarte(document.createElement('div'));
-    appEtat.monterCarte(document.createElement('div'));
+    await appEtat.monterCarte(conteneur());
+    await appEtat.monterCarte(conteneur());
 
     expect(faux.creerCarte).toHaveBeenCalledOnce();
     expect(appEtat.carte?.changerStyle).toBe(faux.carte.changerStyle);
+  });
+
+  it('ne crée qu’une carte même si deux montages se croisent', async () => {
+    const appEtat = await chargerAssemblage();
+
+    await Promise.all([appEtat.monterCarte(conteneur()), appEtat.monterCarte(conteneur())]);
+
+    expect(faux.creerCarte).toHaveBeenCalledOnce();
+  });
+
+  it('abandonne le montage si le conteneur a quitté la page', async () => {
+    const appEtat = await chargerAssemblage();
+    const cible = conteneur();
+    const montage = appEtat.monterCarte(cible);
+    cible.remove();
+
+    await montage;
+
+    expect(faux.creerCarte).not.toHaveBeenCalled();
+    expect(appEtat.carte).toBeNull();
   });
 
   it('se passe de carte quand WebGL manque', async () => {
     faux.webgl = false;
     const appEtat = await chargerAssemblage();
 
-    appEtat.monterCarte(document.createElement('div'));
+    await appEtat.monterCarte(conteneur());
 
     expect(faux.creerCarte).not.toHaveBeenCalled();
     expect(appEtat.carte).toBeNull();
@@ -107,7 +137,7 @@ describe('assemblage', () => {
 
   it('ne recharge le style que lorsque le thème effectif change', async () => {
     const appEtat = await chargerAssemblage();
-    appEtat.monterCarte(document.createElement('div'));
+    await appEtat.monterCarte(conteneur());
 
     appEtat.changerTheme('clair');
     appEtat.appliquerTheme();

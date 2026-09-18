@@ -19,7 +19,7 @@ import { creerMoteurHTTP } from '$lib/infra/hent-api';
 import { creerPreferences } from '$lib/infra/stockage';
 import { creerGeocodeurBAN } from '$lib/infra/ban';
 import { creerPosition } from '$lib/infra/geolocalisation';
-import { creerCarte, urlStyle, webglDisponible } from '$lib/infra/maplibre';
+import { urlStyle, webglDisponible } from '$lib/infra/styles-carte';
 
 const prefs = creerPreferences();
 const moteur = creerMoteurHTTP();
@@ -46,6 +46,7 @@ function creerEtat() {
   let reglages = $state<Reglages>(prefs.lire() ?? REGLAGES_PAR_DEFAUT);
   let theme = $state<Theme>(prefs.lireTheme() ?? 'auto');
   let carte = $state<Carte | null>(null);
+  let montageEnCours = false;
   let styleActuel: string | null = null;
   let zoneConnue: Promise<Zone> | null = null;
   const resultats = creerResultats(moteur);
@@ -95,10 +96,17 @@ function creerEtat() {
     get carte() {
       return carte;
     },
-    monterCarte(conteneur: HTMLElement) {
-      if (carte || !webglDisponible()) return;
-      styleActuel = urlStyle(themeEffectif(theme, systemePrefereClair()));
-      carte = creerCarte(conteneur, styleActuel, CENTRE_BRETAGNE, 7);
+    async monterCarte(conteneur: HTMLElement): Promise<void> {
+      if (carte || montageEnCours || !webglDisponible()) return;
+      montageEnCours = true;
+      try {
+        const { creerCarte } = await import('$lib/infra/maplibre');
+        if (!conteneur.isConnected) return;
+        styleActuel = urlStyle(themeEffectif(theme, systemePrefereClair()));
+        carte = creerCarte(conteneur, styleActuel, CENTRE_BRETAGNE, 7);
+      } finally {
+        montageEnCours = false;
+      }
     },
     demonterCarte() {
       carte?.detruire();

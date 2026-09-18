@@ -7,8 +7,11 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import type { Carte } from '$lib/app/ports';
 import { bornesDe, type Boucle } from '$lib/domaine/boucle';
 import type { Coord } from '$lib/domaine/depart';
-import type { ThemeEffectif } from '$lib/domaine/theme';
 import type { Zone } from '$lib/domaine/zone';
+import { couleursDepuisJetons, type Couleurs } from './styles-carte';
+
+export { couleursDepuisJetons, urlStyle, webglDisponible } from './styles-carte';
+export type { Couleurs } from './styles-carte';
 
 type Position2D = [number, number];
 type Trait<G, P> = { type: 'Feature'; properties: P; geometry: G };
@@ -21,9 +24,6 @@ export type Collection<F = Trait<Ligne | Point | Polygone, Record<string, unknow
 };
 
 const VIDE: Collection = { type: 'FeatureCollection', features: [] };
-
-/** Couleurs des tracés, lues dans les jetons CSS au moment de peindre : elles suivent le thème. */
-export type Couleurs = { trace: string; ecartee: string; depart: string; contourDepart: string; zone: string };
 
 /**
  * Ce que l'adaptateur emploie de `maplibregl.Map`, et rien de plus. Nommer ce
@@ -44,32 +44,6 @@ export type MapLike = {
   remove(): unknown;
   getCenter(): { lng: number; lat: number };
 };
-
-export function urlStyle(t: ThemeEffectif): string {
-  return `/carte/hent-${t}.json`;
-}
-
-/** Vrai si un contexte WebGL peut être créé. Sans lui la carte ne s'affiche pas, et les chiffres suffisent. */
-export function webglDisponible(doc: Document = document): boolean {
-  try {
-    const toile = doc.createElement('canvas');
-    return Boolean(toile.getContext('webgl2') ?? toile.getContext('webgl'));
-  } catch {
-    return false;
-  }
-}
-
-export function couleursDepuisJetons(racine: Element = document.documentElement): Couleurs {
-  const styles = getComputedStyle(racine);
-  const jeton = (nom: string) => styles.getPropertyValue(nom).trim();
-  return {
-    trace: jeton('--accent'),
-    ecartee: jeton('--voie'),
-    depart: jeton('--accent-vif'),
-    contourDepart: jeton('--fond'),
-    zone: jeton('--alerte')
-  };
-}
 
 export function versCollection(
   boucles: Boucle[],
