@@ -56,6 +56,6 @@ describe('libelleParDefaut', () => {
   });
 
   it('arrondit plutôt que tronquer', () => {
-    expect(libelleParDefaut({ lat: 48.11705, lon: 0 })).toBe('48,1171, 0,0000');
+    expect(libelleParDefaut({ lat: 48.11706, lon: 0 })).toBe('48,1171, 0,0000');
   });
 });

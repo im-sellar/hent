@@ -113,13 +113,13 @@ describe('formatEcartCible', () => {
 });
 
 describe('formatKilometres', () => {
-  it('arrondit au kilometre entier', () => {
+  it('arrondit au kilomètre entier', () => {
     expect(formatKilometres(18_000)).toBe('18 km');
     expect(formatKilometres(17_400)).toBe('17 km');
     expect(formatKilometres(17_500)).toBe('18 km');
   });
 
-  it('rend un tiret pour une valeur non finie plutot qu\'un « NaN km »', () => {
+  it('rend un tiret pour une valeur non finie plutôt qu’un « NaN km »', () => {
     expect(formatKilometres(NaN)).toBe('— km');
   });
 });

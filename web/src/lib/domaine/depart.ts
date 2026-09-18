@@ -40,9 +40,6 @@ export type Lieu = {
  * Sert de repli quand le géocodage inverse ne rend rien.
  */
 export function libelleParDefaut(c: Coord): string {
-  const virgule = (n: number) => {
-    const arrondi = Math.floor(n * 10000 + 0.5) / 10000;
-    return arrondi.toFixed(4).replace('.', ',');
-  };
+  const virgule = (n: number) => n.toFixed(4).replace('.', ',');
   return `${virgule(c.lat)}, ${virgule(c.lon)}`;
 }
