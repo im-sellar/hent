@@ -40,37 +40,47 @@ C'est une symétrie voulue : qui comprend `internal/` comprend `web/src/lib/`.
 ```
 web/src/lib/
 ├── domaine/          types et règles pures — n'importe RIEN
-│   ├── boucle.ts       Boucle, Score, durée à une allure donnée
-│   ├── depart.ts       Coord, Depart, validation
-│   └── reglages.ts     bornes 2–50 km, valeurs par défaut
+│   ├── boucle.ts       Boucle, Score, bornesDe, durée à une allure donnée
+│   ├── depart.ts       Coord, Depart, Lieu, libellé par défaut, validation
+│   ├── format.ts       kilomètres, distance, durée, pourcentage — virgule et espace insécable
+│   ├── reglages.ts     bornes 2–50 km, valeurs par défaut
+│   ├── theme.ts        Theme, ThemeEffectif, thème effectif selon le système
+│   └── zone.ts         Zone, centre de la Bretagne, appartenance d'un point
 ├── app/              cas d'usage et état — n'importe que domaine/ et ports
-│   ├── ports.ts        MoteurDeBoucles, Geocodeur, Preferences, Carte
-│   ├── depart/         poser depuis la position, chercher une adresse, poser sur la carte
-│   ├── generation/     lancer, et la machine à états des résultats
-│   └── boucle/         ouvrir — par la mémoire ou par l'API
+│   ├── ports.ts         MoteurDeBoucles, Geocodeur, Preferences, Position, Carte
+│   ├── depart/           recherche d'adresse anti-rebond, poser un départ depuis un point
+│   └── generation/       lancer, et la machine à états des résultats
 ├── infra/            les implémentations — peut tout importer
-│   ├── hent-api.ts     MoteurDeBoucles, par fetch
-│   ├── ban.ts          Geocodeur, par api-adresse.data.gouv.fr
-│   ├── maplibre.ts     Carte
-│   └── stockage.ts     Preferences, par localStorage
+│   ├── hent-api.ts       MoteurDeBoucles, par fetch
+│   ├── ban.ts            Geocodeur, par api-adresse.data.gouv.fr
+│   ├── geolocalisation.ts  Position, par navigator.geolocation
+│   ├── maplibre.ts       Carte, adaptée contre un sous-ensemble typé de MapLibre
+│   └── stockage.ts       Preferences, par localStorage
 └── ui/               composants Svelte — n'importe que app/ et domaine/
 ```
+
+`web/static/carte/hent-sombre.json` et `hent-clair.json` — **générés**, pas
+écrits à la main, par `design/generer-style-carte.py`, qui les copie aussi
+dans `design/carte/`. C'est cette copie servie que `styles-carte.test.ts`
+compare octet à octet à la source, pour qu'une régénération oubliée ne passe
+pas inaperçue.
 
 `src/routes/` porte les écrans, et tombe sous la même règle que `ui/` : il lit
 `domaine/`, `app/` et `ui/`, jamais `infra/`. Seul `lib/assemblage.svelte.ts`,
 le point de câblage, connaît les implémentations et les distribue.
 
-### Quatre ports, et la règle qui les borne
+### Cinq ports, et la règle qui les borne
 
 Un port **seulement devant une frontière technique réelle** — le réseau, le
-stockage, une bibliothèque tierce. Jamais pour du code interne. Quatre suffisent
-et ce nombre ne devrait pas beaucoup grandir.
+stockage, une bibliothèque tierce, une API du navigateur. Jamais pour du code
+interne. Cinq suffisent et ce nombre ne devrait pas beaucoup grandir.
 
 ```ts
 interface MoteurDeBoucles {
   generer(demande: Demande, signal?: AbortSignal): Promise<Boucle[]>
   ouvrir(id: string, signal?: AbortSignal): Promise<{ boucle: Boucle; demande: Demande }>
   urlGPX(id: string): string
+  zone(signal?: AbortSignal): Promise<Zone>
 }
 
 interface Geocodeur {
@@ -81,23 +91,43 @@ interface Geocodeur {
 interface Preferences {
   lire(): Reglages | null
   ecrire(r: Reglages): void
+  lireTheme(): Theme | null
+  ecrireTheme(t: Theme): void
+}
+
+interface Position {
+  obtenir(): Promise<ResultatPosition>
 }
 
 interface Carte {
   centrer(point: Coord, zoom?: number): void
   afficherBoucles(boucles: Boucle[], selectionnee: string | null): void
   marquerDepart(point: Coord | null): void
+  montrerZone(zone: Zone | null): void
   surDeplacement(rappel: (centre: Coord) => void): () => void
+  changerStyle(url: string): void
+  redimensionner(): void
+  detruire(): void
 }
 ```
 
 `urlGPX` rend une URL plutôt que des octets : le téléchargement est un lien que
-le navigateur suit, pas un `fetch` qu'on relaie.
+le navigateur suit, pas un `fetch` qu'on relaie. `zone` rend l'emprise couverte
+par le moteur — tout départ posé hors de cette zone sera refusé.
+
+`Position` s'ajoute pour la même raison que les quatre autres :
+`navigator.geolocation` est une frontière technique du navigateur, pas du code
+interne. Elle rend trois issues et jamais de rejet — accordée, refusée,
+indisponible — parce qu'un refus de permission est une réponse, pas une panne,
+et chaque écran lui propose une sortie différente.
 
 `Carte` est une **façade à ordres**, pas un état que `app/` posséderait. MapLibre
 est impératif ; essayer de le rendre déclaratif reviendrait à se battre contre
 lui. `surDeplacement` rend sa fonction de désabonnement — un abonnement qu'on ne
-peut pas rompre fuit à chaque navigation.
+peut pas rompre fuit à chaque navigation. `changerStyle` recharge le style et,
+avec lui, toutes les couches ; l'adaptateur les repose au `style.load` suivant.
+`redimensionner` est à appeler quand le conteneur redevient visible — masqué,
+il a une taille nulle pour MapLibre. `detruire` libère le contexte WebGL.
 
 ### Le test d'architecture, porté depuis le Go
 
@@ -244,25 +274,33 @@ puisqu'on cherche presque toujours autour de soi.
 - Le texte saisi part vers un service tiers. C'est inhérent à la recherche
   d'adresse, mais cela doit être dit dans la page de confidentialité, et c'est
   une raison de plus pour que la carte et la géolocalisation restent des moyens
-  suffisants à eux seuls.
+  suffisants à eux seuls. Faute de cette page, l'écran de départ affiche la
+  phrase « Ce que tu tapes ici lui est envoyé. » sous le champ de recherche.
 
 ## Le fond de carte
 
 Les styles existent : `design/carte/hent-sombre.json` et `hent-clair.json`,
-générés depuis `design/_themes.json`. Tuiles vectorielles `PLAN.IGN` de la
-Géoplateforme, sans clé. **Attribution « © IGN » obligatoire et visible.**
+générés depuis `design/_themes.json`, et servis au front tels quels depuis
+`web/static/carte/`, à l'URL `/carte/hent-<theme>.json`. Tuiles vectorielles
+`PLAN.IGN` de la Géoplateforme, sans clé. **Attribution « © IGN » obligatoire
+et visible.**
 
 Le style pose le chemin **au-dessus** de la route et plus épais qu'elle. C'est
 l'inverse d'un fond routier, et c'est ce que trie hent.
 
 **Une seule instance de carte, jamais démontée.** Elle vit dans le layout,
-au-dessus du routeur ; les écrans lui donnent des ordres. Si elle vivait dans
-les routes, chaque navigation repaierait le chargement du style et des tuiles —
-et sur téléphone en 4G médiocre, ça se verrait.
+au-dessus du routeur ; les écrans lui donnent des ordres. Elle est seulement
+**masquée** (`hidden`) sur les écrans qui ne l'emploient pas — `/depart`,
+`/boucles` et `/b/<id>` sont les trois seuls à la montrer — et reprend ses
+mesures à chaque fois que l'un d'eux la remontre, un conteneur masqué ayant une
+taille nulle pour MapLibre. Si elle vivait dans les routes, chaque navigation
+repaierait le chargement du style et des tuiles — et sur téléphone en 4G
+médiocre, ça se verrait.
 
-**Changer de thème échange le style**, ce qui recharge les couches. Les sources
-GeoJSON des tracés doivent être reposées après `styledata` : c'est le piège
-classique de MapLibre, et il vaut la peine d'être écrit ici.
+**Changer de thème échange le style**, ce qui recharge les couches. L'adaptateur
+repose sources et couches à chaque événement `style.load` — le premier
+chargement comme un changement de thème passent par le même chemin : c'est le
+piège classique de MapLibre, et il vaut la peine d'être écrit ici.
 
 ## Les thèmes
 
@@ -274,6 +312,14 @@ variables, sous `:root` et sous `[data-theme="clair"]`, plus un
 
 Sans ce lien, le système de design et le front divergent au premier ajustement —
 ce que les scripts de `design/` existent précisément pour empêcher.
+
+Le choix se retient sous la clé `hent.theme` de `localStorage` — `'auto'`,
+`'sombre'` ou `'clair'` — et se change depuis `/reglage`, où `SelecteurTheme`
+propose les trois valeurs. Pour éviter le clignotement d'un thème posé après le
+premier rendu, un script inline dans `app.html` lit cette clé et pose
+`data-theme` sur `<html>` avant que SvelteKit ne prenne la main ; côté
+application, `assemblage.svelte.ts` fait la même chose à l'hydratation et
+réagit ensuite aux changements du thème système quand le réglage est `auto`.
 
 ## Accessibilité
 
@@ -295,9 +341,12 @@ tenir dans le code :
 
 ## Les tests
 
-**Vitest sur la logique pure, pas sur le rendu.** C'est pour rendre cela possible
-que l'état vit hors du DOM et que les frontières techniques sont derrière des
-ports : chaque cas d'usage se teste avec un double de trois lignes.
+**Deux projets Vitest**, parce que Svelte compile différemment selon la cible.
+`serveur` tourne sous `environment: 'node'` et couvre la logique pure ; `client`
+tourne sous `jsdom`, avec la condition de résolution `browser`, et c'est le seul
+des deux où `$effect` s'exécute — un composant compilé en mode serveur ne
+l'exécute jamais, et y écrire un test dessus serait un témoin mort sans le
+savoir.
 
 Ce qui est couvert :
 
@@ -305,8 +354,13 @@ Ce qui est couvert :
 - le client API et ses cinq variantes d'erreur, avec un `fetch` doublé
 - le décodage et l'encodage des URLs
 - le formatage — `17,4 km`, `2 h 10`, `55 %`, virgule décimale, espaces insécables
-- l'anti-rebond et l'annulation du géocodage : **une réponse lente ne doit jamais
-  écraser une réponse rapide**
+- la recherche d'adresse : anti-rebond, annulation, génération — **une réponse
+  lente ne doit jamais écraser une réponse rapide**
+- l'adaptateur de carte contre `MapLike`, un sous-ensemble typé de l'API
+  MapLibre : pose et repose des couches, façon dont chaque ordre du port
+  retombe sur `MapLike`
+- les écrans de départ, de liste et de détail, sous jsdom, avec une carte
+  doublée
 - le port `Preferences` quand `localStorage` lève
 - le test d'architecture sur les imports
 
