@@ -203,3 +203,10 @@ describe('adapterCarte', () => {
     expect(peintures).toEqual(['#avant', '#apres']);
   });
 });
+
+describe('chargement du module', () => {
+  it('donne à MapLibre l’URL de son worker, que le bundler ne sait pas résoudre seul', async () => {
+    const { getWorkerUrl } = await import('maplibre-gl');
+    expect(getWorkerUrl()).toMatch(/maplibre-gl-worker/);
+  });
+});

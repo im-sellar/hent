@@ -2,7 +2,8 @@
 // Les déclarations de maplibre-gl utilisent le namespace global GeoJSON sans
 // l'importer : ce paquet le fournit déjà (dépendance de maplibre-gl) mais
 // n'est pas inclus automatiquement par ce tsconfig.
-import { Map as MaplibreMap } from 'maplibre-gl';
+import { Map as MaplibreMap, setWorkerUrl } from 'maplibre-gl';
+import urlWorker from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { Carte } from '$lib/app/ports';
 import { bornesDe, type Boucle } from '$lib/domaine/boucle';
@@ -12,6 +13,12 @@ import { couleursDepuisJetons, type Couleurs } from './styles-carte';
 
 export { couleursDepuisJetons, urlStyle, webglDisponible } from './styles-carte';
 export type { Couleurs } from './styles-carte';
+
+// MapLibre résout son worker par `new URL('./maplibre-gl-worker.mjs', import.meta.url)`
+// à l'exécution : un bundler n'émet pas ce fichier, l'URL calculée rend 404 et la
+// carte reste vide sans erreur. Lui donner l'URL que Vite connaît règle le
+// développement comme la production.
+setWorkerUrl(urlWorker);
 
 type Position2D = [number, number];
 type Trait<G, P> = { type: 'Feature'; properties: P; geometry: G };
