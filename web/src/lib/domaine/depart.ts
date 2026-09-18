@@ -43,3 +43,12 @@ export function libelleParDefaut(c: Coord): string {
   const virgule = (n: number) => n.toFixed(4).replace('.', ',');
   return `${virgule(c.lat)}, ${virgule(c.lon)}`;
 }
+
+/**
+ * Vrai si deux points sont à moins de 1e-5 degré l'un de l'autre sur chaque
+ * axe — environ un mètre. Sert à reconnaître un déplacement de carte que
+ * l'écran a lui-même commandé. Un `NaN` échoue à la comparaison : jamais égal.
+ */
+export function memePoint(a: Coord, b: Coord): boolean {
+  return Math.abs(a.lat - b.lat) < 1e-5 && Math.abs(a.lon - b.lon) < 1e-5;
+}

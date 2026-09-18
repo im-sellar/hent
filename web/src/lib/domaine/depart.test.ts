@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { estCoordValide, estLatValide, estLonValide, libelleParDefaut } from './depart';
+import { estCoordValide, estLatValide, estLonValide, libelleParDefaut, memePoint } from './depart';
 
 describe('estLatValide et estLonValide', () => {
   it('n’ont pas les mêmes bornes', () => {
@@ -57,5 +57,17 @@ describe('libelleParDefaut', () => {
 
   it('arrondit plutôt que tronquer', () => {
     expect(libelleParDefaut({ lat: 48.11706, lon: 0 })).toBe('48,1171, 0,0000');
+  });
+});
+
+describe('memePoint', () => {
+  it('confond deux points à moins d’un mètre, pas au-delà', () => {
+    expect(memePoint({ lat: 48.1, lon: -1.7 }, { lat: 48.100004, lon: -1.700004 })).toBe(true);
+    expect(memePoint({ lat: 48.1, lon: -1.7 }, { lat: 48.1001, lon: -1.7 })).toBe(false);
+    expect(memePoint({ lat: 48.1, lon: -1.7 }, { lat: 48.1, lon: -1.7001 })).toBe(false);
+  });
+
+  it('ne confond jamais un point non fini avec un autre', () => {
+    expect(memePoint({ lat: NaN, lon: -1.7 }, { lat: NaN, lon: -1.7 })).toBe(false);
   });
 });
