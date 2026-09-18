@@ -1,6 +1,8 @@
 import type { Boucle, Demande } from '$lib/domaine/boucle';
 import type { Coord, Lieu } from '$lib/domaine/depart';
 import type { Reglages } from '$lib/domaine/reglages';
+import type { Theme } from '$lib/domaine/theme';
+import type { Zone } from '$lib/domaine/zone';
 
 /**
  * Les six façons dont une recherche peut échouer. Cinq viennent du serveur,
@@ -34,6 +36,8 @@ export interface MoteurDeBoucles {
   ouvrir(id: string, signal?: AbortSignal): Promise<{ boucle: Boucle; demande: Demande }>;
   /** URL d'export : un lien que le navigateur suit, pas un corps qu'on relaie. */
   urlGPX(id: string): string;
+  /** L'emprise couverte par le moteur : tout départ hors de cette zone sera refusé. */
+  zone(signal?: AbortSignal): Promise<Zone>;
 }
 
 /**
@@ -44,6 +48,8 @@ export interface MoteurDeBoucles {
 export interface Preferences {
   lire(): Reglages | null;
   ecrire(r: Reglages): void;
+  lireTheme(): Theme | null;
+  ecrireTheme(t: Theme): void;
 }
 
 /**
@@ -58,4 +64,18 @@ export interface Preferences {
 export interface Geocodeur {
   chercher(texte: string, autour?: Coord, signal?: AbortSignal): Promise<Lieu[]>;
   nommer(point: Coord, signal?: AbortSignal): Promise<string | null>;
+}
+
+export type ResultatPosition =
+  | { statut: 'ok'; coord: Coord }
+  | { statut: 'refusee' }
+  | { statut: 'indisponible' };
+
+/**
+ * La position de la personne, vue par l'application. Trois issues et jamais
+ * de rejet : un refus de permission est une réponse, pas une panne, et l'écran
+ * propose une sortie différente pour chacune.
+ */
+export interface Position {
+  obtenir(): Promise<ResultatPosition>;
 }

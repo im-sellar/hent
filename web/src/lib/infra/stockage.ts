@@ -1,7 +1,9 @@
 import type { Preferences } from '$lib/app/ports';
 import { borner, type Reglages } from '$lib/domaine/reglages';
+import { estTheme, type Theme } from '$lib/domaine/theme';
 
 const CLE = 'hent.reglages';
+const CLE_THEME = 'hent.theme';
 
 /**
  * Préférences adossées au stockage du navigateur.
@@ -48,6 +50,26 @@ export function creerPreferences(
       } catch {
         // Quota atteint ou écriture refusée : la préférence ne survivra pas à la
         // session, ce qui est préférable à une application qui s'arrête.
+      }
+    },
+
+    lireTheme(): Theme | null {
+      if (!stockage) return null;
+      try {
+        const brut = stockage.getItem(CLE_THEME);
+        return estTheme(brut) ? brut : null;
+      } catch {
+        return null;
+      }
+    },
+
+    ecrireTheme(t: Theme): void {
+      if (!stockage) return;
+      try {
+        stockage.setItem(CLE_THEME, t);
+      } catch {
+        // Même arbitrage que pour les réglages : une préférence perdue vaut
+        // mieux qu'une application arrêtée.
       }
     }
   };

@@ -192,3 +192,24 @@ describe('urlGPX', () => {
     expect(creerMoteurHTTP().urlGPX('0.a+b')).toBe(`/v1/loops/${encodeURIComponent('0.a+b')}.gpx`);
   });
 });
+
+describe('zone', () => {
+  it('lit l’emprise de /v1/regions, chaque borne à sa place', async () => {
+    const { impl, appels } = fauxFetch(200, {
+      bbox: { min_lat: 47.2, min_lon: -5.2, max_lat: 48.95, max_lon: -0.95 },
+      data: {},
+      attribution: 'Données © les contributeurs OpenStreetMap'
+    });
+
+    const zone = await creerMoteurHTTP(impl).zone();
+
+    expect(appels[0]!.url).toBe('/v1/regions');
+    expect(zone).toEqual({ minLat: 47.2, minLon: -5.2, maxLat: 48.95, maxLon: -0.95 });
+  });
+
+  it('traduit un échec en erreur du moteur', async () => {
+    const { impl } = fauxFetch(500, { error: 'boum' });
+
+    await expect(creerMoteurHTTP(impl).zone()).rejects.toBeInstanceOf(ErreurAPI);
+  });
+});

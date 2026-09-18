@@ -69,3 +69,30 @@ describe('creerPreferences', () => {
     expect(creerPreferences(null).lire()).toBeNull();
   });
 });
+
+describe('thème', () => {
+  it('relit le thème écrit', () => {
+    const prefs = creerPreferences(stockageMemoire());
+    prefs.ecrireTheme('clair');
+    expect(prefs.lireTheme()).toBe('clair');
+  });
+
+  it('rend null sans thème, sur une valeur inconnue et sur un stockage qui lève', () => {
+    expect(creerPreferences(stockageMemoire()).lireTheme()).toBeNull();
+    expect(creerPreferences(stockageMemoire({ 'hent.theme': 'nuit' })).lireTheme()).toBeNull();
+    expect(creerPreferences(stockageQuiLeve()).lireTheme()).toBeNull();
+  });
+
+  it('range le thème à part des réglages', () => {
+    const stockage = stockageMemoire();
+    const prefs = creerPreferences(stockage);
+    prefs.ecrireTheme('sombre');
+    prefs.ecrire(REGLAGES_PAR_DEFAUT);
+    expect(prefs.lireTheme()).toBe('sombre');
+    expect(prefs.lire()).toEqual(REGLAGES_PAR_DEFAUT);
+  });
+
+  it('n’échoue pas quand l’écriture est refusée', () => {
+    expect(() => creerPreferences(stockageQuiLeve()).ecrireTheme('clair')).not.toThrow();
+  });
+});

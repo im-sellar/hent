@@ -30,7 +30,8 @@ vi.mock('$lib/assemblage.svelte', async () => {
   const moteur: MoteurDeBoucles = {
     generer: async () => [],
     ouvrir: faux.ouvrir,
-    urlGPX: (id) => `/v1/loops/${id}.gpx`
+    urlGPX: (id) => `/v1/loops/${id}.gpx`,
+    zone: async () => ({ minLat: 47.2, minLon: -5.2, maxLat: 48.95, maxLon: -0.95 })
   };
   return { appEtat: { moteur, resultats: creerResultats(moteur) } };
 });

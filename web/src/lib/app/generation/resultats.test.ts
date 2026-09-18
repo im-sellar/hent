@@ -22,7 +22,8 @@ function moteurQui(resultat: (demande: Demande, signal?: AbortSignal) => Promise
   return {
     generer: resultat,
     ouvrir: async () => ({ boucle: uneBoucle, demande }),
-    urlGPX: (id) => `/v1/loops/${id}.gpx`
+    urlGPX: (id) => `/v1/loops/${id}.gpx`,
+    zone: async () => ({ minLat: 47.2, minLon: -5.2, maxLat: 48.95, maxLon: -0.95 })
   };
 }
 
